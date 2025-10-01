@@ -3,8 +3,8 @@ SHELL=/bin/bash
 PROJECT_NAME     = verbalized-sampling
 COPYRIGHT        = "CHATS-Lab. All Rights Reserved."
 PROJECT_PATH     = verbalized_sampling
-SOURCE_FOLDERS   = $(PROJECT_PATH) tests examples
-LINT_PATHS       = ${PROJECT_PATH} tests examples
+SOURCE_FOLDERS   = $(PROJECT_PATH) scripts
+LINT_PATHS       = ${PROJECT_PATH} scripts
 
 check_install = python3 -c "import $(1)" || pip3 install $(1) --upgrade
 check_install_extra = python3 -c "import $(1)" || pip3 install $(2) --upgrade
@@ -102,10 +102,10 @@ setup-dev:  ## Setup development environment
 	pre-commit install
 
 addlicense: addlicense-install  ## Add license headers to source files
-	$(command -v addlicense || echo $(HOME)/go/bin/addlicense) -c $(COPYRIGHT) -ignore tests/coverage.xml -l apache $(SOURCE_FOLDERS)
+	$$(command -v addlicense || echo $(HOME)/go/bin/addlicense) -c $(COPYRIGHT) -ignore tests/coverage.xml -l apache $(SOURCE_FOLDERS)
 
 check-license: addlicense-install  ## Check license headers in source files
-	$(command -v addlicense || echo $(HOME)/go/bin/addlicense) -c $(COPYRIGHT) -ignore tests/coverage.xml -l apache -check $(SOURCE_FOLDERS)
+	$$(command -v addlicense || echo $(HOME)/go/bin/addlicense) -c $(COPYRIGHT) -ignore tests/coverage.xml -l apache -check $(SOURCE_FOLDERS)
 
 # Development workflow
 dev-setup: install-dev setup-dev  ## Complete development setup
