@@ -12,7 +12,7 @@
 ---
 
 ## Updates
-* 🎉 01/10/2025: We release our paper, code and package. Check the release page for more details.
+* 🎉 10/01/2025: We release our paper, code and package. Check the release page for more details.
 
 ## Introduction
 
@@ -21,7 +21,7 @@
 * **Training-Free**: Works with any LLM without fine-tuning—simply apply VS prompts to unlock diversity.
 * **Model-Agnostic**: Compatible with GPT, Claude, Gemini, and open models like Llama and Qwen.
 * **Measurable Impact**: Achieves 2-3x diversity improvement in creative writing while maintaining quality.
-* **Versatile Applications**: Supports creative writing, synthetic data generation, bias mitigation.
+* **Versatile Applications**: Supports creative writing, synthetic data generation, open-ended QA.
 * **Complete Framework**: Includes task implementations, evaluation metrics, and reproducible experiments from our paper.
 * **Easy to Use**: Simple CLI and Python API for running experiments and comparing methods.
 
