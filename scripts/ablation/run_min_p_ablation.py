@@ -19,11 +19,18 @@ Compares methods: DIRECT, SEQUENCE, STRUCTURE_WITH_PROB.
 Note: min_p only works with use_vllm=True.
 """
 
-from verbalized_sampling.pipeline import Pipeline, PipelineConfig, ExperimentConfig, EvaluationConfig
-from verbalized_sampling.tasks import Task
-from verbalized_sampling.methods import Method
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
+from verbalized_sampling.methods import Method
+from verbalized_sampling.pipeline import (
+    EvaluationConfig,
+    ExperimentConfig,
+    Pipeline,
+    PipelineConfig,
+)
+from verbalized_sampling.tasks import Task
+
 
 def create_min_p_ablation_experiments(
     task: Task,
@@ -33,15 +40,15 @@ def create_min_p_ablation_experiments(
 
     # Default base configuration
     base = {
-        'task': task,
-        'num_responses': 30,
-        'num_prompts': 100,
-        'target_words': 200,
-        'random_seed': 42,
-        'temperature': 0.7,
-        'top_p': 0.9,
-        'num_samples': 5,
-        'use_vllm': True,  # Required for min_p support
+        "task": task,
+        "num_responses": 30,
+        "num_prompts": 100,
+        "target_words": 200,
+        "random_seed": 42,
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "num_samples": 5,
+        "use_vllm": True,  # Required for min_p support
     }
     if base_config:
         base.update(base_config)
@@ -65,20 +72,23 @@ def create_min_p_ablation_experiments(
                     num_samples = 1
                     strict_json = False
                 else:
-                    num_samples = base['num_samples']
+                    num_samples = base["num_samples"]
                     strict_json = True
 
-                experiments.append(ExperimentConfig(
-                    name=f"{model}_{method.value}_min_p_{min_p}",
-                    model_name=model,
-                    method=method,
-                    strict_json=strict_json,
-                    num_samples=num_samples,
-                    min_p=min_p,
-                    **{k: v for k, v in base.items() if k not in ['num_samples']}
-                ))
+                experiments.append(
+                    ExperimentConfig(
+                        name=f"{model}_{method.value}_min_p_{min_p}",
+                        model_name=model,
+                        method=method,
+                        strict_json=strict_json,
+                        num_samples=num_samples,
+                        min_p=min_p,
+                        **{k: v for k, v in base.items() if k not in ["num_samples"]},
+                    )
+                )
 
     return experiments
+
 
 def run_min_p_ablation():
     """Run the min_p ablation study."""
@@ -91,10 +101,7 @@ def run_min_p_ablation():
     experiments = create_min_p_ablation_experiments(task)
 
     # Evaluation metrics focused on diversity and quality
-    evaluation_config = EvaluationConfig(
-        metrics=["diversity", "ngram"],
-        num_workers=128
-    )
+    evaluation_config = EvaluationConfig(metrics=["diversity", "ngram"], num_workers=128)
 
     # Pipeline configuration
     pipeline_config = PipelineConfig(
@@ -104,18 +111,19 @@ def run_min_p_ablation():
         num_workers=128,
         skip_existing=True,
         rerun=False,
-        title="Min-p Ablation Study for VLLM Models"
+        title="Min-p Ablation Study for VLLM Models",
     )
 
     # Run pipeline
     pipeline = Pipeline(pipeline_config)
     results = pipeline.run_complete_pipeline()
 
-    print(f"\n✅ Min-p ablation study completed!")
+    print("\n✅ Min-p ablation study completed!")
     print(f"📊 Results saved to: {output_dir}")
     print(f"📈 Report available at: {output_dir}/pipeline_report.html")
 
     return results
+
 
 if __name__ == "__main__":
     import typer
@@ -134,17 +142,14 @@ if __name__ == "__main__":
 
         # Create experiments with custom config
         base_config = {
-            'num_responses': num_responses,
-            'num_prompts': num_prompts,
+            "num_responses": num_responses,
+            "num_prompts": num_prompts,
         }
 
         experiments = create_min_p_ablation_experiments(task_obj, base_config)
 
         # Evaluation metrics
-        evaluation_config = EvaluationConfig(
-            metrics=["diversity", "ngram"],
-            num_workers=128
-        )
+        evaluation_config = EvaluationConfig(metrics=["diversity", "ngram"], num_workers=128)
 
         # Pipeline configuration
         pipeline_config = PipelineConfig(
@@ -154,14 +159,14 @@ if __name__ == "__main__":
             num_workers=128,
             skip_existing=not rerun,
             rerun=rerun,
-            title=f"Min-p Ablation Study - {task_obj.value}"
+            title=f"Min-p Ablation Study - {task_obj.value}",
         )
 
         # Run pipeline
         pipeline = Pipeline(pipeline_config)
         results = pipeline.run_complete_pipeline()
 
-        print(f"\n✅ Min-p ablation study completed!")
+        print("\n✅ Min-p ablation study completed!")
         print(f"📊 Results saved to: {output_dir}")
 
         return results

@@ -21,22 +21,21 @@ where a persuader tries to convince a persuadee to donate money to charity.
 
 import json
 import re
-import os
 from pathlib import Path
-from typing import Dict, List, Any, Optional
 from textwrap import dedent
+from typing import Any, Dict, List, Optional
 
-from .base import DialogueTask, ConversationState, DialogueRole
 from verbalized_sampling.methods import Method
+
+from .base import ConversationState, DialogueRole, DialogueTask
 
 
 class PersuasionTask(DialogueTask):
     """PersuasionForGood donation dialogue simulation task."""
 
-    def __init__(self,
-                 dataset_path: Optional[str] = None,
-                 corpus_path: Optional[str] = None,
-                 **kwargs):
+    def __init__(
+        self, dataset_path: Optional[str] = None, corpus_path: Optional[str] = None, **kwargs
+    ):
         """Initialize persuasion task.
 
         Args:
@@ -63,8 +62,10 @@ class PersuasionTask(DialogueTask):
         try:
             # Try to import persona generator from persuasion simulation
             import sys
+
             sys.path.append(str(base_path))
             from src.prompts.persona import DonationPersona
+
             self._persona_generator = DonationPersona(str(self.corpus_path), "gpt-4.1-mini")
         except ImportError:
             # Will use simplified persona generation
@@ -76,15 +77,17 @@ class PersuasionTask(DialogueTask):
 
         if not self.dataset_path.exists():
             # Return minimal test data if dataset not found
-            return [{
-                "conversation_id": "test_conv_1",
-                "persuader_persona": {"name": "test_persuader"},
-                "persuadee_persona": {"name": "test_persuadee"}
-            }]
+            return [
+                {
+                    "conversation_id": "test_conv_1",
+                    "persuader_persona": {"name": "test_persuader"},
+                    "persuadee_persona": {"name": "test_persuadee"},
+                }
+            ]
 
         # Load all .jsonl files from dataset directory
         for file_path in self.dataset_path.glob("*.jsonl"):
-            with open(file_path, 'r') as f:
+            with open(file_path, "r") as f:
                 for line in f:
                     if line.strip():
                         try:
@@ -94,7 +97,7 @@ class PersuasionTask(DialogueTask):
                                 "conversation_id": data.get("conversation_id", file_path.stem),
                                 "persuader_persona": data.get("persuader", {}),
                                 "persuadee_persona": data.get("persuadee", {}),
-                                "original_dialogue": data.get("dialogue", [])
+                                "original_dialogue": data.get("dialogue", []),
                             }
                             dataset.append(conversation_data)
                         except json.JSONDecodeError:
@@ -102,14 +105,15 @@ class PersuasionTask(DialogueTask):
 
         return dataset if dataset else self.load_dataset()  # Fallback to test data
 
-    def create_persuader_prompt(self,
-                               conversation_state: ConversationState,
-                               is_first_turn: bool = False) -> str:
+    def create_persuader_prompt(
+        self, conversation_state: ConversationState, is_first_turn: bool = False
+    ) -> str:
         """Create prompt for persuader model."""
         # Get persona description
         persona_desc = self._get_persona_description(conversation_state.persuader_persona)
 
-        system_prompt = dedent(f"""
+        system_prompt = dedent(
+            f"""
         You are an Amazon Mechanical Turk worker completing a $2 communication task.
         - You are motivated by this task payment — you value every cent you earn.
         - Act naturally as the person described below—think and respond as they would, including their quirks, beliefs, biases, and reasoning.
@@ -119,7 +123,8 @@ class PersuasionTask(DialogueTask):
         {persona_desc}
 
         Scenario: You will chat with another worker who also earned $2 from a task. Try to convince them to donate some of their payment to Save the Children, a charity that helps children in need around the world. You can donate between $0 to $2 from your task payment.
-        """).strip()
+        """
+        ).strip()
 
         if is_first_turn:
             # First turn - introduce yourself and the donation opportunity
@@ -131,43 +136,50 @@ class PersuasionTask(DialogueTask):
 
         return f"{system_prompt}\n\n{user_prompt}"
 
-    def create_persuadee_prompt(self,
-                               conversation_state: ConversationState,
-                               is_first_turn: bool = False) -> str:
+    def create_persuadee_prompt(
+        self, conversation_state: ConversationState, is_first_turn: bool = False
+    ) -> str:
         """Create prompt for persuadee model."""
         persona_desc = self._get_persona_description(conversation_state.persuadee_persona)
 
         # Base system prompt depends on sampling method
         if self.method in [Method.VS_STANDARD, Method.VS_COT, Method.VS_MULTI]:
-            base_prompt = dedent(f"""
+            base_prompt = dedent(
+                f"""
             You are an Amazon Mechanical Turk worker completing a $2 communication task.
             - You are motivated by this task payment — you value every cent you earn. Treat any spending as real, and weigh the value of money before making decisions.
             - Act naturally as the person described below—think and respond as they would, including their quirks, beliefs, biases, and reasoning.
             - Complete the communication task outlined in the scenario as this person would naturally respond.
             - Respond in a real-time chat interface. Keep each response under {self.word_limit} words, conversational, and authentic—avoid formal, robotic, or repetitive language.
-            """).strip()
+            """
+            ).strip()
         else:
-            base_prompt = dedent(f"""
+            base_prompt = dedent(
+                f"""
             You are an Amazon Mechanical Turk worker completing a $2 communication task.
             - You are motivated by this task payment — you value every cent you earn.
             - Act naturally as the person described below—think and respond as they would, including their quirks, beliefs, biases, and reasoning.
             - Complete the communication task outlined in the scenario as this person would naturally respond.
             - Respond in a real-time chat interface. Keep each response under {self.word_limit} words, conversational, and authentic—avoid formal, robotic, or repetitive language.
-            """).strip()
+            """
+            ).strip()
 
         # Add sampling-specific instructions
         additional_prompt = ""
         if self.method == Method.VS_STANDARD:
-            additional_prompt = dedent(f"""
+            additional_prompt = dedent(
+                f"""
             Generate {self.num_samplings} plausible responses that you would naturally give to your chat partner based on the chat history and your persona.
 
             Return responses as a JSON object with the key "responses" (a list of dictionaries, each with 'text' and 'probability'):
             - 'text': the response string only (no explanation or extra text).
             - 'probability': the empirical probability representing how likely each response would be (from 0.0 to 1.0).
             Give ONLY the JSON object, with no explanations or extra text.
-            """).strip()
+            """
+            ).strip()
         elif self.method == Method.VS_COT:
-            additional_prompt = dedent(f"""
+            additional_prompt = dedent(
+                f"""
             Generate {self.num_samplings} plausible responses with reasoning that you would naturally give to your chat partner.
 
             Return responses as a JSON object with the key "responses" (a list of dictionaries, each with 'reasoning', 'text', and 'probability'):
@@ -175,18 +187,23 @@ class PersuasionTask(DialogueTask):
             - 'text': the response string only (no explanation or extra text).
             - 'probability': the empirical probability representing how likely each response would be (from 0.0 to 1.0).
             Give ONLY the JSON object, with no explanations or extra text.
-            """).strip()
+            """
+            ).strip()
         elif self.method == Method.SEQUENCE:
-            additional_prompt = dedent(f"""
+            additional_prompt = dedent(
+                """
             Generate all plausible responses you would naturally give to your chat partner based on the chat history and your persona.
 
             Return the responses in JSON format with keys: "responses" (list of dicts with 'text'). Each dictionary must include:
             - 'text': the response string only (no explanation or extra text).
 
             Give ONLY the JSON object, with no explanations or extra text.
-            """).strip()
+            """
+            ).strip()
         else:
-            additional_prompt = "Only output your reply to your chat partner—do not explain your reasoning."
+            additional_prompt = (
+                "Only output your reply to your chat partner—do not explain your reasoning."
+            )
 
         system_prompt = f"{base_prompt}\n\n{persona_desc}\n\n{additional_prompt}"
 
@@ -223,8 +240,12 @@ class PersuasionTask(DialogueTask):
             "donation_turns": donation_turns,
             "total_turns": len(conversation_state.turns),
             "conversation_length": len(conversation_state.turns) // 2,  # Number of exchanges
-            "persuader_turns": len([t for t in conversation_state.turns if t.role == DialogueRole.PERSUADER]),
-            "persuadee_turns": len([t for t in conversation_state.turns if t.role == DialogueRole.PERSUADEE])
+            "persuader_turns": len(
+                [t for t in conversation_state.turns if t.role == DialogueRole.PERSUADER]
+            ),
+            "persuadee_turns": len(
+                [t for t in conversation_state.turns if t.role == DialogueRole.PERSUADEE]
+            ),
         }
 
     def _get_persona_description(self, persona_data: Dict[str, Any]) -> str:
@@ -256,25 +277,25 @@ class PersuasionTask(DialogueTask):
         text_lower = text.lower()
 
         # Pattern for cents
-        pattern_cents = r'\b(?:donate|donating|give|giving|do|spare|contribute|contributing)\s*\$?(\d*\.\d{1,2}|\d+)\s*cents\b'
+        pattern_cents = r"\b(?:donate|donating|give|giving|do|spare|contribute|contributing)\s*\$?(\d*\.\d{1,2}|\d+)\s*cents\b"
         match_cents = re.search(pattern_cents, text_lower)
 
         if match_cents:
             match = next((m for m in match_cents.groups() if m is not None), None)
             if match:
-                amount = float(match.replace('$', '').replace(',', '').strip())
+                amount = float(match.replace("$", "").replace(",", "").strip())
                 if amount >= 1.0:
                     amount = amount / 100  # Convert cents to dollars
                 return amount
 
         # Pattern for dollars
-        pattern_dollars = r'\b(?:donate|donating|give|giving|do|spare|contribute|contributing)\s*(?:the whole|all|entire)?\s*\$?(\d*\.\d{1,2}|\d+)\b'
+        pattern_dollars = r"\b(?:donate|donating|give|giving|do|spare|contribute|contributing)\s*(?:the whole|all|entire)?\s*\$?(\d*\.\d{1,2}|\d+)\b"
         match_dollars = re.search(pattern_dollars, text_lower)
 
         if match_dollars:
             match = next((m for m in match_dollars.groups() if m is not None), None)
             if match:
-                amount = float(match.replace('$', '').replace(',', '').strip())
+                amount = float(match.replace("$", "").replace(",", "").strip())
                 # Cap at $2 (max possible donation)
                 return min(amount, 2.0)
 
@@ -291,5 +312,5 @@ class PersuasionTask(DialogueTask):
             "dialogue_length",
             "linguistic_diversity",
             "persona_consistency",
-            "persuasion_effectiveness"
+            "persuasion_effectiveness",
         ]

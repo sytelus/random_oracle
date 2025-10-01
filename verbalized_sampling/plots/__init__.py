@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .comparison import ComparisonPlotter
-from .factory import PlotterFactory, EvaluatorPlotterFactory
 from .base import ComparisonData
-from .convenience import plot_evaluation_comparison, plot_comparison_chart
+from .comparison import ComparisonPlotter
+from .convenience import plot_comparison_chart, plot_evaluation_comparison
+from .factory import EvaluatorPlotterFactory, PlotterFactory
 
 __all__ = [
     "ComparisonPlotter",
-    "PlotterFactory", 
+    "PlotterFactory",
     "EvaluatorPlotterFactory",
     "ComparisonData",
     "plot_evaluation_comparison",
-    "plot_comparison_chart"
-] 
+    "plot_comparison_chart",
+]

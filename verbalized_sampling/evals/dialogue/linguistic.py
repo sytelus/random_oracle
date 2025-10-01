@@ -20,24 +20,28 @@ and dialogue-specific language features.
 """
 
 import re
-import numpy as np
-from typing import Dict, List, Any, Optional, Set
-from collections import Counter
+from typing import Any, Dict, List
+
 import nltk
+import numpy as np
 
 # Optional textstat import for readability metrics
 try:
-    from textstat import flesch_reading_ease, flesch_kincaid_grade
+    from textstat import flesch_kincaid_grade, flesch_reading_ease
+
     HAS_TEXTSTAT = True
 except ImportError:
     HAS_TEXTSTAT = False
+
     # Dummy functions if textstat not available
     def flesch_reading_ease(text):
         return 0.0
+
     def flesch_kincaid_grade(text):
         return 0.0
 
-from verbalized_sampling.analysis.evals.base import BaseEvaluator, EvalResult as EvaluationResult
+
+from verbalized_sampling.analysis.evals.base import BaseEvaluator
 
 
 class DialogueLinguisticEvaluator(BaseEvaluator):
@@ -49,9 +53,9 @@ class DialogueLinguisticEvaluator(BaseEvaluator):
 
         # Download required NLTK data
         try:
-            nltk.data.find('tokenizers/punkt')
+            nltk.data.find("tokenizers/punkt")
         except LookupError:
-            nltk.download('punkt', quiet=True)
+            nltk.download("punkt", quiet=True)
 
     def compute_instance_metric(self, prompt: str, response: Any) -> Dict[str, float]:
         """Compute linguistic metrics for a single conversation instance."""
@@ -68,20 +72,24 @@ class DialogueLinguisticEvaluator(BaseEvaluator):
 
             # Add turn-level statistics
             turn_lengths = [len(turn.split()) for turn in all_turns]
-            text_metrics.update({
-                "total_turns": len(all_turns),
-                "avg_turn_length": np.mean(turn_lengths) if turn_lengths else 0,
-                "std_turn_length": np.std(turn_lengths) if turn_lengths else 0,
-            })
+            text_metrics.update(
+                {
+                    "total_turns": len(all_turns),
+                    "avg_turn_length": np.mean(turn_lengths) if turn_lengths else 0,
+                    "std_turn_length": np.std(turn_lengths) if turn_lengths else 0,
+                }
+            )
 
         elif isinstance(response, str):
             # Handle single text response
             text_metrics = self._calculate_text_metrics(response)
-            text_metrics.update({
-                "total_turns": 1,
-                "avg_turn_length": text_metrics.get("word_count", 0),
-                "std_turn_length": 0,
-            })
+            text_metrics.update(
+                {
+                    "total_turns": 1,
+                    "avg_turn_length": text_metrics.get("word_count", 0),
+                    "std_turn_length": 0,
+                }
+            )
         else:
             return self._get_empty_metrics()
 
@@ -122,10 +130,9 @@ class DialogueLinguisticEvaluator(BaseEvaluator):
             "std_turn_length": 0,
         }
 
-    def _calculate_conversation_metrics(self,
-                                      all_turns: List[str],
-                                      persuader_turns: List[str],
-                                      persuadee_turns: List[str]) -> Dict[str, Any]:
+    def _calculate_conversation_metrics(
+        self, all_turns: List[str], persuader_turns: List[str], persuadee_turns: List[str]
+    ) -> Dict[str, Any]:
         """Calculate metrics for a single conversation."""
         metrics = {}
 
@@ -164,11 +171,11 @@ class DialogueLinguisticEvaluator(BaseEvaluator):
                 "readability_score": 0.0,
                 "grade_level": 0.0,
                 "word_count": 0,
-                "sentence_count": 0
+                "sentence_count": 0,
             }
 
         # Tokenize
-        words = re.findall(r'\b\w+\b', text.lower())
+        words = re.findall(r"\b\w+\b", text.lower())
         word_count = len(words)
 
         # Calculate distinct-n metrics
@@ -198,7 +205,7 @@ class DialogueLinguisticEvaluator(BaseEvaluator):
             "readability_score": readability_score,
             "grade_level": grade_level,
             "word_count": word_count,
-            "sentence_count": sentence_count
+            "sentence_count": sentence_count,
         }
 
     def _calculate_corpus_metrics(self, texts: List[str]) -> Dict[str, Any]:
@@ -214,7 +221,7 @@ class DialogueLinguisticEvaluator(BaseEvaluator):
         grade_levels = []
 
         for text in texts:
-            words = re.findall(r'\b\w+\b', text.lower())
+            words = re.findall(r"\b\w+\b", text.lower())
             all_words.extend(words)
             total_word_count += len(words)
 
@@ -263,7 +270,7 @@ class DialogueLinguisticEvaluator(BaseEvaluator):
         # Generate n-grams
         ngrams = []
         for i in range(len(words) - n + 1):
-            ngram = tuple(words[i:i+n])
+            ngram = tuple(words[i : i + n])
             ngrams.append(ngram)
 
         if not ngrams:

@@ -12,15 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, List, Callable, TypeVar
-from .base import BaseLLM
 import json
-from openai import OpenAI
 import os
-from pydantic import BaseModel
 import time
+from typing import Any, Dict, List, TypeVar
 
-T = TypeVar('T')
+from openai import OpenAI
+from pydantic import BaseModel
+
+from .base import BaseLLM
+
+T = TypeVar("T")
 
 OPENROUTER_MODELS_MAPPING = {
     # Claude models
@@ -41,21 +43,27 @@ OPENROUTER_MODELS_MAPPING = {
     "deepseek-r1": "deepseek/deepseek-r1-0528",
     # Qwen models
     "qwen3-235b": "qwen/qwen3-235b-a22b-2507",
-
 }
+
 
 class OpenRouterLLM(BaseLLM):
     """OpenRouter implementation for various models."""
-    
-    def __init__(self, model_name: str, config: Dict[str, Any], num_workers: int = 1, strict_json: bool = False):
+
+    def __init__(
+        self,
+        model_name: str,
+        config: Dict[str, Any],
+        num_workers: int = 1,
+        strict_json: bool = False,
+    ):
         super().__init__(model_name, config, num_workers, strict_json)
-        
+
         if model_name in OPENROUTER_MODELS_MAPPING:
             self.model_name = OPENROUTER_MODELS_MAPPING[model_name]
-        
+
         if "gemini-2.5-flash" in model_name:
             config["reasoning"] = {"exclude": "true"}
-            
+
         self.client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=os.environ.get("OPENROUTER_API_KEY"),
@@ -65,10 +73,7 @@ class OpenRouterLLM(BaseLLM):
     def _chat(self, messages: List[Dict[str, str]]) -> str:
         """Basic chat functionality without structured response format."""
         if "deepseek" in self.model_name:
-            provider_args = {"provider": {
-                    "require_parameters": True,
-                    "only": ["fireworks"]
-                }}
+            provider_args = {"provider": {"require_parameters": True, "only": ["fireworks"]}}
         else:
             provider_args = None
 
@@ -95,7 +100,9 @@ class OpenRouterLLM(BaseLLM):
             print(f"Error in OpenRouter chat: {e}")
             return ""
 
-    def _chat_with_format(self, messages: List[Dict[str, str]], schema: BaseModel) -> List[Dict[str, Any]]:
+    def _chat_with_format(
+        self, messages: List[Dict[str, str]], schema: BaseModel
+    ) -> List[Dict[str, Any]]:
         """Chat with structured response format."""
         tries = 10
         backoff = 1
@@ -103,19 +110,16 @@ class OpenRouterLLM(BaseLLM):
             try:
                 if "deepseek" in self.model_name:
                     provider_args = {
-                        "provider": {
-                            "require_parameters": True,
-                            "only": ["fireworks"]
-                        }
+                        "provider": {"require_parameters": True, "only": ["fireworks"]}
                     }
                 else:
                     provider_args = None
-                    
+
                 if isinstance(schema, BaseModel):
                     schema = schema.model_json_schema()
-                
+
                 # print("Schema: ", schema)
-                
+
                 # Build parameters dynamically
                 params = {
                     "model": self.model_name,
@@ -128,29 +132,35 @@ class OpenRouterLLM(BaseLLM):
 
                 # Only add min_p if it's provided in config
                 if "min_p" in self.config:
-                    params["extra_body"] = {
-                        "min_p": self.config["min_p"]
-                    }
+                    params["extra_body"] = {"min_p": self.config["min_p"]}
 
                 completion = self.client.chat.completions.create(**params)
-                
+
                 if completion is None or not completion.choices:
                     print(f"Error: No response from OpenRouter API for model {self.model_name}")
-                    raise Exception(f"Error: No response from OpenRouter API for model {self.model_name}")
-                
+                    raise Exception(
+                        f"Error: No response from OpenRouter API for model {self.model_name}"
+                    )
+
                 response = completion.choices[0].message.content
                 if response:
                     parsed_response = self._parse_response_with_schema(response, schema)
                     if not parsed_response:
-                        print(f"Error: Empty response from OpenRouter API for model {self.model_name}")
-                        raise Exception(f"Error: Empty response from OpenRouter API for model {self.model_name}")
+                        print(
+                            f"Error: Empty response from OpenRouter API for model {self.model_name}"
+                        )
+                        raise Exception(
+                            f"Error: Empty response from OpenRouter API for model {self.model_name}"
+                        )
                     return parsed_response
                 else:
                     print(f"Error: Empty response from OpenRouter API for model {self.model_name}")
-                    raise Exception(f"Error: Empty response from OpenRouter API for model {self.model_name}")
+                    raise Exception(
+                        f"Error: Empty response from OpenRouter API for model {self.model_name}"
+                    )
             except Exception as e:
                 print(f"Error in OpenRouter chat_with_format: {e}")
-                
+
                 if i < tries - 1:
                     print(f"Retrying in {backoff} seconds...")
                     time.sleep(backoff)
@@ -164,21 +174,28 @@ class OpenRouterLLM(BaseLLM):
         try:
             if isinstance(response, str):
                 parsed = json.loads(response)
-                
+
                 # Handle double-escaped JSON strings (i.e., string inside a string)
                 if isinstance(parsed, str):
                     parsed = json.loads(parsed)
-                
+
                 # Handle different schema types
                 if "responses" in parsed:
                     # For schemas with a 'responses' field (SequenceResponse, StructuredResponseList, etc.)
                     responses = parsed["responses"]
                     # print('RESPONSES: ', responses)
-                    
+
                     if isinstance(responses, list):
                         result = []
                         for resp in responses:
-                            if isinstance(resp, dict) and "text" in resp and any(key in resp for key in ["probability", "confidence", "perplexity", "nll"]):
+                            if (
+                                isinstance(resp, dict)
+                                and "text" in resp
+                                and any(
+                                    key in resp
+                                    for key in ["probability", "confidence", "perplexity", "nll"]
+                                )
+                            ):
                                 # Combine probability/confidence/perplexity fields
                                 if "probability" in resp:
                                     prob = resp["probability"]
@@ -188,44 +205,38 @@ class OpenRouterLLM(BaseLLM):
                                     prob = resp["perplexity"]
                                 if "nll" in resp:
                                     prob = resp["nll"]
-                                result.append({
-                                    "response": resp["text"],
-                                    "probability": prob
-                                })
+                                result.append({"response": resp["text"], "probability": prob})
                             elif isinstance(resp, dict) and "text" in resp:
                                 # Response
-                                result.append({
-                                    "response": resp["text"],
-                                    "probability": 1.0
-                                })
+                                result.append({"response": resp["text"], "probability": 1.0})
                             elif isinstance(resp, str):
                                 # SequenceResponse (list of strings)
-                                result.append({
-                                    "response": resp,
-                                    "probability": 1.0
-                                })
+                                result.append({"response": resp, "probability": 1.0})
                         return result
                 else:
                     # For direct response schemas (Response)
                     if "text" in parsed:
-                        return [{
-                            "response": parsed["text"],
-                            "probability": parsed.get("probability", 1.0)
-                        }]
-                    elif 'response' in parsed:
-                        return [{
-                            "response": parsed["response"],
-                            "probability": parsed.get("probability", 1.0)
-                        }]
-                    
+                        return [
+                            {
+                                "response": parsed["text"],
+                                "probability": parsed.get("probability", 1.0),
+                            }
+                        ]
+                    elif "response" in parsed:
+                        return [
+                            {
+                                "response": parsed["response"],
+                                "probability": parsed.get("probability", 1.0),
+                            }
+                        ]
+
                 # Fallback: return the raw validated data
                 return [{"response": str(parsed), "probability": 1.0}]
-                
+
         except Exception as e:
             print(f"Error parsing response with schema: {e}")
             # If parsing fails, return a single response with probability 1.0
             return [{"response": response, "probability": 1.0}]
-
 
     def _parse_response(self, response: str) -> List[Dict[str, Any]]:
         """Legacy parse method - kept for backward compatibility."""
@@ -235,7 +246,7 @@ class OpenRouterLLM(BaseLLM):
                 return [
                     {
                         "response": resp["text"],
-                        "probability": resp["probability"] if "probability" in resp else 1.0
+                        "probability": resp["probability"] if "probability" in resp else 1.0,
                     }
                     for resp in parsed.get("responses", [])
                 ]

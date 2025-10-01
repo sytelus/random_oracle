@@ -16,11 +16,9 @@
 
 import json
 import os
+
 import matplotlib.pyplot as plt
 import numpy as np
-import argparse
-from pathlib import Path
-import matplotlib.gridspec as gridspec
 from matplotlib.patches import Patch
 
 
@@ -31,14 +29,14 @@ def load_metrics_data(base_path, model, task, method, prob_tuning_values):
     coverage_ns = []
     actual_prob_values = []
     # print("Base path: ", base_path)
-    
+
     for prob_val in prob_tuning_values:
         if prob_val == -1:
             # prob_tuning=-1 corresponds to no probability tuning
             prob_str = "prob_tuning=-1"
         else:
             prob_str = f"prob_tuning={prob_val}"
-        
+
         if "gpt" in model:
             prob_def = "prob_def=explicit"
         elif "gemini" in model:
@@ -56,19 +54,21 @@ def load_metrics_data(base_path, model, task, method, prob_tuning_values):
             f"{model}_{task}",
             "evaluation",
             f"{method} [strict] (samples=20) ({prob_def}) ({prob_str})",
-            "response_count_results.json"
+            "response_count_results.json",
         )
-        
+
         if os.path.exists(file_path):
             try:
-                with open(file_path, 'r') as f:
+                with open(file_path, "r") as f:
                     data = json.load(f)
-                    overall_metrics = data['overall_metrics']
-                    kl_divergences.append(overall_metrics['average_kl_divergence'])
-                    precisions.append(overall_metrics['average_precision'])
-                    coverage_ns.append(overall_metrics['average_unique_recall_rate'])
+                    overall_metrics = data["overall_metrics"]
+                    kl_divergences.append(overall_metrics["average_kl_divergence"])
+                    precisions.append(overall_metrics["average_precision"])
+                    coverage_ns.append(overall_metrics["average_unique_recall_rate"])
                     actual_prob_values.append(prob_val)
-                    print(f"  ✓ Loaded {method} prob={prob_val}: KL={overall_metrics['average_kl_divergence']:.4f}, Precision={overall_metrics['average_precision']:.4f}, Coverage-n={overall_metrics['average_unique_recall_rate']:.4f}")
+                    print(
+                        f"  ✓ Loaded {method} prob={prob_val}: KL={overall_metrics['average_kl_divergence']:.4f}, Precision={overall_metrics['average_precision']:.4f}, Coverage-n={overall_metrics['average_unique_recall_rate']:.4f}"
+                    )
             except (json.JSONDecodeError, KeyError) as e:
                 print(f"  ✗ Error loading {file_path}: {e}")
         else:
@@ -85,7 +85,7 @@ def load_baseline_data(base_path, model, task, baseline_type):
             f"{model}_{task}",
             "evaluation",
             "direct (samples=20)",
-            "response_count_results.json"
+            "response_count_results.json",
         )
     elif baseline_type == "sequence":
         baseline_path = os.path.join(
@@ -93,20 +93,20 @@ def load_baseline_data(base_path, model, task, baseline_type):
             f"{model}_{task}",
             "evaluation",
             "sequence [strict] (samples=20)",
-            "response_count_results.json"
+            "response_count_results.json",
         )
     else:
         raise ValueError(f"Unknown baseline type: {baseline_type}")
 
     if os.path.exists(baseline_path):
         try:
-            with open(baseline_path, 'r') as f:
+            with open(baseline_path, "r") as f:
                 data = json.load(f)
-                overall_metrics = data['overall_metrics']
+                overall_metrics = data["overall_metrics"]
                 return {
-                    'kl_divergence': overall_metrics['average_kl_divergence'],
-                    'precision': overall_metrics['average_precision'],
-                    'coverage_n': overall_metrics['average_unique_recall_rate']
+                    "kl_divergence": overall_metrics["average_kl_divergence"],
+                    "precision": overall_metrics["average_precision"],
+                    "coverage_n": overall_metrics["average_unique_recall_rate"],
                 }
         except (json.JSONDecodeError, KeyError) as e:
             print(f"Error loading {baseline_path}: {e}")
@@ -121,42 +121,42 @@ def plot_metrics_tuning(base_path, task="state_name"):
 
     # Style configuration matching latex/plot_unify_creativity.py
     RC_PARAMS = {
-        'font.family': 'sans-serif',
-        'font.sans-serif': ['Arial', 'DejaVu Sans', 'Liberation Sans'],
-        'font.size': 11,
-        'axes.labelsize': 15,
-        'axes.titlesize': 18,
-        'xtick.labelsize': 15,
-        'ytick.labelsize': 18,
-        'legend.fontsize': 9,
-        'axes.linewidth': 0.8,
-        'axes.edgecolor': '#666666',
-        'axes.spines.top': False,
-        'axes.spines.right': False,
-        'xtick.major.width': 0.8,
-        'ytick.major.width': 0.8,
-        'lines.linewidth': 2.0,
-        'lines.markersize': 8,
-        'figure.facecolor': 'white',
-        'axes.facecolor': 'white'
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Arial", "DejaVu Sans", "Liberation Sans"],
+        "font.size": 11,
+        "axes.labelsize": 15,
+        "axes.titlesize": 18,
+        "xtick.labelsize": 15,
+        "ytick.labelsize": 18,
+        "legend.fontsize": 9,
+        "axes.linewidth": 0.8,
+        "axes.edgecolor": "#666666",
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "xtick.major.width": 0.8,
+        "ytick.major.width": 0.8,
+        "lines.linewidth": 2.0,
+        "lines.markersize": 8,
+        "figure.facecolor": "white",
+        "axes.facecolor": "white",
     }
 
     COLORS = {
-        'Direct': '#B8E0F5',
-        'Sequence': '#6BB6FF',
-        'VS-Standard': '#FFCCCB',
-        'VS-Multi': '#FF6B6B'
+        "Direct": "#B8E0F5",
+        "Sequence": "#6BB6FF",
+        "VS-Standard": "#FFCCCB",
+        "VS-Multi": "#FF6B6B",
     }
 
     EDGE_COLORS = {
-        'Direct': '#4A90E2',
-        'Sequence': '#4A90E2',
-        'VS-Standard': '#FF6B6B',
-        'VS-Multi': '#FF6B6B'
+        "Direct": "#4A90E2",
+        "Sequence": "#4A90E2",
+        "VS-Standard": "#FF6B6B",
+        "VS-Multi": "#FF6B6B",
     }
 
     # Apply styling
-    plt.style.use('default')
+    plt.style.use("default")
     plt.rcParams.update(RC_PARAMS)
 
     # Probability tuning values
@@ -167,9 +167,9 @@ def plot_metrics_tuning(base_path, task="state_name"):
     model_names = ["GPT-4.1", "Gemini-2.5-Flash"]
 
     # Metrics to plot
-    metrics = ['kl_divergence', 'coverage_n']
-    metric_titles = ['KL Divergence ($\\downarrow$)', 'Coverage-N ($\\uparrow$)']
-    metric_ylabels = ['KL Divergence', 'Coverage-N']
+    metrics = ["kl_divergence", "coverage_n"]
+    metric_titles = ["KL Divergence ($\\downarrow$)", "Coverage-N ($\\uparrow$)"]
+    metric_ylabels = ["KL Divergence", "Coverage-N"]
 
     for i, metric in enumerate(metrics):
         # For each metric, create a 1x2 plot (one row, two columns) - more square aspect ratio
@@ -179,32 +179,59 @@ def plot_metrics_tuning(base_path, task="state_name"):
         for j, (model, model_name) in enumerate(zip(models, model_names)):
             ax = axes[j]
             plot_single_metric(
-                ax, base_path, model, task, prob_values,
-                model_name, metric, metric_titles[i], metric_ylabels[i],
-                COLORS, EDGE_COLORS, show_legend=(j == 0)
+                ax,
+                base_path,
+                model,
+                task,
+                prob_values,
+                model_name,
+                metric,
+                metric_titles[i],
+                metric_ylabels[i],
+                COLORS,
+                EDGE_COLORS,
+                show_legend=(j == 0),
             )
-            ax.set_title(f"{model_name}", fontsize=15, fontweight='bold')
+            ax.set_title(f"{model_name}", fontsize=15, fontweight="bold")
         # Create legend above plots
         method_patches = [
-            Patch(color=COLORS['VS-Standard'], label='VS-Standard'),
-            Patch(color=COLORS['VS-Multi'], label='VS-Multi')
+            Patch(color=COLORS["VS-Standard"], label="VS-Standard"),
+            Patch(color=COLORS["VS-Multi"], label="VS-Multi"),
         ]
         legend = fig.legend(
             handles=method_patches,
-            loc='upper center', bbox_to_anchor=(0.5, 1.05),
-            fontsize=16, ncol=2,
-            frameon=False, columnspacing=3.0
+            loc="upper center",
+            bbox_to_anchor=(0.5, 1.05),
+            fontsize=16,
+            ncol=2,
+            frameon=False,
+            columnspacing=3.0,
         )
         legend.get_frame().set_linewidth(0.0)
         plt.tight_layout(rect=[0, 0, 1, 0.97])
         plt.subplots_adjust(top=0.85)
         # Save with metric name in filename
-        plt.savefig(f"{task}_metrics_tuning_{metric}.png", dpi=300, bbox_inches='tight', facecolor='white')
-        plt.savefig(f"{task}_metrics_tuning_{metric}.pdf", bbox_inches='tight', facecolor='white')
+        plt.savefig(
+            f"{task}_metrics_tuning_{metric}.png", dpi=300, bbox_inches="tight", facecolor="white"
+        )
+        plt.savefig(f"{task}_metrics_tuning_{metric}.pdf", bbox_inches="tight", facecolor="white")
         plt.close(fig)
 
 
-def plot_single_metric(ax, base_path, model, task, prob_values, title, metric, metric_title, ylabel, colors, edge_colors, show_legend):
+def plot_single_metric(
+    ax,
+    base_path,
+    model,
+    task,
+    prob_values,
+    title,
+    metric,
+    metric_title,
+    ylabel,
+    colors,
+    edge_colors,
+    show_legend,
+):
     """Plot a single metric for a single model"""
 
     # Load data for VS-Standard (structure_with_prob) and VS-Multi (VS-Multi (vs_multi))
@@ -216,20 +243,22 @@ def plot_single_metric(ax, base_path, model, task, prob_values, title, metric, m
     )
 
     # Select the appropriate metric data
-    if metric == 'kl_divergence':
+    if metric == "kl_divergence":
         vs_standard_data = vs_standard_kl
         vs_multi_data = vs_multi_kl
-    elif metric == 'precision':
+    elif metric == "precision":
         vs_standard_data = vs_standard_prec
         vs_multi_data = vs_multi_prec
-    elif metric == 'coverage_n':
+    elif metric == "coverage_n":
         vs_standard_data = vs_standard_cov
         vs_multi_data = vs_multi_cov
 
     # Debug: Print what data was loaded
     print(f"\nDebugging for {model} {task} {metric}:")
     print(f"VS-Standard: Found {len(vs_standard_probs)} points - {vs_standard_probs}")
-    print(f"VS-Standard data: {[f'{d:.4f}' for d in vs_standard_data] if vs_standard_data else 'None'}")
+    print(
+        f"VS-Standard data: {[f'{d:.4f}' for d in vs_standard_data] if vs_standard_data else 'None'}"
+    )
     print(f"VS-Multi: Found {len(vs_multi_probs)} points - {vs_multi_probs}")
     print(f"VS-Multi data: {[f'{d:.4f}' for d in vs_multi_data] if vs_multi_data else 'None'}")
 
@@ -254,16 +283,32 @@ def plot_single_metric(ax, base_path, model, task, prob_values, title, metric, m
 
     # Plot lines with elegant styling
     if vs_standard_probs and vs_standard_data:
-        ax.plot(vs_standard_x, vs_standard_data, 'o-',
-                linewidth=2, markersize=6,
-                color=colors['VS-Standard'], markeredgecolor=edge_colors['VS-Standard'],
-                markeredgewidth=1.2, alpha=0.9, label='VS-Standard' if show_legend else "")
+        ax.plot(
+            vs_standard_x,
+            vs_standard_data,
+            "o-",
+            linewidth=2,
+            markersize=6,
+            color=colors["VS-Standard"],
+            markeredgecolor=edge_colors["VS-Standard"],
+            markeredgewidth=1.2,
+            alpha=0.9,
+            label="VS-Standard" if show_legend else "",
+        )
 
     if vs_multi_probs and vs_multi_data:
-        ax.plot(vs_multi_x, vs_multi_data, 's-',
-                linewidth=2, markersize=6,
-                color=colors['VS-Multi'], markeredgecolor=edge_colors['VS-Multi'],
-                markeredgewidth=1.2, alpha=0.9, label='VS-Multi' if show_legend else "")
+        ax.plot(
+            vs_multi_x,
+            vs_multi_data,
+            "s-",
+            linewidth=2,
+            markersize=6,
+            color=colors["VS-Multi"],
+            markeredgecolor=edge_colors["VS-Multi"],
+            markeredgewidth=1.2,
+            alpha=0.9,
+            label="VS-Multi" if show_legend else "",
+        )
 
     # # Plot baseline horizontal lines with annotations
     # if direct_data is not None:
@@ -278,33 +323,39 @@ def plot_single_metric(ax, base_path, model, task, prob_values, title, metric, m
 
     if sequence_data is not None:
         y_pos = sequence_data[metric]
-        ax.axhline(y=y_pos, color=colors['Sequence'], linestyle='--',
-                  linewidth=2, alpha=0.8)
+        ax.axhline(y=y_pos, color=colors["Sequence"], linestyle="--", linewidth=2, alpha=0.8)
         # Add annotation on the right side
-        ax.text(0.007, y_pos, 'Sequence',
-                verticalalignment='bottom', horizontalalignment='left',
-                fontsize=14, fontweight='bold', color=colors['Sequence'],
-                bbox=dict(boxstyle='round,pad=0.2', facecolor='white', alpha=0.8, edgecolor='none'))
+        ax.text(
+            0.007,
+            y_pos,
+            "Sequence",
+            verticalalignment="bottom",
+            horizontalalignment="left",
+            fontsize=14,
+            fontweight="bold",
+            color=colors["Sequence"],
+            bbox=dict(boxstyle="round,pad=0.2", facecolor="white", alpha=0.8, edgecolor="none"),
+        )
 
     # Set x-axis to log scale with proper range and inversion
-    ax.set_xscale('log')
+    ax.set_xscale("log")
     # Set limits to match the tick positions exactly for full-width baseline
     ax.set_xlim(1.2, 0.007)
 
     # Labels and formatting with elegant styling
-    ax.set_xlabel('VS Probability Threshold', fontweight='bold')
-    ax.set_ylabel(ylabel if 'GPT-4.1' in title else '', fontweight='bold')
-    ax.set_title(f"{title} - {metric_title}", fontweight='bold', pad=15, fontsize=16)
+    ax.set_xlabel("VS Probability Threshold", fontweight="bold")
+    ax.set_ylabel(ylabel if "GPT-4.1" in title else "", fontweight="bold")
+    ax.set_title(f"{title} - {metric_title}", fontweight="bold", pad=15, fontsize=16)
 
     # Elegant grid and spines
-    ax.grid(True, alpha=0.15, axis='y', linestyle='-', linewidth=0.5)
+    ax.grid(True, alpha=0.15, axis="y", linestyle="-", linewidth=0.5)
     ax.set_axisbelow(True)
-    ax.spines['left'].set_color('#666666')
-    ax.spines['bottom'].set_color('#666666')
+    ax.spines["left"].set_color("#666666")
+    ax.spines["bottom"].set_color("#666666")
 
     # Set custom x-axis ticks with simple numeric labels
     ax.set_xticks([1.0, 0.1, 0.01])
-    ax.set_xticklabels(['1', '0.1', '0.01'])
+    ax.set_xticklabels(["1", "0.1", "0.01"])
 
     # Set reasonable y-axis limits based on data
     all_y_values = []

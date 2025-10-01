@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import numpy as np
 import json
+
+import numpy as np
 
 
 def draw_distribution_comparison(direct_results, vs_results, direct_coverage_n, vs_coverage_n):
@@ -28,7 +29,6 @@ def draw_distribution_comparison(direct_results, vs_results, direct_coverage_n, 
     then, any remaining states that appear only in vs, sorted by vs count descending.
     """
     import matplotlib.pyplot as plt
-    import numpy as np
 
     # States present in direct, sorted by direct count descending
     direct_sorted = sorted(direct_results.items(), key=lambda x: -x[1])
@@ -37,8 +37,7 @@ def draw_distribution_comparison(direct_results, vs_results, direct_coverage_n, 
     # States present in vs but not in direct
     vs_only_states = set(vs_results.keys()) - set(direct_results.keys())
     vs_only_sorted = sorted(
-        [(state, vs_results[state]) for state in vs_only_states],
-        key=lambda x: -x[1]
+        [(state, vs_results[state]) for state in vs_only_states], key=lambda x: -x[1]
     )
     vs_only_states_sorted = [state for state, count in vs_only_sorted]
 
@@ -55,33 +54,64 @@ def draw_distribution_comparison(direct_results, vs_results, direct_coverage_n, 
     fig, ax = plt.subplots(figsize=(18, 7))
 
     # Use same color and style for both bars, but offset for clarity
-    bars1 = ax.bar(x - width/2, direct_counts, width, label='Direct Sampling', color='#FC8EAC', alpha=0.8, edgecolor='#FC8EAC', linewidth=1)
-    bars2 = ax.bar(x + width/2, vs_counts, width, label='Verbalized Sampling', color='#A4C8E1', alpha=0.8, edgecolor='#A4C8E1', linewidth=1)
+    bars1 = ax.bar(
+        x - width / 2,
+        direct_counts,
+        width,
+        label="Direct Sampling",
+        color="#FC8EAC",
+        alpha=0.8,
+        edgecolor="#FC8EAC",
+        linewidth=1,
+    )
+    bars2 = ax.bar(
+        x + width / 2,
+        vs_counts,
+        width,
+        label="Verbalized Sampling",
+        color="#A4C8E1",
+        alpha=0.8,
+        edgecolor="#A4C8E1",
+        linewidth=1,
+    )
 
     # X-axis labels
     ax.set_xticks(x)
     ax.set_xticklabels(all_states_ordered, rotation=45, fontsize=10)
-    ax.set_xlabel('US State', fontsize=13, fontweight='bold')
-    ax.set_ylabel('Count', fontsize=13, fontweight='bold')
-    ax.set_title('', fontsize=15, fontweight='bold', pad=20)
+    ax.set_xlabel("US State", fontsize=13, fontweight="bold")
+    ax.set_ylabel("Count", fontsize=13, fontweight="bold")
+    ax.set_title("", fontsize=15, fontweight="bold", pad=20)
 
     # Add value labels on bars (show count)
     def add_value_labels(bars, counts):
         for bar, count in zip(bars, counts):
             height = bar.get_height()
             if height > 0:
-                ax.text(bar.get_x() + bar.get_width()/2., height + 0.5,
-                        f'{int(count)}', ha='center', va='bottom', fontsize=8)
+                ax.text(
+                    bar.get_x() + bar.get_width() / 2.0,
+                    height + 0.5,
+                    f"{int(count)}",
+                    ha="center",
+                    va="bottom",
+                    fontsize=8,
+                )
 
     add_value_labels(bars1, direct_counts)
     add_value_labels(bars2, vs_counts)
 
     # Add coverage n as a statistics box (like KL divergence in reference)
-    stats_text = f'Coverage-N:\nDirect Sampling: {direct_coverage_n:.2f}\nVerbalized Sampling: {vs_coverage_n:.2f}'
-    ax.text(0.865, 0.84, stats_text, transform=ax.transAxes, fontsize=12,
-            verticalalignment='top', bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.8))
+    stats_text = f"Coverage-N:\nDirect Sampling: {direct_coverage_n:.2f}\nVerbalized Sampling: {vs_coverage_n:.2f}"
+    ax.text(
+        0.865,
+        0.84,
+        stats_text,
+        transform=ax.transAxes,
+        fontsize=12,
+        verticalalignment="top",
+        bbox=dict(boxstyle="round", facecolor="lightblue", alpha=0.8),
+    )
 
-    ax.legend(fontsize=12, loc='upper right')
+    ax.legend(fontsize=12, loc="upper right")
     ax.set_ylim(0, max(direct_counts.max(), vs_counts.max()) * 1.15)
 
     plt.tight_layout()
@@ -97,7 +127,7 @@ def main():
         direct_results = json.load(f)
     with open(vs_results_file, "r") as f:
         vs_results = json.load(f)
-    
+
     prompt = "Name a US State. Only provide the answer without explanation or punctuation."
     direct_results = direct_results["overall_metrics"]["per_prompt_stats"][prompt]
     vs_results = vs_results["overall_metrics"]["per_prompt_stats"][prompt]
@@ -124,8 +154,10 @@ def main():
 
     # print(direct_results)
     # print(vs_results)
-    draw_distribution_comparison(direct_response_distribution, vs_response_distribution, direct_coverage_n, vs_coverage_n)
-    
+    draw_distribution_comparison(
+        direct_response_distribution, vs_response_distribution, direct_coverage_n, vs_coverage_n
+    )
+
 
 if __name__ == "__main__":
     main()

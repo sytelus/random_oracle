@@ -12,25 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import numpy as np
-import matplotlib.pyplot as plt
-from tqdm import tqdm
-from openai import OpenAI
-from datasets import load_dataset
-from enum import Enum
-import pandas as pd
-import os
 import json
-from sklearn.preprocessing import normalize
-from sklearn.metrics.pairwise import cosine_similarity
-import seaborn as sns
+import os
+from enum import Enum
 
+import matplotlib.pyplot as plt
+import numpy as np
+from datasets import load_dataset
+from openai import OpenAI
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import normalize
+from tqdm import tqdm
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 
 class Method(Enum):
     DIRECT = "direct"
     STRUCTURE_WITH_PROB = "vs_standard"
+
 
 structured_response_list_with_prob_schema = {
     "type": "json_schema",  # Required for OpenRouter
@@ -45,32 +45,31 @@ structured_response_list_with_prob_schema = {
                     "items": {
                         "type": "object",
                         "properties": {
-                            "text": {
-                                "type": "string",
-                                "description": "The text of the response."
-                            },
+                            "text": {"type": "string", "description": "The text of the response."},
                             "probability": {
                                 "type": "number",
-                                "description": "How likely each response would be (value between 0 and 1)"
-                            }
+                                "description": "How likely each response would be (value between 0 and 1)",
+                            },
                         },
                         "required": ["text", "probability"],
-                        "additionalProperties": False
-                    }
+                        "additionalProperties": False,
+                    },
                 }
             },
             "required": ["responses"],
-            "additionalProperties": False
+            "additionalProperties": False,
         },
-        "strict": True
-    }
+        "strict": True,
+    },
 }
 
+
 def get_direct_system_prompt():
-    prompt = f"""
+    prompt = """
     Generate a response to the input prompt.
     """
     return prompt
+
 
 def get_verbalized_system_prompt(num_samples):
     prompt = f"""
@@ -83,6 +82,7 @@ Return the responses in JSON format with keys: "responses" (list of dicts with '
 Give ONLY the JSON object, with no explanations or extra text.
     """
     return prompt
+
 
 def get_user_prompt(example):
     prompt = f"""
@@ -100,6 +100,7 @@ Example 3: {example[2]}
 Now it's your turn. Your question should be different in content from the examples. Make sure to only provide only the question and answer. Start each response with the question.
     """
     return prompt
+
 
 def get_gsm8k_test_examples(n=1, seed=42):
     ds = load_dataset("gsm8k", "main", split="train")
@@ -124,14 +125,14 @@ def parsing_gsm8k_response(response: str):
     answer = None
 
     # Split into lines and strip whitespace
-    lines = [line.strip() for line in response.split('\n') if line.strip()]
+    lines = [line.strip() for line in response.split("\n") if line.strip()]
     for i, line in enumerate(lines):
         if line.startswith("Question:"):
-            question = line[len("Question:"):].strip()
+            question = line[len("Question:") :].strip()
         elif line.startswith("Answer:"):
             # The answer may span multiple lines until a line starting with "####" or end of input
-            answer_lines = [line[len("Answer:"):].strip()]
-            for next_line in lines[i+1:]:
+            answer_lines = [line[len("Answer:") :].strip()]
+            for next_line in lines[i + 1 :]:
                 if next_line.startswith("Question:") or next_line.startswith("Answer:"):
                     break
                 answer_lines.append(next_line)
@@ -151,11 +152,11 @@ def _parse_response_with_schema(response):
     try:
         if isinstance(response, str):
             parsed = json.loads(response)
-            
+
             # Handle double-escaped JSON strings (i.e., string inside a string)
             if isinstance(parsed, str):
                 parsed = json.loads(parsed)
-            
+
             # Handle different schema types
             if "responses" in parsed:
                 responses = parsed["responses"]
@@ -163,10 +164,9 @@ def _parse_response_with_schema(response):
                     result = []
                     for resp in responses:
                         if isinstance(resp, dict) and "text" in resp and "probability" in resp:
-                            result.append({
-                                "text": resp["text"],
-                                "probability": resp["probability"]
-                            })
+                            result.append(
+                                {"text": resp["text"], "probability": resp["probability"]}
+                            )
                     return result
         # If not a string or doesn't match expected schema, return as is
         return response
@@ -175,20 +175,25 @@ def _parse_response_with_schema(response):
         return [{"text": str(response), "probability": 1.0}]
 
 
-def generate_responses_gsm8k(examples, method, num_responses=1, model_name="gpt-4.1", config={}, num_samples_per_turn=1):
+def generate_responses_gsm8k(
+    examples, method, num_responses=1, model_name="gpt-4.1", config={}, num_samples_per_turn=1
+):
     # Generate responses using OpenAI API directly
     responses = []
-    
+
     if method == Method.DIRECT:
         system_prompt = get_direct_system_prompt()
     elif method == Method.VS_STANDARD:
         system_prompt = get_verbalized_system_prompt(num_samples_per_turn)
     user_prompt = get_user_prompt(examples)
-    
+
     all_data = []
     if method == Method.DIRECT:
         for resp in tqdm(range(num_responses), desc="Generating direct responses"):
-            messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}]
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ]
             completion = client.chat.completions.create(
                 model=model_name,
                 messages=messages,
@@ -199,103 +204,137 @@ def generate_responses_gsm8k(examples, method, num_responses=1, model_name="gpt-
     else:
         num_of_turns = num_responses // num_samples_per_turn
         for turn in tqdm(range(num_of_turns), desc="Generating verbalized responses"):
-            messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}]
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ]
             completion = client.chat.completions.create(
-                    model=model_name,
-                    messages=messages,
-                    **config,
-                    response_format=structured_response_list_with_prob_schema
+                model=model_name,
+                messages=messages,
+                **config,
+                response_format=structured_response_list_with_prob_schema,
             )
             response = completion.choices[0].message.content
             parsed_response = _parse_response_with_schema(response)
             for resp in parsed_response:
-                gsm_parsed_response = parsing_gsm8k_response(resp['text'])
+                gsm_parsed_response = parsing_gsm8k_response(resp["text"])
                 all_data.append(gsm_parsed_response)
     return all_data
 
+
 def get_embedding(text, model="text-embedding-3-small"):
     text = text.replace("\n", " ")
-    return client.embeddings.create(input = [text], model=model).data[0].embedding
+    return client.embeddings.create(input=[text], model=model).data[0].embedding
+
 
 def compute_pairwise_cosine_similarities(responses, model_name="text-embedding-3-small"):
     # Use OpenAI's text-embedding-3-small model
     embeddings = []
     for response in tqdm(responses, desc="Computing embeddings"):
-        response_embedding = get_embedding(response['question'] + "\n" + response['answer'], model_name)
+        response_embedding = get_embedding(
+            response["question"] + "\n" + response["answer"], model_name
+        )
         embeddings.append(response_embedding)
-    
+
     embeddings_array = np.array(embeddings)
-    embeddings_normalized = normalize(embeddings_array, norm='l2', axis=1)
+    embeddings_normalized = normalize(embeddings_array, norm="l2", axis=1)
     similarity_matrix = cosine_similarity(embeddings_normalized)
     sims = []
     for i in range(len(similarity_matrix)):
-        for j in range(i+1, len(similarity_matrix)):
+        for j in range(i + 1, len(similarity_matrix)):
             sims.append(similarity_matrix[i, j])
     return sims
 
+
 def plot_similarity_histogram(sim_direct, sim_verbalized, bins=50, save_path=None):
-    plt.figure(figsize=(8,5))
-    plt.hist(sim_direct, bins=bins, alpha=0.6, color='lightpink', label='Direct Sampling', density=True)
-    plt.hist(sim_verbalized, bins=bins, alpha=0.6, color='lightblue', label='Verbalized Sampling', density=True)
+    plt.figure(figsize=(8, 5))
+    plt.hist(
+        sim_direct, bins=bins, alpha=0.6, color="lightpink", label="Direct Sampling", density=True
+    )
+    plt.hist(
+        sim_verbalized,
+        bins=bins,
+        alpha=0.6,
+        color="lightblue",
+        label="Verbalized Sampling",
+        density=True,
+    )
     plt.xlabel("Embedding Cosine Similarity")
     plt.ylabel("Frequency")
     plt.legend()
     plt.ylim(bottom=0)
-  
+
     if save_path:
-        plt.savefig(save_path, bbox_inches='tight')
+        plt.savefig(save_path, bbox_inches="tight")
     plt.show()
+
 
 def main():
     # 1. Get GSM8K test examples
     examples = get_gsm8k_test_examples(n=3)  # Start with 10 examples for testing
     print("Examples loaded:", len(examples))
-    
+
     # 2. Generate responses for both methods using GPT-4.1
     model_name = "gpt-4.1"
-    config = {
-        "temperature": 0.7,
-        "top_p": 1.0
-    }
+    config = {"temperature": 0.7, "top_p": 1.0}
     num_samples = 50
     num_samples_per_turn = 10
 
     if not os.path.exists("qualitative_tasks/gsm8k_direct_responses.json"):
         print("Generating direct responses...")
-        responses_direct = generate_responses_gsm8k(examples, Method.DIRECT, num_responses=num_samples, model_name=model_name, config=config)
+        responses_direct = generate_responses_gsm8k(
+            examples, Method.DIRECT, num_responses=num_samples, model_name=model_name, config=config
+        )
         with open("qualitative_tasks/gsm8k_direct_responses.json", "w", encoding="utf-8") as f:
             json.dump(responses_direct, f, ensure_ascii=False, indent=2)
     else:
         with open("qualitative_tasks/gsm8k_direct_responses.json", "r", encoding="utf-8") as f:
             responses_direct = json.load(f)
     # print(responses_direct)
-    
+
     if not os.path.exists("qualitative_tasks/gsm8k_verbalized_responses.json"):
         print("Generating verbalized responses...")
-        responses_verbalized = generate_responses_gsm8k(examples, Method.VS_STANDARD, num_responses=num_samples, model_name=model_name, config=config, num_samples_per_turn=num_samples_per_turn)
+        responses_verbalized = generate_responses_gsm8k(
+            examples,
+            Method.VS_STANDARD,
+            num_responses=num_samples,
+            model_name=model_name,
+            config=config,
+            num_samples_per_turn=num_samples_per_turn,
+        )
         with open("qualitative_tasks/gsm8k_verbalized_responses.json", "w", encoding="utf-8") as f:
             json.dump(responses_verbalized, f, ensure_ascii=False, indent=2)
     else:
         with open("qualitative_tasks/gsm8k_verbalized_responses.json", "r", encoding="utf-8") as f:
             responses_verbalized = json.load(f)
     # print(responses_verbalized)
-    
+
     # 3. Compute pairwise cosine similarities
     print("Computing similarities for direct responses...")
     sim_direct = compute_pairwise_cosine_similarities(responses_direct)
     # print(sim_direct)
-    
+
     print("Computing similarities for verbalized responses...")
     sim_verbalized = compute_pairwise_cosine_similarities(responses_verbalized)
-    
+
     # 4. Plot
     print("Creating similarity histogram...")
-    plot_similarity_histogram(sim_direct, sim_verbalized, bins=50, save_path="qualitative_tasks/gsm8k_diversity_barplot.png")
-    
+    plot_similarity_histogram(
+        sim_direct,
+        sim_verbalized,
+        bins=50,
+        save_path="qualitative_tasks/gsm8k_diversity_barplot.png",
+    )
+
     # 5. Print summary statistics
-    print(f"\nSummary Statistics:")
-    print(f"Direct sampling - Mean similarity: {np.mean(sim_direct):.4f}, Std: {np.std(sim_direct):.4f}")
-    print(f"Verbalized sampling - Mean similarity: {np.mean(sim_verbalized):.4f}, Std: {np.std(sim_verbalized):.4f}")
+    print("\nSummary Statistics:")
+    print(
+        f"Direct sampling - Mean similarity: {np.mean(sim_direct):.4f}, Std: {np.std(sim_direct):.4f}"
+    )
+    print(
+        f"Verbalized sampling - Mean similarity: {np.mean(sim_verbalized):.4f}, Std: {np.std(sim_verbalized):.4f}"
+    )
+
 
 if __name__ == "__main__":
     main()

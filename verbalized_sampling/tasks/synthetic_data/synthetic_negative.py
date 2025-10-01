@@ -12,12 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 from ..base import BaseTask
-from typing import Any, List, Dict
-import random
-import os
-from verbalized_sampling.methods import Method
-from verbalized_sampling.methods.factory import PromptFactory
 
 
 class SyntheticNegativeTask(BaseTask):
@@ -26,7 +22,7 @@ class SyntheticNegativeTask(BaseTask):
     def __init__(self, **kwargs):
         """
         Initialize the SyntheticNegativeTask.
-        
+
         Args:
             num_prompts: Number of prompts to randomly sample from the dataset
             random_seed: Random seed for reproducible sampling
@@ -37,10 +33,9 @@ class SyntheticNegativeTask(BaseTask):
             "total_prompts": 0,
             "num_prompts": self.num_prompts,
             "random_seed": self.random_seed,
-            "description": "Generate negative synthetic data"
+            "description": "Generate negative synthetic data",
         }
-    
-    
+
     @property
     def task_type(self) -> str:
         return "synthetic_negative"

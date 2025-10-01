@@ -16,20 +16,21 @@
 Command-line interface for verbalized-sampling.
 """
 
-import typer
 import json
+from datetime import datetime
 from pathlib import Path
+from typing import Optional
+
+import typer
 from rich.console import Console
 from rich.table import Table
-from typing import List, Optional
 
+from verbalized_sampling.evals.dialogue import DialogueLinguisticEvaluator, DonationEvaluator
+from verbalized_sampling.llms import get_model
+from verbalized_sampling.methods import Method
 from verbalized_sampling.pipeline import run_quick_comparison
 from verbalized_sampling.tasks import Task
-from verbalized_sampling.methods import Method
 from verbalized_sampling.tasks.dialogue.persuasion import PersuasionTask
-from verbalized_sampling.llms import get_model
-from verbalized_sampling.evals.dialogue import DonationEvaluator, DialogueLinguisticEvaluator
-from datetime import datetime
 
 app = typer.Typer(help="Run controlled experiments with LLMs using different sampling methods")
 console = Console()
@@ -42,30 +43,24 @@ TASK_DESCRIPTIONS = {
     Task.JOKE: "Joke generation - tests humor and creative wordplay",
     Task.BOOK: "Story continuation - tests long-form narrative coherence",
     # Task.SPEECH: "Speech generation - tests rhetorical effectiveness",
-
     # Bias mitigation tasks (Appendix)
     Task.RANDOM_NUM: "Random number generation - tests basic sampling uniformity",
     Task.STATE_NAME: "State name generation - tests creative naming capabilities",
-
     # Knowledge and QA tasks (Appendix)
     Task.SIMPLE_QA: "Simple QA - tests factual knowledge diversity while maintaining accuracy",
-
     # Synthetic data generation tasks (Section 7)
     Task.GSM8K: "GSM8K math problems - generate grade school math word problems",
     Task.AMCAndAIMEMathTask: "AMC/AIME math - generate competition-level mathematics problems",
     Task.LIVECODEBENCH: "LiveCodeBench - generate coding problems for evaluation",
     Task.SYNTHETIC_NEGATIVE: "Negative examples - generate incorrect solutions for robust training",
-
     # Math evaluation tasks
     Task.MATH: "MATH dataset problems - complex mathematical reasoning tasks",
     Task.AIME: "AIME problems - American Invitational Mathematics Examination",
     Task.AMC: "AMC problems - American Mathematics Competitions",
     Task.MINERVA: "Minerva math - mathematical reasoning evaluation dataset",
     Task.OLYMPIAD_BENCH: "Olympiad problems - international mathematics olympiad challenges",
-
     # Dialogue simulation (Section 6)
     Task.PERSUASION_DIALOGUE: "PersuasionForGood dialogue simulation - multi-turn persuasive conversations about charity donation",
-
     # Safety evaluation (Appendix)
     Task.SAFETY: "Safety evaluation - test refusal rates for harmful content using StrongReject",
 }
@@ -79,18 +74,16 @@ METHOD_DESCRIPTIONS = {
     Method.SEQUENCE: "Sequential sampling - generates multiple responses in list format",
     Method.STRUCTURE: "Structured sampling - uses JSON format with response field only",
     Method.MULTI_TURN: "Multi-turn sampling - generates multiple responses in multi-turn format",
-
     # Verbalized Sampling methods (paper-aligned)
     Method.VS_STANDARD: "VS-Standard - verbalized sampling with responses and probabilities",
     Method.VS_COT: "VS-CoT - verbalized sampling with chain-of-thought reasoning",
     Method.VS_MULTI: "VS-Multi - verbalized sampling with multi-turn/combined approach",
-
     # Additional specialized methods
     # Method.STANDARD_ALL_POSSIBLE: "All-possible standard - generates all reasonable variations of a response",
-
     # Note: Legacy method names (STRUCTURE_WITH_PROB, CHAIN_OF_THOUGHT, COMBINED)
     # are aliases that resolve to the same enum objects as VS_STANDARD, VS_COT, VS_MULTI
 }
+
 
 @app.command()
 def run(
@@ -122,9 +115,9 @@ def run(
     # Parse space-separated strings into lists
     method_list = [Method(m.strip()) for m in methods.split()]
     metric_list = [m.strip() for m in metrics.split()]
-    
+
     console.print(f"🔬 Running {task.value} experiment with {model}")
-    
+
     results = run_quick_comparison(
         task=task,
         methods=method_list,
@@ -140,10 +133,11 @@ def run(
         temperature=temperature,
         top_p=top_p,
     )
-    
+
     # Display summary and point to the report
     report_path = results.get("report_path", output_dir / "pipeline_report.html")
     console.print(f"✅ Done! Check {report_path}")
+
 
 @app.command()
 def list_tasks():
@@ -151,12 +145,13 @@ def list_tasks():
     table = Table(title="Available Tasks")
     table.add_column("Task", style="bold cyan")
     table.add_column("Description")
-    
+
     for task in Task:
         description = TASK_DESCRIPTIONS.get(task, "No description available")
         table.add_row(task.value, description)
-    
+
     console.print(table)
+
 
 @app.command()
 def list_methods():
@@ -164,19 +159,24 @@ def list_methods():
     table = Table(title="Available Methods")
     table.add_column("Method", style="bold cyan")
     table.add_column("Description")
-    
+
     for method in Method:
         description = METHOD_DESCRIPTIONS.get(method, "No description available")
         # Use paper name if available, otherwise use method value
-        display_name = method.paper_name if hasattr(method, 'paper_name') else method.value
+        display_name = method.paper_name if hasattr(method, "paper_name") else method.value
         table.add_row(display_name, description)
-    
+
     console.print(table)
+
 
 @app.command()
 def dialogue(
-    persuader_model: str = typer.Option("openai/gpt-4.1-mini", help="Model name for persuader role"),
-    persuadee_model: str = typer.Option("openai/gpt-4.1-mini", help="Model name for persuadee role"),
+    persuader_model: str = typer.Option(
+        "openai/gpt-4.1-mini", help="Model name for persuader role"
+    ),
+    persuadee_model: str = typer.Option(
+        "openai/gpt-4.1-mini", help="Model name for persuadee role"
+    ),
     method: Method = typer.Option(Method.VS_STANDARD, help="Sampling method for persuadee"),
     max_turns: int = typer.Option(10, help="Maximum conversation turns"),
     word_limit: int = typer.Option(160, help="Word limit per turn"),
@@ -187,11 +187,16 @@ def dialogue(
     temperature: float = typer.Option(0.7, help="Sampling temperature"),
     top_p: float = typer.Option(0.9, help="Top-p sampling"),
     max_tokens: int = typer.Option(500, help="Max tokens per response"),
-    response_selection: str = typer.Option("probability", help="Response selection strategy",
-                                           rich_help_panel="Selection",
-                                           case_sensitive=False),
+    response_selection: str = typer.Option(
+        "probability",
+        help="Response selection strategy",
+        rich_help_panel="Selection",
+        case_sensitive=False,
+    ),
     evaluate: bool = typer.Option(False, help="Compute donation and linguistic metrics"),
-    ground_truth_path: Optional[Path] = typer.Option(None, help="Ground truth donation JSON for evaluation"),
+    ground_truth_path: Optional[Path] = typer.Option(
+        None, help="Ground truth donation JSON for evaluation"
+    ),
     output_file: Optional[Path] = typer.Option(None, help="Output JSONL path for results"),
 ):
     """Run PersuasionForGood dialogue simulations with VS methods."""
@@ -273,24 +278,38 @@ def dialogue(
 
     # Optional evaluation
     if evaluate:
-        donation_eval = DonationEvaluator(ground_truth_path=str(ground_truth_path) if ground_truth_path else None)
+        donation_eval = DonationEvaluator(
+            ground_truth_path=str(ground_truth_path) if ground_truth_path else None
+        )
         ling_eval = DialogueLinguisticEvaluator()
 
-        donation_metrics = [donation_eval.compute_instance_metric("", r) for r in _iter_results_jsonl(output_file)]
-        linguistic_metrics = [ling_eval.compute_instance_metric("", r) for r in _iter_results_jsonl(output_file)]
+        donation_metrics = [
+            donation_eval.compute_instance_metric("", r) for r in _iter_results_jsonl(output_file)
+        ]
+        linguistic_metrics = [
+            ling_eval.compute_instance_metric("", r) for r in _iter_results_jsonl(output_file)
+        ]
 
         agg_donation = donation_eval.aggregate_metrics(donation_metrics)
         agg_linguistic = ling_eval.aggregate_metrics(linguistic_metrics)
 
         eval_file = output_file.parent / f"{output_file.stem}_evaluation.json"
         with open(eval_file, "w") as f:
-            json.dump({"donation_metrics": agg_donation, "linguistic_metrics": agg_linguistic}, f, indent=2)
+            json.dump(
+                {"donation_metrics": agg_donation, "linguistic_metrics": agg_linguistic},
+                f,
+                indent=2,
+            )
         console.print(f"📊 Evaluation saved to {eval_file}")
 
     # Summary
     total_turns = sum(len(c.turns) for c in conversations)
-    donations = sum(1 for c in conversations if c.outcome and c.outcome.get("final_donation_amount", 0) > 0)
-    console.print(f"📈 Conversations: {len(conversations)}, Avg turns: {total_turns/len(conversations):.1f}")
+    donations = sum(
+        1 for c in conversations if c.outcome and c.outcome.get("final_donation_amount", 0) > 0
+    )
+    console.print(
+        f"📈 Conversations: {len(conversations)}, Avg turns: {total_turns/len(conversations):.1f}"
+    )
     console.print(f"💰 Donation rate: {donations/len(conversations):.1%}")
 
 
@@ -301,6 +320,7 @@ def _iter_results_jsonl(path: Path):
                 yield json.loads(line)
             except Exception:
                 continue
+
 
 if __name__ == "__main__":
     app()

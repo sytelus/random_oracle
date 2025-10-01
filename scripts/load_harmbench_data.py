@@ -20,13 +20,13 @@ This script downloads the HarmBench safety dataset and processes it into
 a format compatible with the verbalized sampling framework.
 """
 
-import os
-import json
 import argparse
-from pathlib import Path
-from typing import List, Dict, Any
-from datasets import load_dataset
+import json
 import random
+from pathlib import Path
+from typing import Any, Dict, List
+
+from datasets import load_dataset
 
 
 def load_harmbench_dataset(split: str = "train", config: str = "standard") -> List[Dict[str, Any]]:
@@ -60,9 +60,9 @@ def load_harmbench_dataset(split: str = "train", config: str = "standard") -> Li
         return []
 
 
-def process_harmbench_data(examples: List[Dict[str, Any]],
-                          max_samples: int = None,
-                          random_seed: int = 42) -> List[str]:
+def process_harmbench_data(
+    examples: List[Dict[str, Any]], max_samples: int = None, random_seed: int = 42
+) -> List[str]:
     """
     Process HarmBench examples into safety prompts.
 
@@ -90,12 +90,12 @@ def process_harmbench_data(examples: List[Dict[str, Any]],
         # Handle case where example is a dict
         elif isinstance(example, dict):
             # The exact structure may vary, but typically HarmBench contains 'behavior' or 'prompt' fields
-            if 'behavior' in example:
-                prompts.append(example['behavior'])
-            elif 'prompt' in example:
-                prompts.append(example['prompt'])
-            elif 'text' in example:
-                prompts.append(example['text'])
+            if "behavior" in example:
+                prompts.append(example["behavior"])
+            elif "prompt" in example:
+                prompts.append(example["prompt"])
+            elif "text" in example:
+                prompts.append(example["text"])
             else:
                 # Fallback: use the first string field found
                 for value in example.values():
@@ -136,22 +136,18 @@ def save_safety_data(prompts: List[str], output_dir: str = "data"):
 
     # Save as simple text file (one prompt per line)
     txt_file = output_path / "safety.txt"
-    with open(txt_file, 'w', encoding='utf-8') as f:
+    with open(txt_file, "w", encoding="utf-8") as f:
         for prompt in prompts:
             # Clean the prompt (remove newlines within prompts for txt format)
-            clean_prompt = prompt.replace('\n', ' ').replace('\r', ' ').strip()
-            f.write(clean_prompt + '\n')
+            clean_prompt = prompt.replace("\n", " ").replace("\r", " ").strip()
+            f.write(clean_prompt + "\n")
 
     # Also save as JSONL for more structured storage
     jsonl_file = output_path / "safety.jsonl"
-    with open(jsonl_file, 'w', encoding='utf-8') as f:
+    with open(jsonl_file, "w", encoding="utf-8") as f:
         for i, prompt in enumerate(prompts):
-            data = {
-                "id": i,
-                "prompt": prompt,
-                "source": "harmbench"
-            }
-            f.write(json.dumps(data, ensure_ascii=False) + '\n')
+            data = {"id": i, "prompt": prompt, "source": "harmbench"}
+            f.write(json.dumps(data, ensure_ascii=False) + "\n")
 
     print(f"Saved {len(prompts)} safety prompts to:")
     print(f"  - {txt_file}")
@@ -162,7 +158,11 @@ def main():
     """Main function to load and process HarmBench data."""
     parser = argparse.ArgumentParser(description="Load and process HarmBench safety dataset")
     parser.add_argument("--split", default="train", help="Dataset split to load")
-    parser.add_argument("--config", default="standard", help="Dataset config to load (standard, contextual, copyright)")
+    parser.add_argument(
+        "--config",
+        default="standard",
+        help="Dataset config to load (standard, contextual, copyright)",
+    )
     parser.add_argument("--max-samples", type=int, help="Maximum number of samples to process")
     parser.add_argument("--random-seed", type=int, default=42, help="Random seed for sampling")
     parser.add_argument("--output-dir", default="data", help="Output directory for processed data")
@@ -180,9 +180,7 @@ def main():
 
     print("Processing data...")
     prompts = process_harmbench_data(
-        examples,
-        max_samples=args.max_samples,
-        random_seed=args.random_seed
+        examples, max_samples=args.max_samples, random_seed=args.random_seed
     )
 
     if not prompts:

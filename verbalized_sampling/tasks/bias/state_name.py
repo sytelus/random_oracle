@@ -12,12 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 from ..base import BaseTask
-from typing import Any, List, Dict, Union
-import random
-import os
-from verbalized_sampling.methods import Method
-from verbalized_sampling.methods.factory import PromptFactory
 
 
 class StateNameTask(BaseTask):
@@ -26,7 +22,7 @@ class StateNameTask(BaseTask):
     def __init__(self, **kwargs):
         """
         Initialize the StateNameTask.
-        
+
         Args:
             num_prompts: Number of prompts to randomly sample from the dataset
             random_seed: Random seed for reproducible sampling
@@ -37,16 +33,12 @@ class StateNameTask(BaseTask):
             "total_prompts": 0,
             "num_prompts": self.num_prompts,
             "random_seed": self.random_seed,
-            "description": "Generate a state name randomly."
+            "description": "Generate a state name randomly.",
         }
-    
-    
+
     @property
     def task_type(self) -> str:
         return "state_name"
-
-    
-
 
     # def get_prompt(self, num_samples: int = 1) -> str:
     #     """Get the prompt for the task."""
@@ -73,4 +65,3 @@ class StateNameTask(BaseTask):
     #         return FORMAT_SYSTEM_PROMPT_NON_SAMPLING + FORMAT_USER_PROMPT
     #     else:
     #         return FORMAT_SYSTEM_PROMPT_SAMPLING + FORMAT_USER_PROMPT
-    

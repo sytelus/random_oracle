@@ -14,29 +14,29 @@
 # limitations under the License.
 
 
-import os
-import json
-from datasets import load_dataset, Dataset
-from verbalized_sampling.llms.openai import OpenAILLM
-from typing import List, Dict, Any
 import argparse
+import json
+import os
+from typing import Dict, List
+
+from datasets import Dataset, load_dataset
+
+from verbalized_sampling.llms.openai import OpenAILLM
+
 
 def format_messages(system_content: str, instruction: str) -> List[Dict[str, str]]:
     """Format system and instruction into message format."""
-    return [
-        {"role": "system", "content": system_content},
-        {"role": "user", "content": instruction}
-    ]
+    return [{"role": "system", "content": system_content}, {"role": "user", "content": instruction}]
+
 
 def process_local_dataset(json_file: str, target_dataset_name: str):
     """Process local JSON files and push to HuggingFace."""
-
 
     print(f"Loading {json_file}")
 
     # Load all data from JSON files
     all_data = []
-    with open(json_file, 'r') as f:
+    with open(json_file, "r") as f:
         data = json.load(f)
         all_data.extend(data)
 
@@ -51,15 +51,15 @@ def process_local_dataset(json_file: str, target_dataset_name: str):
     # Format data into HuggingFace dataset structure
     formatted_data = []
     for i, example in enumerate(all_data):
-        if not all(key in example for key in ['instruction', 'output']):
+        if not all(key in example for key in ["instruction", "output"]):
             print(f"Warning: Missing required fields in example {i}")
             continue
 
         # Create the complete message chain
         messages = [
             # {"role": "system", "content": example['system']},
-            {"role": "user", "content": example['instruction']},
-            {"role": "assistant", "content": example['output']}
+            {"role": "user", "content": example["instruction"]},
+            {"role": "assistant", "content": example["output"]},
         ]
 
         formatted_data.append({"messages": messages})
@@ -75,6 +75,7 @@ def process_local_dataset(json_file: str, target_dataset_name: str):
     print("Dataset processing complete!")
     return new_dataset
 
+
 def process_dataset(dataset_name: str, target_dataset_name: str, num_workers: int = 10):
     """Process the dataset by generating GPT-4.1 responses."""
 
@@ -82,7 +83,7 @@ def process_dataset(dataset_name: str, target_dataset_name: str, num_workers: in
     dataset = load_dataset(dataset_name)
 
     # Get the train split
-    train_data = dataset['train']
+    train_data = dataset["train"]
     print(f"Dataset loaded with {len(train_data)} examples")
 
     # Examine first few examples
@@ -91,22 +92,18 @@ def process_dataset(dataset_name: str, target_dataset_name: str, num_workers: in
 
     # Initialize OpenAI LLM with GPT-4.1
     config = {
-        'temperature': 0.7,
-        'max_tokens': 4096,
+        "temperature": 0.7,
+        "max_tokens": 4096,
     }
 
-    llm = OpenAILLM(
-        model_name="gpt-4.1",
-        config=config,
-        num_workers=num_workers
-    )
+    llm = OpenAILLM(model_name="gpt-4.1", config=config, num_workers=num_workers)
 
     print(f"Using model: {llm.model_name} with {num_workers} workers")
 
     # Format all messages for parallel processing
     all_messages = []
     for example in train_data:
-        messages = format_messages(example['system'], example['instruction'])
+        messages = format_messages(example["system"], example["instruction"])
         all_messages.append(messages)
 
     print(f"Formatted {len(all_messages)} message sets")
@@ -127,8 +124,8 @@ def process_dataset(dataset_name: str, target_dataset_name: str, num_workers: in
         # Create the complete message chain
         messages = [
             # {"role": "system", "content": example['system']},
-            {"role": "user", "content": example['instruction']},
-            {"role": "assistant", "content": response}
+            {"role": "user", "content": example["instruction"]},
+            {"role": "assistant", "content": response},
         ]
 
         formatted_data.append({"messages": messages})
@@ -144,27 +141,27 @@ def process_dataset(dataset_name: str, target_dataset_name: str, num_workers: in
     print("Dataset processing complete!")
     return new_dataset
 
+
 def main():
     parser = argparse.ArgumentParser(description="Process dataset and push to HuggingFace")
     parser.add_argument(
-        "--local-dir",
-        help="Path to local directory containing JSON files (e.g., synthetic_lcb/)"
+        "--local-dir", help="Path to local directory containing JSON files (e.g., synthetic_lcb/)"
     )
     parser.add_argument(
         "--source",
         default="EleanorZzz/gsm8k_training_positive_1k",
-        help="Source dataset name (for HuggingFace datasets)"
+        help="Source dataset name (for HuggingFace datasets)",
     )
     parser.add_argument(
         "--target",
         default="simonycl/gsm8k_training_positive_1k_regenerated",
-        help="Target dataset name"
+        help="Target dataset name",
     )
     parser.add_argument(
         "--workers",
         type=int,
         default=10,
-        help="Number of parallel workers (for GPT-4.1 generation)"
+        help="Number of parallel workers (for GPT-4.1 generation)",
     )
 
     args = parser.parse_args()
@@ -180,6 +177,7 @@ def main():
 
         # Process HuggingFace dataset with GPT-4.1 generation
         process_dataset(args.source, args.target, args.workers)
+
 
 if __name__ == "__main__":
     main()

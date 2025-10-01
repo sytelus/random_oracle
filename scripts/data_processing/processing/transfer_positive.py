@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datasets import load_dataset
-from datasets import Dataset
+from datasets import Dataset, load_dataset
 
 dataset = load_dataset("EleanorZzz/gsm8k_training_synthetic_positive_direct_cot", split="train")
 
@@ -22,7 +21,7 @@ for example in dataset:
     messages = [
         {"role": "system", "content": example["system"]},
         {"role": "user", "content": example["instruction"]},
-        {"role": "assistant", "content": example["output"]}
+        {"role": "assistant", "content": example["output"]},
     ]
     transformed_data.append({"messages": messages})
 

@@ -12,24 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import numpy as np
-import matplotlib.pyplot as plt
-from tqdm import tqdm
-from openai import OpenAI
-from datasets import load_dataset
-from enum import Enum
-import pandas as pd
+import json
 import os
 import re
-import json
-from sklearn.preprocessing import normalize
-from sklearn.metrics.pairwise import cosine_similarity
-import seaborn as sns
-from typing import List, Dict, Any
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import time
-import matplotlib.gridspec as gridspec
 from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from datasets import load_dataset
+from openai import OpenAI
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import normalize
+from tqdm import tqdm
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -111,12 +106,14 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 # - 'probability': the estimated probability from 0.0 to 1.0 of this response given the input prompt (relative to the full answer space).
 #   return prompt
 
+
 def get_user_prompt(example):
     prompt = f"""
     Here is a math problem: {example['question']}
     """
     prompt = prompt.strip()
     return prompt
+
 
 def get_gsm8k_test_examples(n=1, seed=42):
     ds = load_dataset("gsm8k", "main", split="train")
@@ -131,16 +128,16 @@ def get_gsm8k_test_examples(n=1, seed=42):
 #         try:
 #             if isinstance(response, str):
 #                 parsed = json.loads(response)
-                
+
 #                 # Handle double-escaped JSON strings (i.e., string inside a string)
 #                 if isinstance(parsed, str):
 #                     parsed = json.loads(parsed)
-                
+
 #                 # Handle different schema types
 #                 if "responses" in parsed:
 #                     # For schemas with a 'responses' field (SequenceResponse, StructuredResponseList, etc.)
 #                     responses = parsed["responses"]
-                    
+
 #                     if isinstance(responses, list):
 #                         result = []
 #                         for resp in responses:
@@ -175,10 +172,10 @@ def get_gsm8k_test_examples(n=1, seed=42):
 #                             "response": parsed["response"],
 #                             "probability": parsed.get("probability", 1.0)
 #                         }]
-                    
+
 #                 # Fallback: return the raw validated data
 #                 return [{"response": str(parsed), "probability": 1.0}]
-                
+
 #         except Exception as e:
 #             print(f"Error parsing response with schema: {e}")
 #             # If parsing fails, return a single response with probability 1.0
@@ -196,10 +193,10 @@ def get_gsm8k_test_examples(n=1, seed=42):
 #                 config_copy.update({'max_completion_tokens': config_copy.pop('max_tokens')})
 #         else:
 #             config_copy = config.copy()
-        
+
 #         if response_format:
 #             config_copy['response_format'] = response_format
-            
+
 #         completion = client.chat.completions.create(
 #             model=model_name,
 #             messages=messages,
@@ -213,7 +210,7 @@ def get_gsm8k_test_examples(n=1, seed=42):
 # def generate_responses_gsm8k(examples, method, num_responses=1, model_name="gpt-4.1", config={}, num_samples_per_turn=1, max_workers=5):
 #     # Generate responses using OpenAI API with parallel execution
 #     responses = []
-    
+
 #     if method == Method.DIRECT:
 #         system_prompt = get_direct_system_prompt()
 #     elif method == Method.SEQUENCE:
@@ -223,19 +220,19 @@ def get_gsm8k_test_examples(n=1, seed=42):
 #     user_prompts = [get_user_prompt(example) for example in examples]
 
 #     all_data = []
-    
+
 #     if method == Method.DIRECT:
 #         for user_prompt in user_prompts:
 #             messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}]
-            
+
 #             # Generate responses in parallel
 #             with ThreadPoolExecutor(max_workers=max_workers) as executor:
 #                 # Submit all tasks
 #                 future_to_index = {
-#                     executor.submit(generate_single_response, messages, model_name, config, method): i 
+#                     executor.submit(generate_single_response, messages, model_name, config, method): i
 #                     for i in range(num_responses)
 #                 }
-                
+
 #                 # Collect results as they complete
 #                 responses = [None] * num_responses
 #                 for future in tqdm(as_completed(future_to_index), total=num_responses, desc="Generating direct responses"):
@@ -246,31 +243,31 @@ def get_gsm8k_test_examples(n=1, seed=42):
 #                     except Exception as e:
 #                         print(f"Error getting result for index {index}: {e}")
 #                         responses[index] = None
-                
+
 #                 # Filter out None responses
 #                 responses = [r for r in responses if r is not None]
-            
+
 #             all_data.append({"question": user_prompt, "responses": responses})
 #     else:
 #         num_of_turns = num_responses // num_samples_per_turn
 #         for user_prompt in user_prompts:
 #             messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}]
-            
+
 #             # Generate responses in parallel
 #             with ThreadPoolExecutor(max_workers=max_workers) as executor:
 #                 # Submit all tasks
 #                 future_to_index = {
 #                     executor.submit(
-#                         generate_single_response, 
-#                         messages, 
-#                         model_name, 
-#                         config, 
-#                         method, 
+#                         generate_single_response,
+#                         messages,
+#                         model_name,
+#                         config,
+#                         method,
 #                         structured_response_list_with_prob_schema
-#                     ): i 
+#                     ): i
 #                     for i in range(num_of_turns)
 #                 }
-                
+
 #                 # Collect results as they complete
 #                 responses = []
 #                 for future in tqdm(as_completed(future_to_index), total=num_of_turns, desc="Generating sequence responses"):
@@ -283,15 +280,15 @@ def get_gsm8k_test_examples(n=1, seed=42):
 #                                 responses.append(resp["response"])
 #                     except Exception as e:
 #                         print(f"Error getting result: {e}")
-            
+
 #             all_data.append({"question": user_prompt, "responses": responses})
-    
+
 #     return all_data
 
 
 def get_embedding(text, model="text-embedding-3-small"):
     text = text.replace("\n", " ")
-    return client.embeddings.create(input = [text], model=model).data[0].embedding
+    return client.embeddings.create(input=[text], model=model).data[0].embedding
 
 
 def compute_pairwise_cosine_similarities(responses, model_name="text-embedding-3-small"):
@@ -300,28 +297,28 @@ def compute_pairwise_cosine_similarities(responses, model_name="text-embedding-3
     for response in tqdm(responses, desc="Computing embeddings"):
         response_embedding = get_embedding(response, model_name)
         embeddings.append(response_embedding)
-    
+
     embeddings_array = np.array(embeddings)
-    embeddings_normalized = normalize(embeddings_array, norm='l2', axis=1)
+    embeddings_normalized = normalize(embeddings_array, norm="l2", axis=1)
     similarity_matrix = cosine_similarity(embeddings_normalized)
     sims = []
     for i in range(len(similarity_matrix)):
-        for j in range(i+1, len(similarity_matrix)):
+        for j in range(i + 1, len(similarity_matrix)):
             sims.append(similarity_matrix[i, j])
     return sims
 
 
 def plot_similarity_histogram(sim_direct, sim_sequence, sim_verbalized, bins=100, save_path=None):
-    plt.figure(figsize=(8,5))
+    plt.figure(figsize=(8, 5))
     # Ensure all inputs are 1D numpy arrays or lists.
     sim_direct = np.asarray(sim_direct).flatten()
     sim_sequence = np.asarray(sim_sequence).flatten()
     sim_verbalized = np.asarray(sim_verbalized).flatten()
 
     # Define bar and KDE colors
-    bar_colors = ['lightpink', 'lightblue', 'lightgreen']
-    kde_colors = ['deeppink', 'royalblue', 'forestgreen']
-    labels = ['Direct Sampling', 'Sequence Sampling', 'Verbalized Sampling']
+    bar_colors = ["lightpink", "lightblue", "lightgreen"]
+    kde_colors = ["deeppink", "royalblue", "forestgreen"]
+    labels = ["Direct Sampling", "Sequence Sampling", "Verbalized Sampling"]
 
     # Plot histograms and keep the returned patches for legend
     n, bins_out, patches = plt.hist(
@@ -331,8 +328,8 @@ def plot_similarity_histogram(sim_direct, sim_sequence, sim_verbalized, bins=100
         color=bar_colors,
         label=labels,
         density=True,
-        histtype='stepfilled',
-        linewidth=1.5
+        histtype="stepfilled",
+        linewidth=1.5,
     )
 
     # Overlay KDE for smoothness
@@ -346,13 +343,17 @@ def plot_similarity_histogram(sim_direct, sim_sequence, sim_verbalized, bins=100
     plt.ylabel("Density")
     # Set legend with correct color patches
     from matplotlib.patches import Patch
-    legend_handles = [Patch(facecolor=bar_colors[i], edgecolor='k', label=labels[i], alpha=0.7) for i in range(3)]
+
+    legend_handles = [
+        Patch(facecolor=bar_colors[i], edgecolor="k", label=labels[i], alpha=0.7) for i in range(3)
+    ]
     plt.legend(handles=legend_handles)
     plt.ylim(bottom=0)
 
     if save_path:
-        plt.savefig(save_path, bbox_inches='tight')
+        plt.savefig(save_path, bbox_inches="tight")
     # plt.show()
+
 
 def read_response_file(file_path):
     """
@@ -360,6 +361,7 @@ def read_response_file(file_path):
     Returns a dictionary: {prompt: {"responses": [list of response texts]}}
     """
     import json
+
     prompt_to_responses = {}
     with open(file_path, "r", encoding="utf-8") as f:
         for line in f:
@@ -381,14 +383,14 @@ def read_response_file(file_path):
                 print(f"Error decoding JSON in {file_path}: {e}")
 
     return prompt_to_responses
-    
+
 
 def calculate_incorrect_answer_rate(responses, example):
-    match = re.search(r"####\s*([$\d,.\-]+)", example['answer'])
+    match = re.search(r"####\s*([$\d,.\-]+)", example["answer"])
     numeric_answer = match.group(1).strip() if match else None
     numeric_answer = numeric_answer.replace(",", "").replace("$", "")
     # print("Correct answer:", numeric_answer)
-    
+
     incorrect_answer_rate = 0
     different_answer = []
 
@@ -404,7 +406,7 @@ def calculate_incorrect_answer_rate(responses, example):
             except Exception:
                 response_answer = None
         # print(response, response_answer)
-        if response_answer is not None and response_answer.endswith('.'):
+        if response_answer is not None and response_answer.endswith("."):
             response_answer = response_answer[:-1]
         if response_answer is not None and float(response_answer) != float(numeric_answer):
             incorrect_answer_rate += 1
@@ -420,11 +422,13 @@ def calculate_incorrect_answer_rate_for_all_prompts(prompt_to_responses, example
     # print(prompt_to_responses.keys())
 
     for example in examples:
-        prompt = "Here is a math problem: " + example['question']
+        prompt = "Here is a math problem: " + example["question"]
         if prompt in prompt_to_responses.keys():
             response_texts = prompt_to_responses[prompt]["responses"]
             if len(response_texts) > 0:  # Only process if there are responses
-                incorrect_answer_rate, different_answer_rate = calculate_incorrect_answer_rate(response_texts, example)
+                incorrect_answer_rate, different_answer_rate = calculate_incorrect_answer_rate(
+                    response_texts, example
+                )
                 incorrect_answer_rate_list.append(incorrect_answer_rate)
                 different_answer_rate_list.append(different_answer_rate)
                 # print(f"Incorrect answer rate: {incorrect_answer_rate}, Different answer rate: {different_answer_rate}")
@@ -438,7 +442,15 @@ def extract_synthetic_data_negative_diversity(base_dir, task_name):
     #     "Llama-3.1-70B-Instruct", "deepseek-r1", "o3", "claude-4-sonnet"
     # ]
     model_list = ["gpt-4.1"]
-    method_list = ["direct", "direct_cot", "sequence", "multi_turn", "vs_standard", "vs_cot", "vs_multi"]
+    method_list = [
+        "direct",
+        "direct_cot",
+        "sequence",
+        "multi_turn",
+        "vs_standard",
+        "vs_cot",
+        "vs_multi",
+    ]
     method_to_label = {
         "direct": "Direct",
         "direct_cot": "Direct_CoT",
@@ -446,7 +458,7 @@ def extract_synthetic_data_negative_diversity(base_dir, task_name):
         "multi_turn": "Multi_turn",
         "vs_standard": "VS_Standard",
         "vs_cot": "VS_CoT",
-        "vs_multi": "VS_Multi"
+        "vs_multi": "VS_Multi",
     }
     metrics = ["avg_diversity", "std_diversity"]
     metrics_values = {}
@@ -462,7 +474,7 @@ def extract_synthetic_data_negative_diversity(base_dir, task_name):
 
             # Extract and normalize method name
             method_name_raw = method_dir.name
-            method_name = method_name_raw.split(' ')[0]
+            method_name = method_name_raw.split(" ")[0]
             if method_name not in method_list:
                 continue
 
@@ -484,20 +496,22 @@ def extract_synthetic_data_negative_diversity(base_dir, task_name):
                 # Collect metric values from all prompts
                 for metric in metrics:
                     if metric in overall_metrics:
-                        metrics_values[model_name][method_label][metric].append(overall_metrics[metric])
+                        metrics_values[model_name][method_label][metric].append(
+                            overall_metrics[metric]
+                        )
             except Exception as e:
                 print(f"Error reading {results_file}: {e}")
 
     # print(metrics_values)
     return metrics_values
-    
+
 
 def draw_diversity_quality_histogram(
-    incorrect_answer_rate_list, 
-    different_answer_rate_list, 
-    semantic_diversity_dict=None, 
-    cosine_similarity_dict=None, 
-    save_path=None
+    incorrect_answer_rate_list,
+    different_answer_rate_list,
+    semantic_diversity_dict=None,
+    cosine_similarity_dict=None,
+    save_path=None,
 ):
     """
     Draws a 2x2 grid of subplots:
@@ -519,25 +533,25 @@ def draw_diversity_quality_histogram(
         "multi_turn": "Multi-turn",
         "vs_standard": "VS-Standard",
         "vs_cot": "VS-CoT",
-        "vs_multi": "VS-Multi"
+        "vs_multi": "VS-Multi",
     }
     colors = {
-        'direct': '#E8F4FD',      # Very light blue (baseline)
-        'cot': '#B8E0F5',         # Light blue (baseline)
-        'sequence': '#7CC7EA',    # Medium blue (baseline)
-        'multi_turn': '#4A90E2',  # Distinct blue (baseline)
-        'vs_standard': '#FFCCCB', # light red
-        'vs_cot': '#FF9999',      # medium red
-        'vs_multi': '#FF6B6B'     # distinct red
+        "direct": "#E8F4FD",  # Very light blue (baseline)
+        "cot": "#B8E0F5",  # Light blue (baseline)
+        "sequence": "#7CC7EA",  # Medium blue (baseline)
+        "multi_turn": "#4A90E2",  # Distinct blue (baseline)
+        "vs_standard": "#FFCCCB",  # light red
+        "vs_cot": "#FF9999",  # medium red
+        "vs_multi": "#FF6B6B",  # distinct red
     }
     edge_colors = {
-        'direct': '#4A90E2',
-        'cot': '#4A90E2', 
-        'sequence': '#4A90E2',
-        'multi_turn': '#4A90E2',
-        'vs_standard': '#FF6B6B',
-        'vs_cot': '#FF6B6B',
-        'vs_multi': '#FF6B6B'
+        "direct": "#4A90E2",
+        "cot": "#4A90E2",
+        "sequence": "#4A90E2",
+        "multi_turn": "#4A90E2",
+        "vs_standard": "#FF6B6B",
+        "vs_cot": "#FF6B6B",
+        "vs_multi": "#FF6B6B",
     }
 
     # Prepare data for each metric
@@ -560,134 +574,170 @@ def draw_diversity_quality_histogram(
         cos_data = [[0], [0], [0]]
 
     # Plotting
-    plt.style.use('default')  # Start with clean slate
-    plt.rcParams.update({
-        'font.family': 'sans-serif',
-        'font.sans-serif': ['Arial', 'DejaVu Sans', 'Liberation Sans'],
-        'font.size': 24,
-        'axes.labelsize': 28,
-        'axes.titlesize': 32,
-        'xtick.labelsize': 28,
-        'ytick.labelsize': 28,
-        'legend.fontsize': 28,
-        'axes.linewidth': 0.8,
-        'axes.edgecolor': '#666666',
-    })
+    plt.style.use("default")  # Start with clean slate
+    plt.rcParams.update(
+        {
+            "font.family": "sans-serif",
+            "font.sans-serif": ["Arial", "DejaVu Sans", "Liberation Sans"],
+            "font.size": 24,
+            "axes.labelsize": 28,
+            "axes.titlesize": 32,
+            "xtick.labelsize": 28,
+            "ytick.labelsize": 28,
+            "legend.fontsize": 28,
+            "axes.linewidth": 0.8,
+            "axes.edgecolor": "#666666",
+        }
+    )
     fig, axes = plt.subplots(2, 2, figsize=(20, 15))
     plt.subplots_adjust(wspace=0.3, hspace=0.2)
 
     # Place the legend at the upper center of the whole figure, not just the subfigure
-    handles = [plt.Rectangle((0,0),1,1, facecolor=colors[m], edgecolor=edge_colors[m]) for m in methods]
+    handles = [
+        plt.Rectangle((0, 0), 1, 1, facecolor=colors[m], edgecolor=edge_colors[m]) for m in methods
+    ]
     labels = [method_to_labels[m] for m in methods]
     # Remove fontweight, which is not a valid argument for fig.legend
     fig.legend(
-        handles, labels,
-        loc='upper center', bbox_to_anchor=(0.5, 1.05),
-        fontsize=28, frameon=False, ncol=len(methods)
+        handles,
+        labels,
+        loc="upper center",
+        bbox_to_anchor=(0.5, 1.05),
+        fontsize=28,
+        frameon=False,
+        ncol=len(methods),
     )
 
     # (a) Incorrect Answer Rate
     ax = axes[0, 0]
     bars = ax.bar(
-        range(len(methods)), incorrect_means, 
-        color=[colors[m] for m in methods], 
-        edgecolor=[edge_colors[m] for m in methods], 
-        alpha=0.9
+        range(len(methods)),
+        incorrect_means,
+        color=[colors[m] for m in methods],
+        edgecolor=[edge_colors[m] for m in methods],
+        alpha=0.9,
     )
-    ax.set_ylabel('Rate', fontweight='bold')
-    ax.set_title('Incorrect Answer Rate ($\\uparrow$)', fontweight='bold', pad=20)
+    ax.set_ylabel("Rate", fontweight="bold")
+    ax.set_title("Incorrect Answer Rate ($\\uparrow$)", fontweight="bold", pad=20)
     ax.set_xticks(range(len(methods)))
-    ax.set_xticklabels([method_to_labels[m] for m in methods], rotation=30, ha='right')
-    ax.tick_params(axis='y', labelsize=24)
+    ax.set_xticklabels([method_to_labels[m] for m in methods], rotation=30, ha="right")
+    ax.tick_params(axis="y", labelsize=24)
     ax.set_ylim(0, 1)
-    ax.grid(axis='y', linestyle='--', alpha=0.3)
+    ax.grid(axis="y", linestyle="--", alpha=0.3)
     for bar in bars:
         height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2., height + 0.01, f'{height:.2f}', 
-                ha='center', va='bottom', fontweight='bold')
-    ax.text(-0.1, 1.18, "a", transform=ax.transAxes, fontsize=44, fontweight='bold', va='top')
+        ax.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            height + 0.01,
+            f"{height:.2f}",
+            ha="center",
+            va="bottom",
+            fontweight="bold",
+        )
+    ax.text(-0.1, 1.18, "a", transform=ax.transAxes, fontsize=44, fontweight="bold", va="top")
 
     # (b) Incorrect Answer Coverage
     ax = axes[0, 1]
     bars = ax.bar(
-        range(len(methods)), coverage_means, 
-        color=[colors[m] for m in methods], 
-        edgecolor=[edge_colors[m] for m in methods], 
-        alpha=0.9
+        range(len(methods)),
+        coverage_means,
+        color=[colors[m] for m in methods],
+        edgecolor=[edge_colors[m] for m in methods],
+        alpha=0.9,
     )
-    ax.set_ylabel('Coverage', fontweight='bold')
+    ax.set_ylabel("Coverage", fontweight="bold")
     ax.set_ylim(0, 0.8)
-    ax.set_title('Incorrect Answer Coverage ($\\uparrow$)', fontweight='bold', pad=20)
+    ax.set_title("Incorrect Answer Coverage ($\\uparrow$)", fontweight="bold", pad=20)
     ax.set_xticks(range(len(methods)))
-    ax.set_xticklabels([method_to_labels[m] for m in methods], rotation=30, ha='right')
-    ax.tick_params(axis='y', labelsize=24)
+    ax.set_xticklabels([method_to_labels[m] for m in methods], rotation=30, ha="right")
+    ax.tick_params(axis="y", labelsize=24)
     ax.set_ylim(0, 0.8)
-    ax.grid(axis='y', linestyle='--', alpha=0.3)
+    ax.grid(axis="y", linestyle="--", alpha=0.3)
     for bar in bars:
         height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2., height + 0.01, f'{height:.2f}', 
-                ha='center', va='bottom', fontweight='bold')
-    ax.text(-0.1, 1.18, "b", transform=ax.transAxes, fontsize=44, fontweight='bold', va='top')
-
+        ax.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            height + 0.01,
+            f"{height:.2f}",
+            ha="center",
+            va="bottom",
+            fontweight="bold",
+        )
+    ax.text(-0.1, 1.18, "b", transform=ax.transAxes, fontsize=44, fontweight="bold", va="top")
 
     # (c) Semantic Diversity (mean ± std from semantic_diversity_dict)
-    semantic_diversity_dict = semantic_diversity_dict['gpt-4.1']
-    semantic_means = [semantic_diversity_dict[m]['avg_diversity'][0] for m in methods]
-    semantic_stds = [semantic_diversity_dict[m]['std_diversity'][0] for m in methods]
+    semantic_diversity_dict = semantic_diversity_dict["gpt-4.1"]
+    semantic_means = [semantic_diversity_dict[m]["avg_diversity"][0] for m in methods]
+    semantic_stds = [semantic_diversity_dict[m]["std_diversity"][0] for m in methods]
     ax = axes[1, 0]
     bars = ax.bar(
-        range(len(methods)), semantic_means,
+        range(len(methods)),
+        semantic_means,
         yerr=semantic_stds,
         color=[colors[m] for m in methods],
         edgecolor=[edge_colors[m] for m in methods],
         alpha=0.9,
-        capsize=8
+        capsize=8,
     )
-    ax.set_ylabel('Semantic Diversity', fontweight='bold')
-    ax.set_title('Semantic Diversity ($\\uparrow$)', fontweight='bold', pad=20)
+    ax.set_ylabel("Semantic Diversity", fontweight="bold")
+    ax.set_title("Semantic Diversity ($\\uparrow$)", fontweight="bold", pad=20)
     ax.set_xticks(range(len(methods)))
-    ax.set_xticklabels([method_to_labels[m] for m in methods], rotation=30, ha='right')
-    ax.tick_params(axis='y', labelsize=24)
+    ax.set_xticklabels([method_to_labels[m] for m in methods], rotation=30, ha="right")
+    ax.tick_params(axis="y", labelsize=24)
     ax.set_ylim(0, 0.2)
-    ax.grid(axis='y', linestyle='--', alpha=0.3)
+    ax.grid(axis="y", linestyle="--", alpha=0.3)
     for bar, mean, std in zip(bars, semantic_means, semantic_stds):
         ax.text(
-            bar.get_x() + bar.get_width()/2., 
-            mean + std + 0.001, 
+            bar.get_x() + bar.get_width() / 2.0,
+            mean + std + 0.001,
             # f'{mean:.2f}±{std:.2f}',
-            f'{mean:.2f}',
-            ha='center', va='bottom', fontweight='bold'
+            f"{mean:.2f}",
+            ha="center",
+            va="bottom",
+            fontweight="bold",
         )
-    ax.text(-0.1, 1.18, "c", transform=ax.transAxes, fontsize=44, fontweight='bold', va='top')
+    ax.text(-0.1, 1.18, "c", transform=ax.transAxes, fontsize=44, fontweight="bold", va="top")
 
     # (d) Cosine Similarity (histogram + KDE, compact)
     ax = axes[1, 1]
-    idxs = [cos_methods.index(m) for m in ['direct', 'sequence', 'vs_standard']]
+    idxs = [cos_methods.index(m) for m in ["direct", "sequence", "vs_standard"]]
     data = [cos_data[i] for i in idxs]
     labels = [cos_labels[i] for i in idxs]
-    bar_colors = ['#D5D1D1', '#F7A6AC', '#7FBDDA']
-    kde_colors = ['gray', 'deeppink', 'royalblue']
+    bar_colors = ["#D5D1D1", "#F7A6AC", "#7FBDDA"]
+    kde_colors = ["gray", "deeppink", "royalblue"]
     import seaborn as sns
-    ax.hist(data, bins=50, alpha=0.5, color=bar_colors, label=labels, density=True, histtype='stepfilled', linewidth=2)
+
+    ax.hist(
+        data,
+        bins=50,
+        alpha=0.5,
+        color=bar_colors,
+        label=labels,
+        density=True,
+        histtype="stepfilled",
+        linewidth=2,
+    )
     for d, c in zip(data, kde_colors):
-        try: sns.kdeplot(d, color=c, lw=2, ax=ax)
-        except: pass
+        try:
+            sns.kdeplot(d, color=c, lw=2, ax=ax)
+        except:
+            pass
     # ax.set(xlabel='Cosine Similarity', ylabel='Density')
-    plt.xlabel("Cosine Similarity", fontweight='bold')
-    plt.ylabel("Density", fontweight='bold')
-    ax.set_title('Cosine Similarity (Pairwise) ($\\downarrow$)', fontweight='bold', pad=20)
-    ax.tick_params(axis='y', labelsize=24)
-    ax.tick_params(axis='x', labelsize=24)
+    plt.xlabel("Cosine Similarity", fontweight="bold")
+    plt.ylabel("Density", fontweight="bold")
+    ax.set_title("Cosine Similarity (Pairwise) ($\\downarrow$)", fontweight="bold", pad=20)
+    ax.tick_params(axis="y", labelsize=24)
+    ax.tick_params(axis="x", labelsize=24)
     ax.set_xticks(np.linspace(0, 1, 6))
     ax.set_xlim(0.35, 1)
-    ax.grid(axis='y', linestyle='--', alpha=0.3)
+    ax.grid(axis="y", linestyle="--", alpha=0.3)
     ax.legend(frameon=False, reverse=True)
-    ax.text(-0.1, 1.18, "d", transform=ax.transAxes, fontsize=44, fontweight='bold', va='top')
+    ax.text(-0.1, 1.18, "d", transform=ax.transAxes, fontsize=44, fontweight="bold", va="top")
 
     # all the subplots should have the same ylim
     plt.tight_layout()
     if save_path is not None:
-        plt.savefig(save_path, bbox_inches='tight')
+        plt.savefig(save_path, bbox_inches="tight")
     # plt.show()
 
 
@@ -707,7 +757,7 @@ def main():
         vs_standard_file = f"{folder_name}/{model_name}_synthetic_negative/generation/vs_standard [strict] (samples=5)/responses.jsonl"
         vs_cot_file = f"{folder_name}/{model_name}_synthetic_negative/generation/vs_cot [strict] (samples=5)/responses.jsonl"
         vs_multi_turn_file = f"{folder_name}/{model_name}_synthetic_negative/generation/vs_multi [strict] (samples=5)/responses.jsonl"
-        
+
         direct_responses = read_response_file(direct_file)
         direct_cot_responses = read_response_file(direct_cot_file)
         multi_turn_responses = read_response_file(multi_turn_file)
@@ -717,13 +767,27 @@ def main():
         vs_multi_turn_responses = read_response_file(vs_multi_turn_file)
 
         # 2. Calculate incorrect answer rate
-        direct_incorrect_answer_rate, direct_different_answer_rate = calculate_incorrect_answer_rate_for_all_prompts(direct_responses, examples)
-        direct_cot_incorrect_answer_rate, direct_cot_different_answer_rate = calculate_incorrect_answer_rate_for_all_prompts(direct_cot_responses, examples)
-        sequence_incorrect_answer_rate, sequence_different_answer_rate = calculate_incorrect_answer_rate_for_all_prompts(sequence_responses, examples)
-        multi_turn_incorrect_answer_rate, multi_turn_different_answer_rate = calculate_incorrect_answer_rate_for_all_prompts(multi_turn_responses, examples)
-        vs_incorrect_answer_rate, vs_different_answer_rate = calculate_incorrect_answer_rate_for_all_prompts(vs_standard_responses, examples)
-        vs_cot_incorrect_answer_rate, vs_cot_different_answer_rate = calculate_incorrect_answer_rate_for_all_prompts(vs_cot_responses, examples)
-        vs_multi_turn_incorrect_answer_rate, vs_multi_turn_different_answer_rate = calculate_incorrect_answer_rate_for_all_prompts(vs_multi_turn_responses, examples)
+        direct_incorrect_answer_rate, direct_different_answer_rate = (
+            calculate_incorrect_answer_rate_for_all_prompts(direct_responses, examples)
+        )
+        direct_cot_incorrect_answer_rate, direct_cot_different_answer_rate = (
+            calculate_incorrect_answer_rate_for_all_prompts(direct_cot_responses, examples)
+        )
+        sequence_incorrect_answer_rate, sequence_different_answer_rate = (
+            calculate_incorrect_answer_rate_for_all_prompts(sequence_responses, examples)
+        )
+        multi_turn_incorrect_answer_rate, multi_turn_different_answer_rate = (
+            calculate_incorrect_answer_rate_for_all_prompts(multi_turn_responses, examples)
+        )
+        vs_incorrect_answer_rate, vs_different_answer_rate = (
+            calculate_incorrect_answer_rate_for_all_prompts(vs_standard_responses, examples)
+        )
+        vs_cot_incorrect_answer_rate, vs_cot_different_answer_rate = (
+            calculate_incorrect_answer_rate_for_all_prompts(vs_cot_responses, examples)
+        )
+        vs_multi_turn_incorrect_answer_rate, vs_multi_turn_different_answer_rate = (
+            calculate_incorrect_answer_rate_for_all_prompts(vs_multi_turn_responses, examples)
+        )
         # print(f"Direct incorrect answer rate: {np.mean(direct_incorrect_answer_rate)}, Different answer rate: {np.mean(direct_different_answer_rate)}")
         # # print(f"Direct COT incorrect answer rate: {np.mean(direct_cot_incorrect_answer_rate)}, Different answer rate: {np.mean(direct_cot_different_answer_rate)}")
         # print(f"Sequence incorrect answer rate: {np.mean(sequence_incorrect_answer_rate)}, Different answer rate: {np.mean(sequence_different_answer_rate)}")
@@ -733,22 +797,22 @@ def main():
         # print(f"Verbalized Multi-turn incorrect answer rate: {np.mean(vs_multi_turn_incorrect_answer_rate)}, Different answer rate: {np.mean(vs_multi_turn_different_answer_rate)}")
 
         incorrect_answer_rate_list = {
-            'direct': direct_incorrect_answer_rate,
-            'direct_cot': direct_cot_incorrect_answer_rate,
-            'sequence': sequence_incorrect_answer_rate,
-            'multi_turn': multi_turn_incorrect_answer_rate,
-            'vs_standard': vs_incorrect_answer_rate,
-            'vs_cot': vs_cot_incorrect_answer_rate,
-            'vs_multi': vs_multi_turn_incorrect_answer_rate
+            "direct": direct_incorrect_answer_rate,
+            "direct_cot": direct_cot_incorrect_answer_rate,
+            "sequence": sequence_incorrect_answer_rate,
+            "multi_turn": multi_turn_incorrect_answer_rate,
+            "vs_standard": vs_incorrect_answer_rate,
+            "vs_cot": vs_cot_incorrect_answer_rate,
+            "vs_multi": vs_multi_turn_incorrect_answer_rate,
         }
         different_answer_rate_list = {
-            'direct': direct_different_answer_rate,
-            'direct_cot': direct_cot_different_answer_rate,
-            'sequence': sequence_different_answer_rate,
-            'multi_turn': multi_turn_different_answer_rate,
-            'vs_standard': vs_different_answer_rate,
-            'vs_cot': vs_cot_different_answer_rate,
-            'vs_multi': vs_multi_turn_different_answer_rate
+            "direct": direct_different_answer_rate,
+            "direct_cot": direct_cot_different_answer_rate,
+            "sequence": sequence_different_answer_rate,
+            "multi_turn": multi_turn_different_answer_rate,
+            "vs_standard": vs_different_answer_rate,
+            "vs_cot": vs_cot_different_answer_rate,
+            "vs_multi": vs_multi_turn_different_answer_rate,
         }
         # draw_quality_histogram(
         #     incorrect_answer_rate_list,
@@ -776,15 +840,23 @@ def main():
         #     json.dump(similarity_results, f, ensure_ascii=False, indent=2)
 
         cosine_similarity_dict = {}
-        with open(f"latex/qualitative_tasks/synthetic_data_negative_{model_name}_similarity_results.json", "r", encoding="utf-8") as f:
+        with open(
+            f"latex/qualitative_tasks/synthetic_data_negative_{model_name}_similarity_results.json",
+            "r",
+            encoding="utf-8",
+        ) as f:
             similarity_results = json.load(f)
-        cosine_similarity_dict.update({
-            "direct": similarity_results["sim_direct"],
-            "sequence": similarity_results["sim_sequence"],
-            "vs_standard": similarity_results["sim_verbalized"]
-        })
+        cosine_similarity_dict.update(
+            {
+                "direct": similarity_results["sim_direct"],
+                "sequence": similarity_results["sim_sequence"],
+                "vs_standard": similarity_results["sim_verbalized"],
+            }
+        )
 
-        semantic_diversity_dict = extract_synthetic_data_negative_diversity("method_synthetic_negative", "synthetic_negative")
+        semantic_diversity_dict = extract_synthetic_data_negative_diversity(
+            "method_synthetic_negative", "synthetic_negative"
+        )
 
         # plot the diversity and quality
         draw_diversity_quality_histogram(
@@ -792,138 +864,136 @@ def main():
             different_answer_rate_list,
             semantic_diversity_dict,
             cosine_similarity_dict,
-            save_path=f"latex/qualitative_tasks/synthetic_data_negative_{model_name}_diversity_quality_histogram.pdf"
+            save_path=f"latex/qualitative_tasks/synthetic_data_negative_{model_name}_diversity_quality_histogram.pdf",
         )
-        
+
         # # 4. Plot
         # print("Creating similarity histogram...")
         # plot_similarity_histogram(sim_direct, sim_sequence, sim_verbalized, bins=50, save_path=f"qualitative_tasks/synthetic_data_negative_{model_name}_diversity_barplot.pdf")
 
-        
-        
 
 # def main():
-    # 1. Get GSM8K test examples
-    # examples = get_gsm8k_test_examples(n=100)  # Start with 10 examples for testing
-    # print("Examples loaded:", len(examples))
+# 1. Get GSM8K test examples
+# examples = get_gsm8k_test_examples(n=100)  # Start with 10 examples for testing
+# print("Examples loaded:", len(examples))
 
-    # # 2. Generate responses for both methods using GPT-4.1
-    # model_name = "gpt-4.1"
-    # config = {
-    #     "temperature": 0.7,
-    #     "top_p": 1.0
-    # }
-    # num_samples = 10
-    # num_samples_per_turn = 10
-    # max_workers = 5  # Adjust based on your API rate limits
+# # 2. Generate responses for both methods using GPT-4.1
+# model_name = "gpt-4.1"
+# config = {
+#     "temperature": 0.7,
+#     "top_p": 1.0
+# }
+# num_samples = 10
+# num_samples_per_turn = 10
+# max_workers = 5  # Adjust based on your API rate limits
 
-    # if not os.path.exists("qualitative_tasks/gsm8k_negative_direct_responses.json"):
-    #     print("Generating direct responses...")
-    #     start_time = time.time()
-    #     responses_direct = generate_responses_gsm8k(
-    #         examples, Method.DIRECT, num_responses=num_samples, 
-    #         model_name=model_name, config=config, max_workers=max_workers
-    #     )
-    #     end_time = time.time()
-    #     print(f"Direct responses generated in {end_time - start_time:.2f} seconds")
-    #     with open("qualitative_tasks/gsm8k_negative_direct_responses.json", "w", encoding="utf-8") as f:
-    #         json.dump(responses_direct, f, ensure_ascii=False, indent=2)
-    # else:
-    #     with open("qualitative_tasks/gsm8k_negative_direct_responses.json", "r", encoding="utf-8") as f:
-    #         responses_direct = json.load(f)
+# if not os.path.exists("qualitative_tasks/gsm8k_negative_direct_responses.json"):
+#     print("Generating direct responses...")
+#     start_time = time.time()
+#     responses_direct = generate_responses_gsm8k(
+#         examples, Method.DIRECT, num_responses=num_samples,
+#         model_name=model_name, config=config, max_workers=max_workers
+#     )
+#     end_time = time.time()
+#     print(f"Direct responses generated in {end_time - start_time:.2f} seconds")
+#     with open("qualitative_tasks/gsm8k_negative_direct_responses.json", "w", encoding="utf-8") as f:
+#         json.dump(responses_direct, f, ensure_ascii=False, indent=2)
+# else:
+#     with open("qualitative_tasks/gsm8k_negative_direct_responses.json", "r", encoding="utf-8") as f:
+#         responses_direct = json.load(f)
 
-    # if not os.path.exists("qualitative_tasks/gsm8k_negative_sequence_responses.json"):
-    #     print("Generating sequence responses...")
-    #     start_time = time.time()
-    #     responses_sequence = generate_responses_gsm8k(
-    #         examples, Method.SEQUENCE, num_responses=num_samples, 
-    #         model_name=model_name, config=config, num_samples_per_turn=num_samples_per_turn, 
-    #         max_workers=max_workers
-    #     )
-    #     end_time = time.time()
-    #     print(f"Sequence responses generated in {end_time - start_time:.2f} seconds")
-    #     with open("qualitative_tasks/gsm8k_negative_sequence_responses.json", "w", encoding="utf-8") as f:
-    #         json.dump(responses_sequence, f, ensure_ascii=False, indent=2)
-    # else:
-    #     with open("qualitative_tasks/gsm8k_negative_sequence_responses.json", "r", encoding="utf-8") as f:
-    #         responses_sequence = json.load(f)
-    
-    # if not os.path.exists("qualitative_tasks/gsm8k_negative_vs_responses.json"):
-    #     print("Generating verbalized responses...")
-    #     start_time = time.time()
-    #     responses_verbalized = generate_responses_gsm8k(
-    #         examples, Method.VS_STANDARD, num_responses=num_samples, 
-    #         model_name=model_name, config=config, num_samples_per_turn=num_samples_per_turn, 
-    #         max_workers=max_workers
-    #     )
-    #     end_time = time.time()
-    #     print(f"Verbalized responses generated in {end_time - start_time:.2f} seconds")
-    #     with open("qualitative_tasks/gsm8k_negative_vs_responses.json", "w", encoding="utf-8") as f:
-    #         json.dump(responses_verbalized, f, ensure_ascii=False, indent=2)
-    # else:
-    #     with open("qualitative_tasks/gsm8k_negative_vs_responses.json", "r", encoding="utf-8") as f:
-    #         responses_verbalized = json.load(f)
+# if not os.path.exists("qualitative_tasks/gsm8k_negative_sequence_responses.json"):
+#     print("Generating sequence responses...")
+#     start_time = time.time()
+#     responses_sequence = generate_responses_gsm8k(
+#         examples, Method.SEQUENCE, num_responses=num_samples,
+#         model_name=model_name, config=config, num_samples_per_turn=num_samples_per_turn,
+#         max_workers=max_workers
+#     )
+#     end_time = time.time()
+#     print(f"Sequence responses generated in {end_time - start_time:.2f} seconds")
+#     with open("qualitative_tasks/gsm8k_negative_sequence_responses.json", "w", encoding="utf-8") as f:
+#         json.dump(responses_sequence, f, ensure_ascii=False, indent=2)
+# else:
+#     with open("qualitative_tasks/gsm8k_negative_sequence_responses.json", "r", encoding="utf-8") as f:
+#         responses_sequence = json.load(f)
 
-    # direct_incorrect_answer_rate = []
-    # sequence_incorrect_answer_rate = []
-    # vs_incorrect_answer_rate = []
-    # direct_different_answer_rate = []
-    # sequence_different_answer_rate = []
-    # vs_different_answer_rate = []
-    # for idx, example in enumerate(examples):
-    #     direct_incorrect_answer_rate.append(calculate_incorrect_answer_rate(responses_direct[idx]['responses'], example)[0])
-    #     sequence_incorrect_answer_rate.append(calculate_incorrect_answer_rate(responses_sequence[idx]['responses'], example)[0])
-    #     vs_incorrect_answer_rate.append(calculate_incorrect_answer_rate(responses_verbalized[idx]['responses'], example)[0])
-    #     direct_different_answer_rate.append(calculate_incorrect_answer_rate(responses_direct[idx]['responses'], example)[1])
-    #     sequence_different_answer_rate.append(calculate_incorrect_answer_rate(responses_sequence[idx]['responses'], example)[1])
-    #     vs_different_answer_rate.append(calculate_incorrect_answer_rate(responses_verbalized[idx]['responses'], example)[1])
-    # print(f"Direct incorrect answer rate: {np.mean(direct_incorrect_answer_rate)}")
-    # print(f"Sequence incorrect answer rate: {np.mean(sequence_incorrect_answer_rate)}")
-    # print(f"Verbalized incorrect answer rate: {np.mean(vs_incorrect_answer_rate)}")
-    
-    # # 3. Compute pairwise cosine similarities
-    # sim_direct = []
-    # sim_sequence = []
-    # sim_verbalized = []
-    # for idx, example in enumerate(examples):
-    #     sim_direct.append(compute_pairwise_cosine_similarities(responses_direct[idx]['responses']))
-    #     sim_sequence.append(compute_pairwise_cosine_similarities(responses_sequence[idx]['responses']))
-    #     sim_verbalized.append(compute_pairwise_cosine_similarities(responses_verbalized[idx]['responses']))
-    
-    # # 4. Plot
-    # print("Creating similarity histogram...")
-    # plot_similarity_histogram(sim_direct, sim_sequence, sim_verbalized, bins=50, save_path="qualitative_tasks/gsm8k_negative_diversity_barplot.png")
-    
-    # # 5. Print summary statistics
-    # # Save summary statistics and incorrect answer rates to a file
-    # summary_stats = {
-    #     "Direct": {
-    #         "mean_similarity": float(np.mean(sim_direct)),
-    #         "std_similarity": float(np.std(sim_direct)),
-    #         "mean_incorrect_answer_rate": float(np.mean(direct_incorrect_answer_rate)),
-    #         "std_incorrect_answer_rate": float(np.std(direct_incorrect_answer_rate)),
-    #         "mean_different_answer_rate": float(np.mean(direct_different_answer_rate)),
-    #         "std_different_answer_rate": float(np.std(direct_different_answer_rate))
-    #     },
-    #     "Sequence": {
-    #         "mean_similarity": float(np.mean(sim_sequence)),
-    #         "std_similarity": float(np.std(sim_sequence)),
-    #         "mean_incorrect_answer_rate": float(np.mean(sequence_incorrect_answer_rate)),
-    #         "std_incorrect_answer_rate": float(np.std(sequence_incorrect_answer_rate)),
-    #         "mean_different_answer_rate": float(np.mean(sequence_different_answer_rate)),
-    #         "std_different_answer_rate": float(np.std(sequence_different_answer_rate))
-    #     },
-    #     "VS-Standard": {
-    #         "mean_similarity": float(np.mean(sim_verbalized)),
-    #         "std_similarity": float(np.std(sim_verbalized)),
-    #         "mean_incorrect_answer_rate": float(np.mean(vs_incorrect_answer_rate)),
-    #         "std_incorrect_answer_rate": float(np.std(vs_incorrect_answer_rate)),
-    #         "mean_different_answer_rate": float(np.mean(vs_different_answer_rate)),
-    #         "std_different_answer_rate": float(np.std(vs_different_answer_rate))
-    #     }
-    # }
-    # with open("qualitative_tasks/gsm8k_negative_summary.json", "w", encoding="utf-8") as f:
-    #     json.dump(summary_stats, f, ensure_ascii=False, indent=2)
+# if not os.path.exists("qualitative_tasks/gsm8k_negative_vs_responses.json"):
+#     print("Generating verbalized responses...")
+#     start_time = time.time()
+#     responses_verbalized = generate_responses_gsm8k(
+#         examples, Method.VS_STANDARD, num_responses=num_samples,
+#         model_name=model_name, config=config, num_samples_per_turn=num_samples_per_turn,
+#         max_workers=max_workers
+#     )
+#     end_time = time.time()
+#     print(f"Verbalized responses generated in {end_time - start_time:.2f} seconds")
+#     with open("qualitative_tasks/gsm8k_negative_vs_responses.json", "w", encoding="utf-8") as f:
+#         json.dump(responses_verbalized, f, ensure_ascii=False, indent=2)
+# else:
+#     with open("qualitative_tasks/gsm8k_negative_vs_responses.json", "r", encoding="utf-8") as f:
+#         responses_verbalized = json.load(f)
+
+# direct_incorrect_answer_rate = []
+# sequence_incorrect_answer_rate = []
+# vs_incorrect_answer_rate = []
+# direct_different_answer_rate = []
+# sequence_different_answer_rate = []
+# vs_different_answer_rate = []
+# for idx, example in enumerate(examples):
+#     direct_incorrect_answer_rate.append(calculate_incorrect_answer_rate(responses_direct[idx]['responses'], example)[0])
+#     sequence_incorrect_answer_rate.append(calculate_incorrect_answer_rate(responses_sequence[idx]['responses'], example)[0])
+#     vs_incorrect_answer_rate.append(calculate_incorrect_answer_rate(responses_verbalized[idx]['responses'], example)[0])
+#     direct_different_answer_rate.append(calculate_incorrect_answer_rate(responses_direct[idx]['responses'], example)[1])
+#     sequence_different_answer_rate.append(calculate_incorrect_answer_rate(responses_sequence[idx]['responses'], example)[1])
+#     vs_different_answer_rate.append(calculate_incorrect_answer_rate(responses_verbalized[idx]['responses'], example)[1])
+# print(f"Direct incorrect answer rate: {np.mean(direct_incorrect_answer_rate)}")
+# print(f"Sequence incorrect answer rate: {np.mean(sequence_incorrect_answer_rate)}")
+# print(f"Verbalized incorrect answer rate: {np.mean(vs_incorrect_answer_rate)}")
+
+# # 3. Compute pairwise cosine similarities
+# sim_direct = []
+# sim_sequence = []
+# sim_verbalized = []
+# for idx, example in enumerate(examples):
+#     sim_direct.append(compute_pairwise_cosine_similarities(responses_direct[idx]['responses']))
+#     sim_sequence.append(compute_pairwise_cosine_similarities(responses_sequence[idx]['responses']))
+#     sim_verbalized.append(compute_pairwise_cosine_similarities(responses_verbalized[idx]['responses']))
+
+# # 4. Plot
+# print("Creating similarity histogram...")
+# plot_similarity_histogram(sim_direct, sim_sequence, sim_verbalized, bins=50, save_path="qualitative_tasks/gsm8k_negative_diversity_barplot.png")
+
+# # 5. Print summary statistics
+# # Save summary statistics and incorrect answer rates to a file
+# summary_stats = {
+#     "Direct": {
+#         "mean_similarity": float(np.mean(sim_direct)),
+#         "std_similarity": float(np.std(sim_direct)),
+#         "mean_incorrect_answer_rate": float(np.mean(direct_incorrect_answer_rate)),
+#         "std_incorrect_answer_rate": float(np.std(direct_incorrect_answer_rate)),
+#         "mean_different_answer_rate": float(np.mean(direct_different_answer_rate)),
+#         "std_different_answer_rate": float(np.std(direct_different_answer_rate))
+#     },
+#     "Sequence": {
+#         "mean_similarity": float(np.mean(sim_sequence)),
+#         "std_similarity": float(np.std(sim_sequence)),
+#         "mean_incorrect_answer_rate": float(np.mean(sequence_incorrect_answer_rate)),
+#         "std_incorrect_answer_rate": float(np.std(sequence_incorrect_answer_rate)),
+#         "mean_different_answer_rate": float(np.mean(sequence_different_answer_rate)),
+#         "std_different_answer_rate": float(np.std(sequence_different_answer_rate))
+#     },
+#     "VS-Standard": {
+#         "mean_similarity": float(np.mean(sim_verbalized)),
+#         "std_similarity": float(np.std(sim_verbalized)),
+#         "mean_incorrect_answer_rate": float(np.mean(vs_incorrect_answer_rate)),
+#         "std_incorrect_answer_rate": float(np.std(vs_incorrect_answer_rate)),
+#         "mean_different_answer_rate": float(np.mean(vs_different_answer_rate)),
+#         "std_different_answer_rate": float(np.std(vs_different_answer_rate))
+#     }
+# }
+# with open("qualitative_tasks/gsm8k_negative_summary.json", "w", encoding="utf-8") as f:
+#     json.dump(summary_stats, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
     main()

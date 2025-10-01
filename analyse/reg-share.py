@@ -1,19 +1,17 @@
-import random
 import json
-import time
 import logging
 import os
+import random
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import partial
 
-import matplotlib.pyplot as plt
 import numpy as np
-from datasets import load_dataset
-from datasets import Dataset
-import statsmodels.api as sm
-from statsmodels.miscmodels.ordinal_model import OrderedModel
 import pandas as pd
+import statsmodels.api as sm
+from datasets import load_dataset
 from openai import OpenAI
+from statsmodels.miscmodels.ordinal_model import OrderedModel
 
 logging.basicConfig(level=logging.INFO)
 
@@ -287,11 +285,11 @@ print("p-value:", pval)
 # Requires: ds = load_dataset("nvidia/HelpSteer"); val = ds["validation"]
 #           helpfulness, correctness, logprob lists already loaded (same order as val)
 
+from collections import defaultdict
+from itertools import combinations
+
 import numpy as np
 import pandas as pd
-import statsmodels.api as sm
-from itertools import combinations
-from collections import defaultdict
 
 # 1) Build an item-level dataframe aligned with the validation set
 ds_run_prompts = [item["prompt"] for item in ds_run]

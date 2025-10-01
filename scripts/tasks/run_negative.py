@@ -12,12 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from verbalized_sampling.pipeline import run_quick_comparison, Pipeline, PipelineConfig, ExperimentConfig, EvaluationConfig
-from verbalized_sampling.tasks import Task
-from verbalized_sampling.methods import Method
 from pathlib import Path
-from typing import List, Dict, Any
-import sys
+from typing import Any, Dict, List
+
+from verbalized_sampling.methods import Method
+from verbalized_sampling.pipeline import (
+    EvaluationConfig,
+    ExperimentConfig,
+    Pipeline,
+    PipelineConfig,
+)
+from verbalized_sampling.tasks import Task
+
 
 def create_method_experiments(
     task: Task,
@@ -27,35 +33,31 @@ def create_method_experiments(
     methods: List[Dict[str, Any]],
 ) -> List[ExperimentConfig]:
     """Create experiments for testing specific method variations."""
-    
+
     # Base configuration
     base = {
-        'task': task,
-        'model_name': model_name,
-        'num_responses': 10,
-        'num_prompts': 50, # maximum 100
-        'target_words': 0, 
-        'temperature': temperature,
-        'top_p': top_p,
-        'random_seed': 42,
+        "task": task,
+        "model_name": model_name,
+        "num_responses": 10,
+        "num_prompts": 50,  # maximum 100
+        "target_words": 0,
+        "temperature": temperature,
+        "top_p": top_p,
+        "random_seed": 42,
         "use_vllm": False,
     }
-    
+
     experiments = []
     for method_config in methods:
         # Create name
         name = f"{method_config['method'].value}"
-        if method_config.get('strict_json'):
+        if method_config.get("strict_json"):
             name += " [strict]"
-        if method_config.get('num_samples'):
+        if method_config.get("num_samples"):
             name += f" (samples={method_config['num_samples']})"
-        
-        experiments.append(ExperimentConfig(
-            name=name,
-            **base,
-            **method_config
-        ))
-    
+
+        experiments.append(ExperimentConfig(name=name, **base, **method_config))
+
     return experiments
 
 
@@ -63,7 +65,7 @@ def run_method_tests(
     task: Task,
     model_name: str,
     methods: List[Dict[str, Any]],
-    metrics: List[str], # "ngram"
+    metrics: List[str],  # "ngram"
     temperature: float,
     top_p: float,
     output_dir: str,
@@ -71,13 +73,13 @@ def run_method_tests(
 ) -> None:
     """Run tests for specific method variations."""
     print("🔬 Running Method Tests")
-    
+
     experiments = create_method_experiments(task, model_name, temperature, top_p, methods)
     print(f"📊 {len(experiments)} methods to test")
-    
+
     for i, exp in enumerate(experiments, 1):
         print(f"  {i}. {exp.name}")
-    
+
     model_basename = model_name.replace("/", "_")
     config = PipelineConfig(
         experiments=experiments,
@@ -85,7 +87,7 @@ def run_method_tests(
         output_base_dir=Path(f"{output_dir}/{model_basename}_{task.value}"),
         skip_existing=True,
     )
-    
+
     pipeline = Pipeline(config)
     pipeline.run_complete_pipeline()
     print(f"✅ Done! Check {output_dir}/{model_basename}_{task.value}/pipeline_report.html")
@@ -93,7 +95,7 @@ def run_method_tests(
 
 if __name__ == "__main__":
     # Example usage for testing different method variations
-    
+
     # Test multi-turn and JSON mode variations
     num_samples = 5
     methods = [
@@ -108,9 +110,9 @@ if __name__ == "__main__":
         #     'num_samples': 1,
         # },
         {
-            'method': Method.MULTI_TURN,
-            'strict_json': False,
-            'num_samples': num_samples,
+            "method": Method.MULTI_TURN,
+            "strict_json": False,
+            "num_samples": num_samples,
         },
         # {
         #     'method': Method.SEQUENCE,
@@ -123,9 +125,9 @@ if __name__ == "__main__":
         #     'num_samples': num_samples,
         # },
         {
-            'method': Method.SEQUENCE,
-            'strict_json': True,
-            'num_samples': num_samples,
+            "method": Method.SEQUENCE,
+            "strict_json": True,
+            "num_samples": num_samples,
         },
         # {
         #     'method': Method.VS_STANDARD,
@@ -139,8 +141,6 @@ if __name__ == "__main__":
         #     'num_samples_per_prompt': 2,
         # }
     ]
-
-
 
     models = [
         # "gpt-4.1-mini",
@@ -167,4 +167,3 @@ if __name__ == "__main__":
             output_dir="method_synthetic_negative_test",
             num_workers=16 if any(x in model_basename for x in ["claude", "gemini"]) else 32,
         )
- 

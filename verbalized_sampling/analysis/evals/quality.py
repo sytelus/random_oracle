@@ -12,44 +12,52 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, List, Any, Optional
 import json
-from .base import BaseEvaluator, EvalResult
-from verbalized_sampling.llms import get_model
-from pydantic import BaseModel
 import os
+from typing import Any, Dict, List, Optional
+
 from openai import OpenAI
+from pydantic import BaseModel
+
+from .base import BaseEvaluator, EvalResult
+
 
 class FluencyCriteria(BaseModel):
     score: int
     justification: str
 
+
 class FlexibilityCriteria(BaseModel):
     score: int
     justification: str
+
 
 class OriginalityCriteria(BaseModel):
     score: int
     justification: str
 
+
 class ElaborationCriteria(BaseModel):
     score: int
     justification: str
-    
+
+
 # class OverallCriteria(BaseModel):
 #     creativity_score: float
 #     normalized_score: float
-    
+
+
 class TTCTCriteria(BaseModel):
     fluency: FluencyCriteria
     flexibility: FlexibilityCriteria
     originality: OriginalityCriteria
     elaboration: ElaborationCriteria
     # overall: OverallCriteria
-    
+
+
 class TTCTEvaluator(BaseEvaluator):
     """Comprehensive Torrance Tests of Creative Thinking evaluator in a single LLM call."""
-    
+
     instance_plot_metrics = [
         ("fluency.score", "violin"),
         ("flexibility.score", "violin"),
@@ -64,10 +72,8 @@ class TTCTEvaluator(BaseEvaluator):
         "avg_elaboration",
         "avg_overall",
     ]
-    
-    key_plot_metrics = [
-        ("avg_normalized_overall", "Quality (TTCT)")
-    ]
+
+    key_plot_metrics = [("avg_normalized_overall", "Quality (TTCT)")]
 
     def __init__(self, judge_model: str = "gpt-4.1", num_workers=64):
         super().__init__("ttct", num_workers=num_workers)
@@ -78,13 +84,13 @@ class TTCTEvaluator(BaseEvaluator):
     def parse_response(self, response) -> Dict[str, Any]:
         """Parse the response from the Pydantic model into a dictionary format."""
         # print(f"Response: {response}")
-        
+
         parsed_response = {}
         for criteria in ["fluency", "flexibility", "originality", "elaboration"]:
             criteria_obj = getattr(response, criteria)
             parsed_response[criteria] = {
                 "score": criteria_obj.score,
-                "justification": criteria_obj.justification
+                "justification": criteria_obj.justification,
             }
         # print(f"Parsed response: {parsed_response}")
 
@@ -105,11 +111,10 @@ class TTCTEvaluator(BaseEvaluator):
             return parsed_response
         else:
             raise ValueError(message.refusal)
-        
-    
+
     def compute_instance_metric(self, prompt: Any, response: Dict) -> Dict[str, float]:
         evaluation_prompt = self._create_evaluation_prompt(prompt, response)
-            
+
         # Get evaluation from judge model
         messages = [{"role": "user", "content": evaluation_prompt}]
         result = self._chat_with_format(messages)
@@ -126,30 +131,24 @@ class TTCTEvaluator(BaseEvaluator):
         # Calculate overall creativity score as weighted average
         # Weights as specified in the prompt:
         # Fluency: 25%, Flexibility: 25%, Originality: 25%, Elaboration: 25%
-        weights = {
-            "fluency": 0.25,
-            "flexibility": 0.25,
-            "originality": 0.25,
-            "elaboration": 0.25
-        }
-        
+        weights = {"fluency": 0.25, "flexibility": 0.25, "originality": 0.25, "elaboration": 0.25}
+
         weighted_score = sum(
-            result_in_schema[aspect]["score"] * weights[aspect]
-            for aspect in weights.keys()
+            result_in_schema[aspect]["score"] * weights[aspect] for aspect in weights.keys()
         )
-        
+
         # Normalize to 0-1 range (since scores are 1-5)
         normalized_score = weighted_score / 5
-        
+
         result_in_schema["overall"] = {
             "creativity_score": weighted_score,
-            "normalized_score": normalized_score
+            "normalized_score": normalized_score,
         }
 
         return result_in_schema
-    
+
     def _create_evaluation_prompt(self, prompt: str, response: str) -> str:
-        
+
         return f"""You are an expert evaluator using the Torrance Tests of Creative Thinking (TTCT) framework. Evaluate the following responses across four key dimensions of creativity.
 REQUEST PROMPT:
 {prompt}
@@ -226,19 +225,25 @@ Output ONLY the JSON object, no explanations or extra text.
 
     def aggregate_metrics(self, instance_metrics: List[Dict[str, float]]) -> Dict[str, float]:
         """Aggregate instance-level metrics into overall metrics."""
-        
+
         if not instance_metrics:
             return {
-                "fluency": 0.0, "std_fluency": 0.0,
-                "flexibility": 0.0, "std_flexibility": 0.0,
-                "originality": 0.0, "std_originality": 0.0,
-                "elaboration": 0.0, "std_elaboration": 0.0,
-                "overall": 0.0, "std_overall": 0.0,
-                "normalized_overall": 0.0, "std_normalized_overall": 0.0,
+                "fluency": 0.0,
+                "std_fluency": 0.0,
+                "flexibility": 0.0,
+                "std_flexibility": 0.0,
+                "originality": 0.0,
+                "std_originality": 0.0,
+                "elaboration": 0.0,
+                "std_elaboration": 0.0,
+                "overall": 0.0,
+                "std_overall": 0.0,
+                "normalized_overall": 0.0,
+                "std_normalized_overall": 0.0,
             }
-        
+
         from .base import calculate_stats
-        
+
         # Extract values for each metric
         fluency_values = [metric["fluency"]["score"] for metric in instance_metrics]
         flexibility_values = [metric["flexibility"]["score"] for metric in instance_metrics]
@@ -246,7 +251,7 @@ Output ONLY the JSON object, no explanations or extra text.
         elaboration_values = [metric["elaboration"]["score"] for metric in instance_metrics]
         overall_values = [metric["overall"]["creativity_score"] for metric in instance_metrics]
         normalized_values = [metric["overall"]["normalized_score"] for metric in instance_metrics]
-        
+
         # Calculate stats for each metric
         fluency_stats = calculate_stats(fluency_values)
         flexibility_stats = calculate_stats(flexibility_values)
@@ -254,7 +259,7 @@ Output ONLY the JSON object, no explanations or extra text.
         elaboration_stats = calculate_stats(elaboration_values)
         overall_stats = calculate_stats(overall_values)
         normalized_stats = calculate_stats(normalized_values)
-        
+
         return {
             # Means (backward compatible)
             "avg_fluency": fluency_stats["mean"],
@@ -263,7 +268,6 @@ Output ONLY the JSON object, no explanations or extra text.
             "avg_elaboration": elaboration_stats["mean"],
             "avg_overall": overall_stats["mean"],
             "avg_normalized_overall": normalized_stats["mean"],
-            
             # Standard deviations
             "std_fluency": fluency_stats["std"],
             "std_flexibility": flexibility_stats["std"],
@@ -272,17 +276,20 @@ Output ONLY the JSON object, no explanations or extra text.
             "std_overall": overall_stats["std"],
             "std_normalized_overall": normalized_stats["std"],
         }
-    
-    def evaluate(self, prompts: List[str], responses: List[Dict], 
-                metadata: Optional[Dict[str, Any]] = None) -> EvalResult:
+
+    def evaluate(
+        self, prompts: List[str], responses: List[Dict], metadata: Optional[Dict[str, Any]] = None
+    ) -> EvalResult:
         """Evaluate responses using TTCT framework."""
         if metadata is None:
             metadata = {}
-            
-        metadata.update({
-            "evaluation_framework": "TTCT",
-            "judge_model": self.judge_model,
-            "num_responses": len(responses)
-        })
-        
+
+        metadata.update(
+            {
+                "evaluation_framework": "TTCT",
+                "judge_model": self.judge_model,
+                "num_responses": len(responses),
+            }
+        )
+
         return super().evaluate(prompts, responses, metadata)

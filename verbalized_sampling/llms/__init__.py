@@ -14,14 +14,16 @@
 
 import os
 from typing import Dict, Type
+
+from verbalized_sampling.methods import Method
+
 from .base import BaseLLM
-from .vllm import VLLMOpenAI
-from .openrouter import OpenRouterLLM
-from verbalized_sampling.methods import Method, is_method_structured
 from .embed import get_embedding_model
+from .google import GoogleLLM
 from .litellm import LiteLLM
 from .openai import OpenAILLM
-from .google import GoogleLLM
+from .openrouter import OpenRouterLLM
+from .vllm import VLLMOpenAI
 
 __all__ = ["get_model", "get_embedding_model"]
 
@@ -33,12 +35,15 @@ LLM_REGISTRY: Dict[str, Type[BaseLLM]] = {
     "google": GoogleLLM,
 }
 
-def get_model(model_name: str, 
-              method: Method,
-              config: dict, 
-              use_vllm: bool = False,
-              num_workers: int = 128,
-              strict_json: bool = False) -> BaseLLM:
+
+def get_model(
+    model_name: str,
+    method: Method,
+    config: dict,
+    use_vllm: bool = False,
+    num_workers: int = 128,
+    strict_json: bool = False,
+) -> BaseLLM:
     """Get a model instance."""
     if "claude" in model_name:
         if os.environ.get("ANTHROPIC_API_KEY") is None:
@@ -54,11 +59,9 @@ def get_model(model_name: str,
     #     model_class = LLM_REGISTRY["litellm"]
     else:
         model_class = LLM_REGISTRY["vllm" if use_vllm else "openrouter"]
-    
+
     # print("Model class: ", model_class)
     # print("Model name: ", model_name)
-    return model_class(model_name=model_name, 
-                       config=config, 
-                       num_workers=num_workers,
-                       strict_json=strict_json
-                       ) 
+    return model_class(
+        model_name=model_name, config=config, num_workers=num_workers, strict_json=strict_json
+    )

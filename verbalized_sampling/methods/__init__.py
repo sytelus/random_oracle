@@ -16,17 +16,26 @@
 Sampling method definitions for verbalized sampling experiments.
 """
 
-from .factory import PromptFactory, PromptTemplate, SamplingPromptTemplate, Method, is_method_structured, is_method_multi_turn, is_method_combined, is_method_base_model
+from .factory import (
+    Method,
+    PromptFactory,
+    PromptTemplate,
+    SamplingPromptTemplate,
+    is_method_base_model,
+    is_method_combined,
+    is_method_multi_turn,
+    is_method_structured,
+)
 from .parser import ResponseParser
 
 __all__ = [
-    'PromptFactory', 
-    'PromptTemplate', 
-    'SamplingPromptTemplate', 
-    'Method',
-    'is_method_structured',
-    'is_method_multi_turn',
-    'is_method_combined',
-    'is_method_base_model',
-    'ResponseParser',
+    "PromptFactory",
+    "PromptTemplate",
+    "SamplingPromptTemplate",
+    "Method",
+    "is_method_structured",
+    "is_method_multi_turn",
+    "is_method_combined",
+    "is_method_base_model",
+    "ResponseParser",
 ]

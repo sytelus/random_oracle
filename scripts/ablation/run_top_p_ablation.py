@@ -18,11 +18,18 @@ Tests different top_p values: [0.7, 0.8, 0.9, 0.95, 1.0] with GPT-4.1 and Gemini
 Compares methods: DIRECT, SEQUENCE, STRUCTURE_WITH_PROB.
 """
 
-from verbalized_sampling.pipeline import Pipeline, PipelineConfig, ExperimentConfig, EvaluationConfig
-from verbalized_sampling.tasks import Task
-from verbalized_sampling.methods import Method
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
+from verbalized_sampling.methods import Method
+from verbalized_sampling.pipeline import (
+    EvaluationConfig,
+    ExperimentConfig,
+    Pipeline,
+    PipelineConfig,
+)
+from verbalized_sampling.tasks import Task
+
 
 def create_top_p_ablation_experiments(
     task: Task,
@@ -32,13 +39,13 @@ def create_top_p_ablation_experiments(
 
     # Default base configuration
     base = {
-        'task': task,
-        'num_responses': 30,
-        'num_prompts': 100,
-        'target_words': 200,
-        'random_seed': 42,
-        'temperature': 0.7,
-        'num_samples': 5,
+        "task": task,
+        "num_responses": 30,
+        "num_prompts": 100,
+        "target_words": 200,
+        "random_seed": 42,
+        "temperature": 0.7,
+        "num_samples": 5,
     }
     if base_config:
         base.update(base_config)
@@ -58,20 +65,23 @@ def create_top_p_ablation_experiments(
                     num_samples = 1
                     strict_json = False
                 else:
-                    num_samples = base['num_samples']
+                    num_samples = base["num_samples"]
                     strict_json = True
 
-                experiments.append(ExperimentConfig(
-                    name=f"{model}_{method.value}_top_p_{top_p}",
-                    model_name=model,
-                    method=method,
-                    strict_json=strict_json,
-                    num_samples=num_samples,
-                    top_p=top_p,
-                    **{k: v for k, v in base.items() if k not in ['num_samples']}
-                ))
+                experiments.append(
+                    ExperimentConfig(
+                        name=f"{model}_{method.value}_top_p_{top_p}",
+                        model_name=model,
+                        method=method,
+                        strict_json=strict_json,
+                        num_samples=num_samples,
+                        top_p=top_p,
+                        **{k: v for k, v in base.items() if k not in ["num_samples"]},
+                    )
+                )
 
     return experiments
+
 
 def run_top_p_ablation():
     """Run the top_p ablation study."""
@@ -84,10 +94,7 @@ def run_top_p_ablation():
     experiments = create_top_p_ablation_experiments(task)
 
     # Evaluation metrics focused on diversity
-    evaluation_config = EvaluationConfig(
-        metrics=["diversity", "ngram"],
-        num_workers=128
-    )
+    evaluation_config = EvaluationConfig(metrics=["diversity", "ngram"], num_workers=128)
 
     # Pipeline configuration
     pipeline_config = PipelineConfig(
@@ -97,18 +104,19 @@ def run_top_p_ablation():
         num_workers=128,
         skip_existing=True,
         rerun=False,
-        title="Top-p Ablation Study for Diversity Optimization"
+        title="Top-p Ablation Study for Diversity Optimization",
     )
 
     # Run pipeline
     pipeline = Pipeline(pipeline_config)
     results = pipeline.run_complete_pipeline()
 
-    print(f"\n✅ Top-p ablation study completed!")
+    print("\n✅ Top-p ablation study completed!")
     print(f"📊 Results saved to: {output_dir}")
     print(f"📈 Report available at: {output_dir}/pipeline_report.html")
 
     return results
+
 
 if __name__ == "__main__":
     import typer
@@ -127,17 +135,14 @@ if __name__ == "__main__":
 
         # Create experiments with custom config
         base_config = {
-            'num_responses': num_responses,
-            'num_prompts': num_prompts,
+            "num_responses": num_responses,
+            "num_prompts": num_prompts,
         }
 
         experiments = create_top_p_ablation_experiments(task_obj, base_config)
 
         # Evaluation metrics
-        evaluation_config = EvaluationConfig(
-            metrics=["diversity", "ngram"],
-            num_workers=64
-        )
+        evaluation_config = EvaluationConfig(metrics=["diversity", "ngram"], num_workers=64)
 
         # Pipeline configuration
         pipeline_config = PipelineConfig(
@@ -147,14 +152,14 @@ if __name__ == "__main__":
             num_workers=128,
             skip_existing=not rerun,
             rerun=rerun,
-            title=f"Top-p Ablation Study - {task_obj.value}"
+            title=f"Top-p Ablation Study - {task_obj.value}",
         )
 
         # Run pipeline
         pipeline = Pipeline(pipeline_config)
         results = pipeline.run_complete_pipeline()
 
-        print(f"\n✅ Top-p ablation study completed!")
+        print("\n✅ Top-p ablation study completed!")
         print(f"📊 Results saved to: {output_dir}")
 
         return results

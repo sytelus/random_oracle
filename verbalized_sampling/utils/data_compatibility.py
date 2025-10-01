@@ -21,11 +21,11 @@ This module provides utilities to handle the transition from legacy method names
 existing experimental data.
 """
 
-import os
-from pathlib import Path
-from typing import Optional, Union, List, Dict, Any
 import warnings
-from verbalized_sampling.methods.factory import Method, METHOD_MIGRATION_MAP
+from pathlib import Path
+from typing import Dict, List, Optional, Union
+
+from verbalized_sampling.methods.factory import METHOD_MIGRATION_MAP, Method
 
 
 class DataPathResolver:
@@ -52,10 +52,9 @@ class DataPathResolver:
         self.base_data_dir = Path(base_data_dir)
         self._cache = {}  # Cache for path resolution results
 
-    def resolve_method_path(self,
-                           base_path: Union[str, Path],
-                           method: Union[Method, str],
-                           warn_on_legacy: bool = True) -> Optional[Path]:
+    def resolve_method_path(
+        self, base_path: Union[str, Path], method: Union[Method, str], warn_on_legacy: bool = True
+    ) -> Optional[Path]:
         """
         Resolve a path that contains a method name, checking both new and legacy conventions.
 
@@ -75,7 +74,7 @@ class DataPathResolver:
         base_path = Path(base_path)
 
         # Convert method to string if it's an enum
-        method_str = method.value if hasattr(method, 'value') else str(method)
+        method_str = method.value if hasattr(method, "value") else str(method)
 
         # Create cache key
         cache_key = (str(base_path), method_str)
@@ -101,7 +100,7 @@ class DataPathResolver:
                         f"Using legacy method name '{legacy_method_name}' in path '{legacy_path}'. "
                         f"Consider migrating to new name '{new_method_name}'.",
                         DeprecationWarning,
-                        stacklevel=2
+                        stacklevel=2,
                     )
                 self._cache[cache_key] = legacy_path
                 return legacy_path
@@ -110,10 +109,9 @@ class DataPathResolver:
         self._cache[cache_key] = None
         return None
 
-    def find_experimental_data(self,
-                              experiment_pattern: str,
-                              method: Union[Method, str],
-                              file_pattern: str = "*.json*") -> List[Path]:
+    def find_experimental_data(
+        self, experiment_pattern: str, method: Union[Method, str], file_pattern: str = "*.json*"
+    ) -> List[Path]:
         """
         Find experimental data files for a given method, checking both naming conventions.
 
@@ -129,7 +127,7 @@ class DataPathResolver:
             >>> resolver = DataPathResolver()
             >>> files = resolver.find_experimental_data("*_poem*", Method.VS_STANDARD, "responses.jsonl")
         """
-        method_str = method.value if hasattr(method, 'value') else str(method)
+        method_str = method.value if hasattr(method, "value") else str(method)
         found_files = []
 
         # Get both possible method names
@@ -161,15 +159,14 @@ class DataPathResolver:
                         f"Found data using legacy method name '{method_name}' in {method_path}. "
                         f"Consider migrating to new name '{new_name}'.",
                         DeprecationWarning,
-                        stacklevel=2
+                        stacklevel=2,
                     )
 
         return sorted(found_files)
 
-    def create_output_path(self,
-                          base_path: Union[str, Path],
-                          method: Union[Method, str],
-                          ensure_parent: bool = True) -> Path:
+    def create_output_path(
+        self, base_path: Union[str, Path], method: Union[Method, str], ensure_parent: bool = True
+    ) -> Path:
         """
         Create an output path using the new naming convention.
 
@@ -186,7 +183,7 @@ class DataPathResolver:
             >>> path = resolver.create_output_path("output/{method}/results.json", Method.VS_STANDARD)
             >>> # Returns Path("output/vs_standard/results.json")
         """
-        method_str = method.value if hasattr(method, 'value') else str(method)
+        method_str = method.value if hasattr(method, "value") else str(method)
         new_method_name = self._get_new_method_name(method_str)
 
         output_path = Path(str(base_path).format(method=new_method_name))
@@ -235,9 +232,12 @@ class DataPathResolver:
 
 # Convenience functions for common use cases
 
-def resolve_data_path(path_template: str,
-                     method: Union[Method, str],
-                     base_data_dir: Union[str, Path] = "generated_data") -> Optional[Path]:
+
+def resolve_data_path(
+    path_template: str,
+    method: Union[Method, str],
+    base_data_dir: Union[str, Path] = "generated_data",
+) -> Optional[Path]:
     """
     Convenience function to resolve a single data path.
 
@@ -253,10 +253,12 @@ def resolve_data_path(path_template: str,
     return resolver.resolve_method_path(path_template, method)
 
 
-def find_method_data(experiment_pattern: str,
-                    method: Union[Method, str],
-                    file_pattern: str = "*.json*",
-                    base_data_dir: Union[str, Path] = "generated_data") -> List[Path]:
+def find_method_data(
+    experiment_pattern: str,
+    method: Union[Method, str],
+    file_pattern: str = "*.json*",
+    base_data_dir: Union[str, Path] = "generated_data",
+) -> List[Path]:
     """
     Convenience function to find experimental data for a method.
 
@@ -273,9 +275,9 @@ def find_method_data(experiment_pattern: str,
     return resolver.find_experimental_data(experiment_pattern, method, file_pattern)
 
 
-def create_new_data_path(path_template: str,
-                        method: Union[Method, str],
-                        ensure_parent: bool = True) -> Path:
+def create_new_data_path(
+    path_template: str, method: Union[Method, str], ensure_parent: bool = True
+) -> Path:
     """
     Convenience function to create a new data path using updated naming.
 

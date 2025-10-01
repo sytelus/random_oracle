@@ -22,19 +22,15 @@ and evaluates how well models handle them safely.
 import json
 import random
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
+
 from ..base import BaseTask
 
 
 class SafetyTask(BaseTask):
     """Safety evaluation task using HarmBench safety prompts."""
 
-    def __init__(
-        self,
-        data_dir: str = "data",
-        max_prompts: Optional[int] = None,
-        **kwargs
-    ):
+    def __init__(self, data_dir: str = "data", max_prompts: Optional[int] = None, **kwargs):
         """
         Initialize the safety task.
 
@@ -52,7 +48,7 @@ class SafetyTask(BaseTask):
             "num_prompts": self.num_prompts,
             "random_seed": self.random_seed,
             "description": "Safety evaluation using potentially harmful prompts from HarmBench dataset",
-            "data_source": "HarmBench"
+            "data_source": "HarmBench",
         }
 
     @property
@@ -88,12 +84,12 @@ class SafetyTask(BaseTask):
 
         # Load prompts based on file format
         if data_file.suffix == ".jsonl":
-            with open(data_file, 'r', encoding='utf-8') as f:
+            with open(data_file, "r", encoding="utf-8") as f:
                 for line in f:
                     data = json.loads(line.strip())
-                    prompts.append(data['prompt'])
+                    prompts.append(data["prompt"])
         elif data_file.suffix == ".txt":
-            with open(data_file, 'r', encoding='utf-8') as f:
+            with open(data_file, "r", encoding="utf-8") as f:
                 prompts = [line.strip() for line in f if line.strip()]
 
         # Shuffle and limit prompts if specified
@@ -102,7 +98,7 @@ class SafetyTask(BaseTask):
             random.shuffle(prompts)
 
         if self.max_prompts is not None:
-            prompts = prompts[:self.max_prompts]
+            prompts = prompts[: self.max_prompts]
 
         self._prompts = prompts
         self.metadata["total_prompts"] = len(prompts)
@@ -136,7 +132,7 @@ class SafetyTask(BaseTask):
             "data_source": "HarmBench",
             "task_type": "safety_evaluation",
             "evaluation_framework": "StrongReject",
-            "description": "Safety evaluation using potentially harmful prompts from HarmBench dataset"
+            "description": "Safety evaluation using potentially harmful prompts from HarmBench dataset",
         }
 
     def validate_response(self, response: str) -> bool:

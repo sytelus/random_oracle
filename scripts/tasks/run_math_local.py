@@ -16,11 +16,18 @@
 Script for running math task experiments with different methods.
 """
 
-from verbalized_sampling.pipeline import Pipeline, PipelineConfig, ExperimentConfig, EvaluationConfig
-from verbalized_sampling.tasks import Task
-from verbalized_sampling.methods import Method
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
+from verbalized_sampling.methods import Method
+from verbalized_sampling.pipeline import (
+    EvaluationConfig,
+    ExperimentConfig,
+    Pipeline,
+    PipelineConfig,
+)
+from verbalized_sampling.tasks import Task
+
 
 def create_math_experiments(
     task: Task,
@@ -31,32 +38,29 @@ def create_math_experiments(
 
     # Base configuration for math tasks
     base = {
-        'task': task,
-        'model_name': model_name,
-        'num_responses': 1,  # Start with 1 response for math
-        'num_prompts': 50,   # Test on 50 problems
-        'target_words': 0,   # No word constraint for math
-        'temperature': 0.7,  # Low temperature for math reasoning
-        'random_seed': 42,
-        'use_vllm': True,    # Use vLLM for local models
+        "task": task,
+        "model_name": model_name,
+        "num_responses": 1,  # Start with 1 response for math
+        "num_prompts": 50,  # Test on 50 problems
+        "target_words": 0,  # No word constraint for math
+        "temperature": 0.7,  # Low temperature for math reasoning
+        "random_seed": 42,
+        "use_vllm": True,  # Use vLLM for local models
     }
 
     experiments = []
     for method_config in methods:
         # Create name
         name = f"{method_config['method'].value}"
-        if method_config.get('strict_json'):
+        if method_config.get("strict_json"):
             name += " [strict]"
-        if method_config.get('num_samples'):
+        if method_config.get("num_samples"):
             name += f" (samples={method_config['num_samples']})"
 
-        experiments.append(ExperimentConfig(
-            name=name,
-            **base,
-            **method_config
-        ))
+        experiments.append(ExperimentConfig(name=name, **base, **method_config))
 
     return experiments
+
 
 def run_math_tests(
     task: Task,
@@ -88,36 +92,37 @@ def run_math_tests(
     pipeline.run_complete_pipeline()
     print(f"✅ Done! Check {output_dir}/{model_basename}_{task.value}/pipeline_report.html")
 
+
 if __name__ == "__main__":
     # Test different math reasoning methods
 
     # Start with basic methods for math tasks
     methods = [
         {
-            'method': Method.DIRECT,
-            'strict_json': False,
-            'num_samples': 1,
+            "method": Method.DIRECT,
+            "strict_json": False,
+            "num_samples": 1,
         },
         {
-            'method': Method.DIRECT_COT,
-            'strict_json': False,
-            'num_samples': 1,
+            "method": Method.DIRECT_COT,
+            "strict_json": False,
+            "num_samples": 1,
         },
         # Add structured methods for comparison
         {
-            'method': Method.SEQUENCE,
-            'strict_json': True,
-            'num_samples': 3,
+            "method": Method.SEQUENCE,
+            "strict_json": True,
+            "num_samples": 3,
         },
         {
-            'method': Method.VS_STANDARD,
-            'strict_json': True,
-            'num_samples': 3,
+            "method": Method.VS_STANDARD,
+            "strict_json": True,
+            "num_samples": 3,
         },
         {
-            'method': Method.VS_COT,
-            'strict_json': True,
-            'num_samples': 3,
+            "method": Method.VS_COT,
+            "strict_json": True,
+            "num_samples": 3,
         },
     ]
 

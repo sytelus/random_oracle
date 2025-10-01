@@ -19,22 +19,23 @@ This module provides the foundation for multi-turn dialogue simulation tasks
 that leverage verbalized sampling methods.
 """
 
-from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional, Union, Tuple
-from pathlib import Path
 import json
 import random
-import numpy as np
+from abc import abstractmethod
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
-from verbalized_sampling.tasks.base import BaseTask
-from verbalized_sampling.methods import Method
+import numpy as np
+
 from verbalized_sampling.llms import BaseLLM
+from verbalized_sampling.methods import Method
+from verbalized_sampling.tasks.base import BaseTask
 
 
 class DialogueRole(Enum):
     """Roles in a dialogue simulation."""
+
     PERSUADER = 0
     PERSUADEE = 1
 
@@ -42,6 +43,7 @@ class DialogueRole(Enum):
 @dataclass
 class DialogueTurn:
     """Represents a single turn in a dialogue."""
+
     role: DialogueRole
     text: str
     turn_number: int
@@ -51,6 +53,7 @@ class DialogueTurn:
 @dataclass
 class ConversationState:
     """Manages the state of an ongoing conversation."""
+
     conversation_id: str
     turns: List[DialogueTurn]
     persuader_persona: Dict[str, Any]
@@ -61,12 +64,7 @@ class ConversationState:
 
     def add_turn(self, role: DialogueRole, text: str, metadata: Optional[Dict[str, Any]] = None):
         """Add a new turn to the conversation."""
-        turn = DialogueTurn(
-            role=role,
-            text=text,
-            turn_number=self.current_turn,
-            metadata=metadata
-        )
+        turn = DialogueTurn(role=role, text=text, turn_number=self.current_turn, metadata=metadata)
         self.turns.append(turn)
         self.current_turn += 1
 
@@ -86,15 +84,17 @@ class ConversationState:
 class DialogueTask(BaseTask):
     """Base class for dialogue simulation tasks."""
 
-    def __init__(self,
-                 persuader_model: BaseLLM,
-                 persuadee_model: BaseLLM,
-                 method: Method,
-                 max_turns: int = 10,
-                 word_limit: int = 160,
-                 num_samplings: int = 4,
-                 sampling_method: str = "vs_standard",
-                 **kwargs):
+    def __init__(
+        self,
+        persuader_model: BaseLLM,
+        persuadee_model: BaseLLM,
+        method: Method,
+        max_turns: int = 10,
+        word_limit: int = 160,
+        num_samplings: int = 4,
+        sampling_method: str = "vs_standard",
+        **kwargs,
+    ):
         """Initialize dialogue task.
 
         Args:
@@ -122,31 +122,29 @@ class DialogueTask(BaseTask):
     @abstractmethod
     def load_dataset(self) -> List[Dict[str, Any]]:
         """Load dialogue dataset."""
-        pass
 
     @abstractmethod
-    def create_persuader_prompt(self,
-                               conversation_state: ConversationState,
-                               is_first_turn: bool = False) -> str:
+    def create_persuader_prompt(
+        self, conversation_state: ConversationState, is_first_turn: bool = False
+    ) -> str:
         """Create prompt for persuader model."""
-        pass
 
     @abstractmethod
-    def create_persuadee_prompt(self,
-                               conversation_state: ConversationState,
-                               is_first_turn: bool = False) -> str:
+    def create_persuadee_prompt(
+        self, conversation_state: ConversationState, is_first_turn: bool = False
+    ) -> str:
         """Create prompt for persuadee model."""
-        pass
 
     @abstractmethod
     def extract_outcome(self, conversation_state: ConversationState) -> Dict[str, Any]:
         """Extract final outcome from completed conversation."""
-        pass
 
-    def simulate_conversation(self,
-                            persuader_persona: Dict[str, Any],
-                            persuadee_persona: Dict[str, Any],
-                            conversation_id: str) -> ConversationState:
+    def simulate_conversation(
+        self,
+        persuader_persona: Dict[str, Any],
+        persuadee_persona: Dict[str, Any],
+        conversation_id: str,
+    ) -> ConversationState:
         """Simulate a complete conversation between persuader and persuadee.
 
         Args:
@@ -163,7 +161,7 @@ class DialogueTask(BaseTask):
             turns=[],
             persuader_persona=persuader_persona,
             persuadee_persona=persuadee_persona,
-            max_turns=self.max_turns
+            max_turns=self.max_turns,
         )
 
         # Simulate conversation turns
@@ -176,11 +174,9 @@ class DialogueTask(BaseTask):
                 # Persuader turn - always use direct generation
                 prompt = self.create_persuader_prompt(state, is_first_turn)
                 # response = self.persuader_model.generate([prompt])[0]
-                response = self.persuadee_model.chat([[{"role": "user", "content": prompt}]])[0] 
+                response = self.persuadee_model.chat([[{"role": "user", "content": prompt}]])[0]
                 state.add_turn(
-                    role=DialogueRole.PERSUADER,
-                    text=response,
-                    metadata={"method": "direct"}
+                    role=DialogueRole.PERSUADER, text=response, metadata={"method": "direct"}
                 )
             else:
                 # Persuadee turn - use verbalized sampling
@@ -193,16 +189,17 @@ class DialogueTask(BaseTask):
                     metadata={
                         "method": self.method.value,
                         "probability": selected_response.get("probability"),
-                        "all_responses": responses
-                    }
+                        "all_responses": responses,
+                    },
                 )
 
         # Extract final outcome
         state.outcome = self.extract_outcome(state)
         return state
 
-    def _generate_persuadee_responses(self,
-                                    conversation_state: ConversationState) -> List[Dict[str, Any]]:
+    def _generate_persuadee_responses(
+        self, conversation_state: ConversationState
+    ) -> List[Dict[str, Any]]:
         """Generate multiple response options using verbalized sampling."""
         prompt = self.create_persuadee_prompt(conversation_state)
 
@@ -234,7 +231,9 @@ class DialogueTask(BaseTask):
         if len(responses) == 1:
             return responses[0]
 
-        if self.response_selection == "probability_weighted" and all("probability" in r for r in responses):
+        if self.response_selection == "probability_weighted" and all(
+            "probability" in r for r in responses
+        ):
             # Probability-weighted selection
             probabilities = [r["probability"] for r in responses]
             # Normalize probabilities
@@ -247,9 +246,11 @@ class DialogueTask(BaseTask):
         # Random selection as fallback
         return random.choice(responses)
 
-    def run_experiment(self,
-                      dataset: Optional[List[Dict[str, Any]]] = None,
-                      num_conversations: Optional[int] = None) -> List[ConversationState]:
+    def run_experiment(
+        self,
+        dataset: Optional[List[Dict[str, Any]]] = None,
+        num_conversations: Optional[int] = None,
+    ) -> List[ConversationState]:
         """Run dialogue simulation experiment.
 
         Args:
@@ -275,17 +276,15 @@ class DialogueTask(BaseTask):
             conversation = self.simulate_conversation(
                 persuader_persona=persuader_persona,
                 persuadee_persona=persuadee_persona,
-                conversation_id=conversation_id
+                conversation_id=conversation_id,
             )
             conversations.append(conversation)
 
         return conversations
 
-    def get_prompt(self,
-                   method: Method,
-                   prompt_index: int = 0,
-                   num_samples: int = 5,
-                   **kwargs) -> str:
+    def get_prompt(
+        self, method: Method, prompt_index: int = 0, num_samples: int = 5, **kwargs
+    ) -> str:
         """Get prompt for a specific method (required by BaseTask interface)."""
         # For dialogue tasks, this is used primarily for testing individual prompts
         # Load a sample from dataset for prompt generation
@@ -298,7 +297,7 @@ class DialogueTask(BaseTask):
                 turns=[],
                 persuader_persona=sample.get("persuader_persona", {}),
                 persuadee_persona=sample.get("persuadee_persona", {}),
-                max_turns=self.max_turns
+                max_turns=self.max_turns,
             )
             return self.create_persuadee_prompt(state, is_first_turn=True)
         return "No dataset available for prompt generation"

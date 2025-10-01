@@ -17,12 +17,21 @@ Simple script for running math tasks with standard generation.
 Similar to run_jokes_local.py but focused on math reasoning.
 """
 
-from verbalized_sampling.pipeline import Pipeline, PipelineConfig, ExperimentConfig, EvaluationConfig
-from verbalized_sampling.tasks import Task
-from verbalized_sampling.methods import Method
 from pathlib import Path
 
-def run_math_generation(model_name: str, task: Task, output_dir: str = "generated_data/math_simple"):
+from verbalized_sampling.methods import Method
+from verbalized_sampling.pipeline import (
+    EvaluationConfig,
+    ExperimentConfig,
+    Pipeline,
+    PipelineConfig,
+)
+from verbalized_sampling.tasks import Task
+
+
+def run_math_generation(
+    model_name: str, task: Task, output_dir: str = "generated_data/math_simple"
+):
     """Run simple math generation experiment."""
 
     print(f"🧮 Running Math Generation: {model_name} on {task.value}")
@@ -55,6 +64,7 @@ def run_math_generation(model_name: str, task: Task, output_dir: str = "generate
     pipeline.run_complete_pipeline()
     print(f"✅ Results: {output_dir}/{model_basename}_{task.value}/pipeline_report.html")
 
+
 if __name__ == "__main__":
     # Simple test with one model and one math dataset
 
@@ -62,11 +72,7 @@ if __name__ == "__main__":
     model = "Qwen/Qwen3-4B-Base"
 
     # Test on MATH dataset
-    run_math_generation(
-        model_name=model,
-        task=Task.MATH,
-        output_dir="generated_data/math_simple"
-    )
+    run_math_generation(model_name=model, task=Task.MATH, output_dir="generated_data/math_simple")
 
     print("🎉 Math generation test complete!")
     print("To test other models/datasets, edit the script and change:")

@@ -13,9 +13,7 @@
 # limitations under the License.
 
 # Bias-related tasks
-from .state_name import StateNameTask
 from .rand_num import RandomNumberTask
-__all__ = [
-    "StateNameTask",
-    "RandomNumberTask"
-] 
+from .state_name import StateNameTask
+
+__all__ = ["StateNameTask", "RandomNumberTask"]

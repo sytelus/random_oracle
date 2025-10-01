@@ -16,11 +16,13 @@
 Response parsers for different sampling methods.
 """
 
+import ast
 import json
 import re
-import ast
-from typing import Any, Dict, List, Union, Optional
+from typing import Any, Dict, List, Union
+
 from .factory import Method
+
 
 def maybe_rename_response(response: Dict) -> Dict:
     if "response" in response:
@@ -40,7 +42,6 @@ def maybe_rename_response(response: Dict) -> Dict:
 
 class ParseError(Exception):
     """Exception raised when parsing fails."""
-    pass
 
 class ResponseParser:
     """Utility class for parsing responses from different sampling methods."""
@@ -150,7 +151,7 @@ class ResponseParser:
             try:
                 response = ResponseParser._extract_json(response)
                 return [maybe_rename_response(item) for item in response['responses']]
-            except Exception as e:
+            except Exception:
                 # Fallback: treat as a single string
                 return [{'text': ""}]
     

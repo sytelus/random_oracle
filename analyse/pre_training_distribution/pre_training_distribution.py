@@ -1,5 +1,7 @@
-import requests
 import json
+
+import requests
+
 
 def query_infini_gram(query):
     payload = {

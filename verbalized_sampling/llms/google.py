@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-from typing import Any, Dict, Generator, List
 import json
+import os
+from typing import Any, Dict, List
 
 from google import genai
 from pydantic import BaseModel
@@ -36,7 +36,14 @@ class GoogleLLM(BaseLLM):
     """
     A class for interacting with Google's Generative AI models (e.g., Gemini).
     """
-    def __init__(self, model_name: str, config: Dict[str, Any], num_workers: int = 1, strict_json: bool = False):
+
+    def __init__(
+        self,
+        model_name: str,
+        config: Dict[str, Any],
+        num_workers: int = 1,
+        strict_json: bool = False,
+    ):
         """
         Initializes the GoogleLLM client.
 
@@ -59,8 +66,7 @@ class GoogleLLM(BaseLLM):
 
         # Initialize the GenerativeModel client
         self.client = genai.GenerativeModel(
-            model_name=self.model_name,
-            generation_config=self.generation_config
+            model_name=self.model_name, generation_config=self.generation_config
         )
 
     def _prepare_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
@@ -68,27 +74,27 @@ class GoogleLLM(BaseLLM):
         prepared_config = config.copy()
 
         # Translate keys from OpenAI nomenclature to Google's
-        if 'max_tokens' in prepared_config:
-            prepared_config['max_output_tokens'] = prepared_config.pop('max_tokens')
-        if 'top_p' in prepared_config:
-            prepared_config['top_p'] = prepared_config.pop('top_p')
-        if 'temperature' in prepared_config:
-            prepared_config['temperature'] = prepared_config.pop('temperature')
-        
+        if "max_tokens" in prepared_config:
+            prepared_config["max_output_tokens"] = prepared_config.pop("max_tokens")
+        if "top_p" in prepared_config:
+            prepared_config["top_p"] = prepared_config.pop("top_p")
+        if "temperature" in prepared_config:
+            prepared_config["temperature"] = prepared_config.pop("temperature")
+
         # 'n' or 'best_of' for multiple generations is not directly supported in the same way,
         # so we don't translate it. The parent class handles multiple calls if needed.
-        prepared_config.pop('n', None)
-        prepared_config.pop('best_of', None)
-        
+        prepared_config.pop("n", None)
+        prepared_config.pop("best_of", None)
+
         return prepared_config
-        
+
     def _remap_roles(self, messages: List[Dict[str, str]]) -> List[Dict[str, str]]:
         """Remaps role names from 'assistant' to 'model' for the Google API."""
         remapped_messages = []
         for msg in messages:
             new_msg = msg.copy()
-            if new_msg.get('role') == 'assistant':
-                new_msg['role'] = 'model'
+            if new_msg.get("role") == "assistant":
+                new_msg["role"] = "model"
             remapped_messages.append(new_msg)
         return remapped_messages
 
@@ -98,9 +104,9 @@ class GoogleLLM(BaseLLM):
         """
         # Google's API uses 'model' instead of 'assistant' for the response role.
         history = self._remap_roles(messages)
-        
+
         response = self.client.generate_content(history)
-        
+
         try:
             response_text = response.text
             response_text = response_text.replace("\n", "")
@@ -150,16 +156,17 @@ class GoogleLLM(BaseLLM):
                             result.append({"response": resp, "probability": 1.0})
                     return result
                 elif "text" in parsed:
-                    return [{
-                        "response": parsed["text"],
-                        "probability": parsed.get("probability", 1.0)
-                    }]
+                    return [
+                        {"response": parsed["text"], "probability": parsed.get("probability", 1.0)}
+                    ]
                 elif "response" in parsed:
-                    return [{
-                        "response": parsed["response"],
-                        "probability": parsed.get("probability", 1.0)
-                    }]
-                
+                    return [
+                        {
+                            "response": parsed["response"],
+                            "probability": parsed.get("probability", 1.0),
+                        }
+                    ]
+
                 # Fallback for unexpected but valid JSON
                 return [{"response": str(parsed), "probability": 1.0}]
 
@@ -171,14 +178,16 @@ class GoogleLLM(BaseLLM):
             print(f"Error parsing response with schema: {e}")
             return [{"response": response, "probability": 1.0}]
 
-    def _chat_with_format(self, messages: List[Dict[str, str]], schema: BaseModel) -> List[Dict[str, Any]]:
+    def _chat_with_format(
+        self, messages: List[Dict[str, str]], schema: BaseModel
+    ) -> List[Dict[str, Any]]:
         """
         Sends a chat request and asks for a JSON response that fits the schema.
         """
         # Add instruction for JSON output to the last user message.
         # This is a robust way to ensure the model adheres to the format.
         formatted_messages = self._remap_roles(messages)
-        formatted_messages[-1]['parts'][-1] += "\n\nPlease format your response as a JSON object."
+        formatted_messages[-1]["parts"][-1] += "\n\nPlease format your response as a JSON object."
 
         # Create a specific client for this request to set the JSON mime type
         json_client = genai.GenerativeModel(
@@ -186,9 +195,9 @@ class GoogleLLM(BaseLLM):
             generation_config={
                 **self.generation_config,
                 "response_mime_type": "application/json",
-            }
+            },
         )
-        
+
         try:
             response = json_client.generate_content(formatted_messages)
             parsed_response = self._parse_response_with_schema(response.text)

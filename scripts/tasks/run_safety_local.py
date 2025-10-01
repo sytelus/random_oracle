@@ -20,12 +20,17 @@ This script evaluates LLM safety using the HarmBench safety dataset with various
 verbalized sampling methods and the StrongReject evaluation methodology.
 """
 
-from verbalized_sampling.pipeline import Pipeline, PipelineConfig, ExperimentConfig, EvaluationConfig
-from verbalized_sampling.tasks import Task
-from verbalized_sampling.methods import Method
 from pathlib import Path
-from typing import List, Dict, Any
-import sys
+from typing import Any, Dict, List
+
+from verbalized_sampling.methods import Method
+from verbalized_sampling.pipeline import (
+    EvaluationConfig,
+    ExperimentConfig,
+    Pipeline,
+    PipelineConfig,
+)
+from verbalized_sampling.tasks import Task
 
 
 def create_safety_experiments(
@@ -40,14 +45,14 @@ def create_safety_experiments(
 
     # Base configuration for safety evaluation
     base = {
-        'task': Task.SAFETY,  # Need to add SAFETY to Task enum if not exists
-        'model_name': model_name,
-        'num_responses': num_responses,
-        'num_prompts': num_prompts,
-        'target_words': 0,
-        'temperature': temperature,
-        'top_p': top_p,
-        'random_seed': 42,
+        "task": Task.SAFETY,  # Need to add SAFETY to Task enum if not exists
+        "model_name": model_name,
+        "num_responses": num_responses,
+        "num_prompts": num_prompts,
+        "target_words": 0,
+        "temperature": temperature,
+        "top_p": top_p,
+        "random_seed": 42,
         "use_vllm": True,
     }
 
@@ -55,18 +60,14 @@ def create_safety_experiments(
     for method_config in methods:
         # Create descriptive experiment name
         name = f"{method_config['method'].value}"
-        if method_config.get('strict_json'):
+        if method_config.get("strict_json"):
             name += " [strict JSON]"
-        if method_config.get('num_samples'):
+        if method_config.get("num_samples"):
             name += f" (samples={method_config['num_samples']})"
-        if method_config.get('probability_definition'):
+        if method_config.get("probability_definition"):
             name += f" [{method_config['probability_definition']}]"
 
-        experiments.append(ExperimentConfig(
-            name=name,
-            **base,
-            **method_config
-        ))
+        experiments.append(ExperimentConfig(name=name, **base, **method_config))
 
     return experiments
 
@@ -94,7 +95,7 @@ def run_safety_evaluation(
         top_p=top_p,
         methods=methods,
         num_prompts=num_prompts,
-        num_responses=num_responses
+        num_responses=num_responses,
     )
 
     print(f"📊 {len(experiments)} safety experiments to run:")
@@ -133,41 +134,41 @@ if __name__ == "__main__":
     # Test various sampling methods for safety evaluation
     safety_methods = [
         {
-            'method': Method.DIRECT,
-            'strict_json': False,
-            'num_samples': 1,
+            "method": Method.DIRECT,
+            "strict_json": False,
+            "num_samples": 1,
         },
         {
-            'method': Method.DIRECT_COT,
-            'strict_json': True,
-            'num_samples': 1,
+            "method": Method.DIRECT_COT,
+            "strict_json": True,
+            "num_samples": 1,
         },
         {
-            'method': Method.MULTI_TURN,
-            'strict_json': True,
-            'num_samples': 5,
+            "method": Method.MULTI_TURN,
+            "strict_json": True,
+            "num_samples": 5,
         },
         {
-            'method': Method.SEQUENCE,
-            'strict_json': True,
-            'num_samples': 5,
+            "method": Method.SEQUENCE,
+            "strict_json": True,
+            "num_samples": 5,
         },
         {
-            'method': Method.VS_STANDARD,
-            'strict_json': True,
-            'num_samples': 5,
+            "method": Method.VS_STANDARD,
+            "strict_json": True,
+            "num_samples": 5,
         },
         {
-            'method': Method.VS_COT,
-            'strict_json': True,
-            'num_samples': 5,
+            "method": Method.VS_COT,
+            "strict_json": True,
+            "num_samples": 5,
         },
         {
-            'method': Method.VS_MULTI,
-            'strict_json': True,
-            'num_samples': 5,
-            'num_samples_per_prompt': 2,
-        }
+            "method": Method.VS_MULTI,
+            "strict_json": True,
+            "num_samples": 5,
+            "num_samples_per_prompt": 2,
+        },
         # {
         #     'method': Method.VS_STANDARD,
         #     'strict_json': True,
@@ -207,11 +208,11 @@ if __name__ == "__main__":
 
     # Safety evaluation parameters
     evaluation_config = {
-        'temperature': 0.3,  # Lower temperature for more consistent safety behavior
-        'top_p': 0.9,        # Slightly restricted sampling
-        'num_prompts': 500,   # Number of safety prompts to test (max from HarmBench standard config)
-        'num_responses': 5,   # Responses per prompt
-        'output_dir': "generated_data/safety_evaluation_results"
+        "temperature": 0.3,  # Lower temperature for more consistent safety behavior
+        "top_p": 0.9,  # Slightly restricted sampling
+        "num_prompts": 500,  # Number of safety prompts to test (max from HarmBench standard config)
+        "num_responses": 5,  # Responses per prompt
+        "output_dir": "generated_data/safety_evaluation_results",
     }
 
     # Run safety evaluation for each model
@@ -220,11 +221,7 @@ if __name__ == "__main__":
         print("=" * 60)
 
         try:
-            run_safety_evaluation(
-                model_name=model,
-                methods=safety_methods,
-                **evaluation_config
-            )
+            run_safety_evaluation(model_name=model, methods=safety_methods, **evaluation_config)
 
             print(f"✅ Completed safety evaluation for {model}")
 

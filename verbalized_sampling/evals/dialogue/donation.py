@@ -19,19 +19,21 @@ This module provides evaluators for measuring donation outcomes,
 distribution alignment, and persuasion effectiveness.
 """
 
-import re
-import numpy as np
 import json
-from typing import Dict, List, Any, Optional, Tuple
+import re
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
 from scipy import stats
 
-from verbalized_sampling.analysis.evals.base import BaseEvaluator, EvalResult as EvaluationResult
+from verbalized_sampling.analysis.evals.base import BaseEvaluator
 
 
 @dataclass
 class DonationMetrics:
     """Container for donation-related metrics."""
+
     donation_rate: float  # Percentage of conversations resulting in donations
     average_donation: float  # Average donation amount
     median_donation: float  # Median donation amount
@@ -45,9 +47,7 @@ class DonationMetrics:
 class DonationEvaluator(BaseEvaluator):
     """Evaluator for donation outcomes in persuasion dialogues."""
 
-    def __init__(self,
-                 ground_truth_path: Optional[str] = None,
-                 **kwargs):
+    def __init__(self, ground_truth_path: Optional[str] = None, **kwargs):
         """Initialize donation evaluator.
 
         Args:
@@ -63,7 +63,7 @@ class DonationEvaluator(BaseEvaluator):
     def _load_ground_truth(self) -> None:
         """Load ground truth donation distribution."""
         try:
-            with open(self.ground_truth_path, 'r') as f:
+            with open(self.ground_truth_path, "r") as f:
                 data = json.load(f)
                 self.ground_truth_distribution = data.get("donation_amounts", [])
         except (FileNotFoundError, json.JSONDecodeError) as e:
@@ -148,7 +148,7 @@ class DonationEvaluator(BaseEvaluator):
                 average_donation=0.0,
                 median_donation=0.0,
                 total_donated=0.0,
-                donation_distribution=[]
+                donation_distribution=[],
             )
 
         # Basic statistics
@@ -163,7 +163,7 @@ class DonationEvaluator(BaseEvaluator):
             average_donation=average_donation,
             median_donation=median_donation,
             total_donated=total_donated,
-            donation_distribution=donation_amounts.copy()
+            donation_distribution=donation_amounts.copy(),
         )
 
     def _calculate_ks_test(self, donation_amounts: List[float]) -> Tuple[float, float]:
@@ -218,14 +218,14 @@ class DonationEvaluator(BaseEvaluator):
         text_lower = text.lower()
 
         # Pattern for cents
-        pattern_cents = r'\b(?:donate|donating|give|giving|do|spare|contribute|contributing)\s*\$?(\d*\.\d{1,2}|\d+)\s*cents\b'
+        pattern_cents = r"\b(?:donate|donating|give|giving|do|spare|contribute|contributing)\s*\$?(\d*\.\d{1,2}|\d+)\s*cents\b"
         match_cents = re.search(pattern_cents, text_lower)
 
         if match_cents:
             match = next((m for m in match_cents.groups() if m is not None), None)
             if match:
                 try:
-                    amount = float(match.replace('$', '').replace(',', '').strip())
+                    amount = float(match.replace("$", "").replace(",", "").strip())
                     if amount >= 1.0:
                         amount = amount / 100  # Convert cents to dollars
                     return min(amount, 2.0)  # Cap at $2
@@ -233,14 +233,14 @@ class DonationEvaluator(BaseEvaluator):
                     pass
 
         # Pattern for dollars
-        pattern_dollars = r'\b(?:donate|donating|give|giving|do|spare|contribute|contributing)\s*(?:the whole|all|entire)?\s*\$?(\d*\.\d{1,2}|\d+)\b'
+        pattern_dollars = r"\b(?:donate|donating|give|giving|do|spare|contribute|contributing)\s*(?:the whole|all|entire)?\s*\$?(\d*\.\d{1,2}|\d+)\b"
         match_dollars = re.search(pattern_dollars, text_lower)
 
         if match_dollars:
             match = next((m for m in match_dollars.groups() if m is not None), None)
             if match:
                 try:
-                    amount = float(match.replace('$', '').replace(',', '').strip())
+                    amount = float(match.replace("$", "").replace(",", "").strip())
                     return min(amount, 2.0)  # Cap at $2
                 except ValueError:
                     pass

@@ -15,11 +15,13 @@
 import json
 import os
 from pathlib import Path
+
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import ttest_ind
-import matplotlib.pyplot as plt
-plt.style.use('seaborn-v0_8')
-COLORS = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2']
+
+plt.style.use("seaborn-v0_8")
+COLORS = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2"]
 
 # Maps canonical method keys to (display name, matching substring in dir name)
 METHOD_MAP = {
@@ -75,7 +77,6 @@ METHOD_MAP = {
 #         plt.tight_layout()
 #         plt.show()
 
-                        
 
 # def ttest_vs_vs_baseline(metrics_values, all_model_names, plot_metrics):
 #     """
@@ -98,7 +99,7 @@ METHOD_MAP = {
 #                                 vals_b.extend(method_data[metric])
 #                 if vals_b and vals_v:
 #                     t_stat, p_val = ttest_ind(vals_b, vals_v, equal_var=False)
-                    
+
 #                     # Determine significance level
 #                     if p_val < 0.001:
 #                         sig = '***'
@@ -108,7 +109,7 @@ METHOD_MAP = {
 #                         sig = '*'
 #                     else:
 #                         sig = 'ns'
-                    
+
 #                     print(f"{METHOD_MAP[b][0]} vs {METHOD_MAP[v][0]}: p={p_val:.4g} (t={t_stat:.2f}) {sig}")
 #                 else:
 #                     print(f"{METHOD_MAP[b][0]} vs {METHOD_MAP[v][0]}: Not enough data")
@@ -181,11 +182,20 @@ METHOD_MAP = {
 #             plt.show()
 
 
-def bar_plot_all_methods_with_ttest_box(metrics_values, all_model_names, plot_metrics, metric_labels, baseline_methods, vs_methods, all_methods):
+def bar_plot_all_methods_with_ttest_box(
+    metrics_values,
+    all_model_names,
+    plot_metrics,
+    metric_labels,
+    baseline_methods,
+    vs_methods,
+    all_methods,
+):
     """
     For each baseline method, draw a bar plot with all methods, and include a text box at the top left summarizing t-test results (p-value, t-value, significance) for that baseline vs each VS method.
     """
     import matplotlib.cm as cm
+
     for metric in plot_metrics:
         for baseline in baseline_methods:
             display_names = [METHOD_MAP[m][0] for m in all_methods]
@@ -218,19 +228,21 @@ def bar_plot_all_methods_with_ttest_box(metrics_values, all_model_names, plot_me
                 if vals_b and vals_v:
                     t_stat, p_val = ttest_ind(vals_b, vals_v, equal_var=False)
                     if p_val < 0.001:
-                        sig = '***'
+                        sig = "***"
                     elif p_val < 0.01:
-                        sig = '**'
+                        sig = "**"
                     elif p_val < 0.05:
-                        sig = '*'
+                        sig = "*"
                     else:
-                        sig = 'ns'
-                    box_lines.append(f"vs {METHOD_MAP[vs][0]}: p={p_val:.4g} (t={t_stat:.2f}) {sig}")
+                        sig = "ns"
+                    box_lines.append(
+                        f"vs {METHOD_MAP[vs][0]}: p={p_val:.4g} (t={t_stat:.2f}) {sig}"
+                    )
                 else:
                     box_lines.append(f"vs {METHOD_MAP[vs][0]}: Not enough data")
-            box_text = '\n'.join(box_lines)
+            box_text = "\n".join(box_lines)
             # Plot
-            cmap = cm.get_cmap('tab10')
+            cmap = cm.get_cmap("tab10")
             colors = [cmap(i % 10) for i in range(len(all_methods))]
             fig, ax = plt.subplots(figsize=(10, 5))
             x = np.arange(len(all_methods))
@@ -238,23 +250,39 @@ def bar_plot_all_methods_with_ttest_box(metrics_values, all_model_names, plot_me
             ax.set_xticks(x)
             ax.set_xticklabels(display_names, rotation=20)
             ax.set_title(f"{metric_labels[metric]} - Average Across All Models")
-            ax.set_ylabel('Mean')
+            ax.set_ylabel("Mean")
             ax.set_ylim(0, 0.7)
             # Add value labels
             for i, bar in enumerate(bars):
                 height = bar.get_height()
-                ax.text(bar.get_x() + bar.get_width()/2., height + 0.01, f"{height:.2f}", ha='center', va='bottom', fontsize=10)
+                ax.text(
+                    bar.get_x() + bar.get_width() / 2.0,
+                    height + 0.01,
+                    f"{height:.2f}",
+                    ha="center",
+                    va="bottom",
+                    fontsize=10,
+                )
             # Place the box at the top right of the image (figure area), left-aligned
-            fig.text(0.97, 0.90, box_text, fontsize=11, verticalalignment='top', horizontalalignment='right',
-                     multialignment='left',
-                     bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.7))
+            fig.text(
+                0.97,
+                0.90,
+                box_text,
+                fontsize=11,
+                verticalalignment="top",
+                horizontalalignment="right",
+                multialignment="left",
+                bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.7),
+            )
             plt.subplots_adjust(right=0.80)
             plt.tight_layout()
             plt.savefig(f"factuality_metrics_{metric}_{METHOD_MAP[baseline][0]}.png")
             plt.show()
 
 
-def plot_factual_method_averages(metrics_values, all_model_names, plot_metrics, metric_labels, all_methods):
+def plot_factual_method_averages(
+    metrics_values, all_model_names, plot_metrics, metric_labels, all_methods
+):
     """
     Create bar charts showing average performance across all models for each method, with error bars, color, hatching, and significance annotation box.
     For the statistical test, use the best baseline (from direct, direct_cot, sequence, multi_turn) and compare each VS method to it.
@@ -283,14 +311,18 @@ def plot_factual_method_averages(metrics_values, all_model_names, plot_metrics, 
             means.append(mean_val)
             stds.append(std_val)
             # Error bars: lower cannot go below zero
-            lower = min(std_val, mean_val) if not np.isnan(mean_val) and not np.isnan(std_val) else std_val
+            lower = (
+                min(std_val, mean_val)
+                if not np.isnan(mean_val) and not np.isnan(std_val)
+                else std_val
+            )
             upper = std_val
             error_bars.append([lower, upper])
         yerr = np.array(error_bars).T
 
         # Find the best baseline method for this metric
         baseline_means = [means[all_methods.index(b)] for b in baseline_methods]
-        if metric == 'first_response_accuracy' or metric == 'pass_at_k_accuracy':
+        if metric == "first_response_accuracy" or metric == "pass_at_k_accuracy":
             # Higher is better
             best_baseline_idx = np.nanargmax(baseline_means)
         else:
@@ -323,44 +355,83 @@ def plot_factual_method_averages(metrics_values, all_model_names, plot_metrics, 
                     sig_level = "*"
                 else:
                     sig_level = "ns"
-                box_lines.append(f"{METHOD_MAP[vs][0]} vs {best_baseline_label}: p={p_val:.4f} {sig_level}")
+                box_lines.append(
+                    f"{METHOD_MAP[vs][0]} vs {best_baseline_label}: p={p_val:.4f} {sig_level}"
+                )
             else:
                 box_lines.append(f"{METHOD_MAP[vs][0]} vs {best_baseline_label}: insufficient data")
-        box_text = '\n'.join(box_lines)
+        box_text = "\n".join(box_lines)
 
         # Plot
         fig, ax = plt.subplots(figsize=(10, 6))
-        bars = ax.bar(display_names, means, yerr=yerr, capsize=5, color=COLORS[:len(all_methods)], alpha=0.8, edgecolor='black', linewidth=1)
+        bars = ax.bar(
+            display_names,
+            means,
+            yerr=yerr,
+            capsize=5,
+            color=COLORS[: len(all_methods)],
+            alpha=0.8,
+            edgecolor="black",
+            linewidth=1,
+        )
         # Add hatches to VS methods (last 3 bars)
-        for i, bar in enumerate(bars[-3:], start=len(bars)-3):
-            bar.set_hatch('///')
+        for i, bar in enumerate(bars[-3:], start=len(bars) - 3):
+            bar.set_hatch("///")
         # Add value labels on bars
         for bar, mean, std in zip(bars, means, stds):
             height = bar.get_height()
             std_val = std if not np.isnan(std) else 0.0
-            ax.text(bar.get_x() + bar.get_width()/2., height + std_val + 0.005,
-                    f'{height:.2f}±{std_val:.2f}', ha='center', va='bottom', fontsize=12, fontweight='bold')
-        ax.set_xlabel('Methods', fontsize=16, fontweight='bold')
-        ax.set_ylabel(metric_labels[metric], fontsize=16, fontweight='bold')
-        ax.set_title(f'{metric_labels[metric]} - Average Across All Models', fontsize=18, fontweight='bold', pad=20)
-        ax.grid(True, alpha=0.3, axis='y')
-        ax.tick_params(axis='x', labelsize=14)
-        ax.tick_params(axis='y', labelsize=14)
+            ax.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                height + std_val + 0.005,
+                f"{height:.2f}±{std_val:.2f}",
+                ha="center",
+                va="bottom",
+                fontsize=12,
+                fontweight="bold",
+            )
+        ax.set_xlabel("Methods", fontsize=16, fontweight="bold")
+        ax.set_ylabel(metric_labels[metric], fontsize=16, fontweight="bold")
+        ax.set_title(
+            f"{metric_labels[metric]} - Average Across All Models",
+            fontsize=18,
+            fontweight="bold",
+            pad=20,
+        )
+        ax.grid(True, alpha=0.3, axis="y")
+        ax.tick_params(axis="x", labelsize=14)
+        ax.tick_params(axis="y", labelsize=14)
         plt.xticks(rotation=0)
         # Set y-axis limits to provide some margin above the highest bar + error bar
-        max_height = max([mean + err[1] if not np.isnan(mean) and not np.isnan(err[1]) else 0 for mean, err in zip(means, error_bars)])
+        max_height = max(
+            [
+                mean + err[1] if not np.isnan(mean) and not np.isnan(err[1]) else 0
+                for mean, err in zip(means, error_bars)
+            ]
+        )
         ax.set_ylim(0, max_height * 1.25 if max_height > 0 else 1)
         # Highlight best performing method
-        if metric == 'first_response_accuracy' or metric == 'pass_at_k_accuracy':
+        if metric == "first_response_accuracy" or metric == "pass_at_k_accuracy":
             best_idx = np.nanargmax(means)
         else:
             best_idx = np.nanargmin(means)
-        bars[best_idx].set_edgecolor('red')
+        bars[best_idx].set_edgecolor("red")
         bars[best_idx].set_linewidth(3)
         # Add annotation box
-        ax.text(0.02, 0.98, box_text, transform=ax.transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left', multialignment='left', bbox=dict(boxstyle="round,pad=0.5", facecolor="lightyellow", alpha=0.8), fontweight='bold')
+        ax.text(
+            0.02,
+            0.98,
+            box_text,
+            transform=ax.transAxes,
+            fontsize=10,
+            verticalalignment="top",
+            horizontalalignment="left",
+            multialignment="left",
+            bbox=dict(boxstyle="round,pad=0.5", facecolor="lightyellow", alpha=0.8),
+            fontweight="bold",
+        )
         plt.tight_layout()
-        plt.savefig(f"{metric}_method_average.pdf", bbox_inches='tight')
+        plt.savefig(f"{metric}_method_average.pdf", bbox_inches="tight")
         plt.close()
         print(f"✓ Saved {metric_labels[metric]} method average plot (factual)")
 
@@ -380,7 +451,7 @@ def generate_latex_factual_table(metrics_values, all_model_names, all_methods, m
         "multi_turn",
         "vs_standard",
         "vs_cot",
-        "vs_combined"
+        "vs_combined",
     ]
     display_names = [METHOD_MAP[m][0] for m in table_methods]
     metrics = ["first_response_accuracy", "pass_at_k_accuracy"]
@@ -415,13 +486,13 @@ def generate_latex_factual_table(metrics_values, all_model_names, all_methods, m
             stds[m][metric] = np.std(vals) if vals else np.nan
 
     # Compute p-values for VS methods vs CoT (direct_cot)
-    pvals = {m: {metric: '--' for metric in metrics} for m in table_methods}
+    pvals = {m: {metric: "--" for metric in metrics} for m in table_methods}
     cot_data = {metric: [] for metric in metrics}
     for i, metric in enumerate(metrics):
         for model_name in all_model_names:
             if model_name in metrics_values:
                 for method_name, method_data in metrics_values[model_name].items():
-                    if METHOD_MAP['direct_cot'][1] in method_name:
+                    if METHOD_MAP["direct_cot"][1] in method_name:
                         cot_data[metric].extend(method_data[metric])
     for m in ["vs_standard", "vs_cot", "vs_combined"]:
         for i, metric in enumerate(metrics):
@@ -435,7 +506,7 @@ def generate_latex_factual_table(metrics_values, all_model_names, all_methods, m
                 t_stat, p_val = ttest_ind(vs_data, cot_data[metric], equal_var=False)
                 pvals[m][metric] = f"{p_val:.2f}"
             else:
-                pvals[m][metric] = '--'
+                pvals[m][metric] = "--"
 
     # Build LaTeX table
     lines = []
@@ -444,16 +515,22 @@ def generate_latex_factual_table(metrics_values, all_model_names, all_methods, m
     lines.append(r"\small")
     lines.append(r"\begin{tabular}{lcc|cc}")
     lines.append(r"\toprule")
-    lines.append(r"Method & Top@1 Accuracy & Pass@K Accuracy & Top@1 $p$-value (vs. CoT) & Pass@K $p$-value (vs. CoT) \\")
+    lines.append(
+        r"Method & Top@1 Accuracy & Pass@K Accuracy & Top@1 $p$-value (vs. CoT) & Pass@K $p$-value (vs. CoT) \\"
+    )
     lines.append(r"\midrule")
     for m, disp in zip(table_methods, display_names):
         row = []
         # Bold the best baseline row
-        is_bold = (m == best_baseline)
+        is_bold = m == best_baseline
         for i, metric in enumerate(metrics):
             mean = means[m][metric]
             std = stds[m][metric]
-            cell = f"{mean:.2f}$_{{\pm{std:.2f}}}$" if not np.isnan(mean) and not np.isnan(std) else "--"
+            cell = (
+                f"{mean:.2f}$_{{\pm{std:.2f}}}$"
+                if not np.isnan(mean) and not np.isnan(std)
+                else "--"
+            )
             if is_bold:
                 cell = f"\\textbf{{{cell}}}"
             row.append(cell)
@@ -462,18 +539,20 @@ def generate_latex_factual_table(metrics_values, all_model_names, all_methods, m
             p1 = pvals[m][metrics[0]]
             p2 = pvals[m][metrics[1]]
         else:
-            p1 = p2 = '--'
+            p1 = p2 = "--"
         if is_bold:
             disp = f"\\textbf{{{disp}}}"
-            p1 = p2 = '--'
+            p1 = p2 = "--"
         lines.append(f"{disp} & {row[0]} & {row[1]} & {p1} & {p2} \\")
     lines.append(r"\bottomrule")
     lines.append(r"\end{tabular}")
     lines.append(r"\vspace{-0.5em}")
-    lines.append(r"\caption{Top@1 and Pass@K accuracy ($x_{\pm y}$) for each method, and $p$-values (t-test vs. CoT) for VS variants.}")
+    lines.append(
+        r"\caption{Top@1 and Pass@K accuracy ($x_{\pm y}$) for each method, and $p$-values (t-test vs. CoT) for VS variants.}"
+    )
     lines.append(r"\label{tab:compact_all_in_one}")
     lines.append(r"\end{table}")
-    latex_table = '\n'.join(lines)
+    latex_table = "\n".join(lines)
     print(latex_table)
 
 
@@ -492,15 +571,15 @@ def main():
         "o3",
         "claude-4-sonnet",
     ]
-    
+
     # Define the four metrics we want to analyze
     metrics = ["first_response_accuracy", "pass_at_k_accuracy"]
-    
+
     # Only keep these metrics for plotting
     plot_metrics = ["first_response_accuracy", "pass_at_k_accuracy"]
     metric_labels = {
         "first_response_accuracy": "Top@1 Accuracy ↑",
-        "pass_at_k_accuracy": "Pass@K Accuracy ↑"
+        "pass_at_k_accuracy": "Pass@K Accuracy ↑",
     }
 
     # Group methods
@@ -511,12 +590,12 @@ def main():
         "multi_turn",
         "vs_standard",
         "vs_cot",
-        "vs_combined"
+        "vs_combined",
     ]
 
     # Collect all data
     metrics_values = {}
-    
+
     # Iterate through all model directories
     for model_dir in os.listdir(folder):
         if not model_dir.endswith(f"_{task_name}"):
@@ -551,7 +630,9 @@ def main():
                 # Collect metric values from all prompts
                 for metric in metrics:
                     if metric in aggregate_metrics:
-                        metrics_values[model_name][method_name][metric].append(aggregate_metrics[metric])
+                        metrics_values[model_name][method_name][metric].append(
+                            aggregate_metrics[metric]
+                        )
             except Exception as e:
                 print(f"Error reading {results_file}: {e}")
 
@@ -571,14 +652,14 @@ def main():
         "multi_turn",
         "vs_standard",
         "vs_cot",
-        "vs_combined"
+        "vs_combined",
     ]
     # bar_plot_all_methods_with_ttest_box(metrics_values, all_model_names, plot_metrics, metric_labels, baseline_methods, vs_methods, all_methods)
 
     # plot_factual_method_averages(metrics_values, all_model_names, plot_metrics, metric_labels, all_methods)
-    
+
     generate_latex_factual_table(metrics_values, all_model_names, all_methods, metric_labels)
 
 
 if __name__ == "__main__":
-    main() 
+    main()

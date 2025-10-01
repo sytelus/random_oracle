@@ -14,10 +14,12 @@
 
 """Unified math task implementation for all math datasets."""
 
-from ..base import BaseTask
-from typing import List, Dict, Union
 import random
+from typing import Dict, List, Union
+
 import datasets
+
+from ..base import BaseTask
 
 
 class MathTask(BaseTask):
@@ -32,7 +34,7 @@ class MathTask(BaseTask):
         "aime": "AIME competition problems with string answers",
         "amc": "AMC competition problems with numeric answers",
         "minerva": "Minerva physics/advanced problems with list answers",
-        "olympiad_bench": "Olympiad competition problems with list answers"
+        "olympiad_bench": "Olympiad competition problems with list answers",
     }
 
     def __init__(self, dataset: str = "math", **kwargs):
@@ -45,13 +47,16 @@ class MathTask(BaseTask):
             random_seed: Random seed for reproducible sampling
         """
         if dataset not in self.SUPPORTED_DATASETS:
-            raise ValueError(f"Dataset '{dataset}' not supported. Available: {list(self.SUPPORTED_DATASETS.keys())}")
+            raise ValueError(
+                f"Dataset '{dataset}' not supported. Available: {list(self.SUPPORTED_DATASETS.keys())}"
+            )
 
         super().__init__(**kwargs)
         self.dataset = dataset
 
         # Find the data path dynamically
         import pathlib
+
         current_file = pathlib.Path(__file__)
         project_root = current_file.parent.parent.parent.parent  # Go up to verbalize-sampling root
         self.data_path = project_root / "data" / "math" / dataset
@@ -65,7 +70,7 @@ class MathTask(BaseTask):
             "total_prompts": len(self.problems),
             "num_prompts": self.num_prompts,
             "random_seed": self.random_seed,
-            "description": f"Math problem solving using {self.SUPPORTED_DATASETS[dataset]}"
+            "description": f"Math problem solving using {self.SUPPORTED_DATASETS[dataset]}",
         }
 
     def _load_dataset(self):
@@ -79,7 +84,7 @@ class MathTask(BaseTask):
                     "id": i,
                     "problem": item["problem"],
                     "answer": item["answer"],
-                    "dataset_type": self.dataset
+                    "dataset_type": self.dataset,
                 }
 
                 # Add difficulty if available
@@ -104,11 +109,11 @@ class MathTask(BaseTask):
         prompts = []
         for problem in sampled_problems:
             # Format the problem - prompt template will be applied during inference
-            question = problem['problem']
+            question = problem["problem"]
             prompt_text = f"Question: {question}\nPlease reason step by step, and put your final answer within \\boxed{{}}."
 
             # Store problem metadata for evaluation
-            if not hasattr(self, '_problem_metadata'):
+            if not hasattr(self, "_problem_metadata"):
                 self._problem_metadata = {}
 
             prompt_id = len(prompts)
@@ -116,7 +121,7 @@ class MathTask(BaseTask):
                 "answer": problem["answer"],
                 "dataset_type": self.dataset,
                 "problem_id": problem["id"],
-                "difficulty": problem.get("difficulty")
+                "difficulty": problem.get("difficulty"),
             }
 
             # Return as message format for proper chat handling
@@ -124,13 +129,12 @@ class MathTask(BaseTask):
 
         return prompts
 
-
     @property
     def task_type(self) -> str:
         return f"math_{self.dataset}"
 
     def get_problem_metadata(self, prompt_id: int) -> Dict:
         """Get metadata for a specific problem by prompt ID."""
-        if not hasattr(self, '_problem_metadata'):
+        if not hasattr(self, "_problem_metadata"):
             return {}
         return self._problem_metadata.get(prompt_id, {})

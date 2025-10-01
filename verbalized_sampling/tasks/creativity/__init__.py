@@ -13,16 +13,10 @@
 # limitations under the License.
 
 # Creativity-related tasks
-from .poem import PoemTask
 from .book import BookTask
-from .story import CreativeStoryTask
-from .speech import SpeechTask
 from .joke import JokeTask
+from .poem import PoemTask
+from .speech import SpeechTask
+from .story import CreativeStoryTask
 
-__all__ = [
-    "PoemTask",
-    "BookTask", 
-    "CreativeStoryTask",
-    "SpeechTask",
-    "JokeTask"
-] 
+__all__ = ["PoemTask", "BookTask", "CreativeStoryTask", "SpeechTask", "JokeTask"]

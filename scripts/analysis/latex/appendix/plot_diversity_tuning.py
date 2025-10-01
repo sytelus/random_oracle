@@ -14,13 +14,12 @@
 # limitations under the License.
 
 
+import argparse
 import json
 import os
-import matplotlib.pyplot as plt
-import numpy as np
-import argparse
-from pathlib import Path
+
 import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 
 
@@ -42,14 +41,14 @@ def load_diversity_data(base_path, model, task, method, prob_tuning_values):
             f"{model}_{task}",
             "evaluation",
             f"{method} [strict] (samples=5) ({prob_str})",
-            "diversity_results.json"
+            "diversity_results.json",
         )
 
         if os.path.exists(file_path):
             try:
-                with open(file_path, 'r') as f:
+                with open(file_path, "r") as f:
                     data = json.load(f)
-                    diversity = data['overall_metrics']['avg_diversity']
+                    diversity = data["overall_metrics"]["avg_diversity"]
                     diversities.append(diversity)
                     actual_prob_values.append(prob_val)
                     print(f"  ✓ Loaded {method} prob={prob_val}: diversity={diversity:.4f}")
@@ -70,7 +69,7 @@ def load_baseline_data(base_path, model, task, baseline_type):
             f"{model}_{task}",
             "evaluation",
             "direct (samples=1)",
-            "diversity_results.json"
+            "diversity_results.json",
         )
     elif baseline_type == "sequence":
         baseline_path = os.path.join(
@@ -79,16 +78,16 @@ def load_baseline_data(base_path, model, task, baseline_type):
             f"{model}_{task}",
             "evaluation",
             "sequence [strict] (samples=5)",
-            "diversity_results.json"
+            "diversity_results.json",
         )
     else:
         raise ValueError(f"Unknown baseline type: {baseline_type}")
 
     if os.path.exists(baseline_path):
         try:
-            with open(baseline_path, 'r') as f:
+            with open(baseline_path, "r") as f:
                 data = json.load(f)
-                return data['overall_metrics']['avg_diversity']
+                return data["overall_metrics"]["avg_diversity"]
         except (json.JSONDecodeError, KeyError) as e:
             print(f"Error loading {baseline_path}: {e}")
             return None
@@ -122,8 +121,12 @@ def print_diversity_results(base_path, task="joke"):
 
         # Load VS-Standard data (suppress debug output)
         print_orig = print
-        def silent_print(*args, **kwargs): pass
+
+        def silent_print(*args, **kwargs):
+            pass
+
         import builtins
+
         builtins.print = silent_print
 
         vs_standard_probs, vs_standard_divs = load_diversity_data(
@@ -154,42 +157,42 @@ def plot_diversity_tuning(base_path, task="joke"):
 
     # Style configuration matching latex/plot_unify_creativity.py
     RC_PARAMS = {
-        'font.family': 'sans-serif',
-        'font.sans-serif': ['Arial', 'DejaVu Sans', 'Liberation Sans'],
-        'font.size': 11,
-        'axes.labelsize': 12,
-        'axes.titlesize': 15,
-        'xtick.labelsize': 15,
-        'ytick.labelsize': 18,
-        'legend.fontsize': 9,
-        'axes.linewidth': 0.8,
-        'axes.edgecolor': '#666666',
-        'axes.spines.top': False,
-        'axes.spines.right': False,
-        'xtick.major.width': 0.8,
-        'ytick.major.width': 0.8,
-        'lines.linewidth': 2.0,
-        'lines.markersize': 8,
-        'figure.facecolor': 'white',
-        'axes.facecolor': 'white'
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Arial", "DejaVu Sans", "Liberation Sans"],
+        "font.size": 11,
+        "axes.labelsize": 12,
+        "axes.titlesize": 15,
+        "xtick.labelsize": 15,
+        "ytick.labelsize": 18,
+        "legend.fontsize": 9,
+        "axes.linewidth": 0.8,
+        "axes.edgecolor": "#666666",
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "xtick.major.width": 0.8,
+        "ytick.major.width": 0.8,
+        "lines.linewidth": 2.0,
+        "lines.markersize": 8,
+        "figure.facecolor": "white",
+        "axes.facecolor": "white",
     }
 
     COLORS = {
-        'Direct': '#B8E0F5',
-        'Sequence': '#6BB6FF',
-        'VS-Standard': '#FFCCCB',
-        'VS-Multi': '#FF6B6B'
+        "Direct": "#B8E0F5",
+        "Sequence": "#6BB6FF",
+        "VS-Standard": "#FFCCCB",
+        "VS-Multi": "#FF6B6B",
     }
 
     EDGE_COLORS = {
-        'Direct': '#4A90E2',
-        'Sequence': '#4A90E2',
-        'VS-Standard': '#FF6B6B',
-        'VS-Multi': '#FF6B6B'
+        "Direct": "#4A90E2",
+        "Sequence": "#4A90E2",
+        "VS-Standard": "#FF6B6B",
+        "VS-Multi": "#FF6B6B",
     }
 
     # Apply styling
-    plt.style.use('default')
+    plt.style.use("default")
     plt.rcParams.update(RC_PARAMS)
 
     # Probability tuning values (from 10^0 to 10^-3)
@@ -208,23 +211,34 @@ def plot_diversity_tuning(base_path, task="joke"):
     ax2 = fig.add_subplot(gs[1, 1])
 
     # Plot each model
-    plot_single_model(ax1, base_path, models[0], task, prob_values, model_names[0], COLORS, EDGE_COLORS)
-    plot_single_model(ax2, base_path, models[1], task, prob_values, model_names[1], COLORS, EDGE_COLORS)
+    plot_single_model(
+        ax1, base_path, models[0], task, prob_values, model_names[0], COLORS, EDGE_COLORS
+    )
+    plot_single_model(
+        ax2, base_path, models[1], task, prob_values, model_names[1], COLORS, EDGE_COLORS
+    )
 
     # Create legend above plots (only for line plots, not baselines)
     method_patches = [
-        Patch(color=COLORS['VS-Standard'], label='VS-Standard'),
-        Patch(color=COLORS['VS-Multi'], label='VS-Multi')
+        Patch(color=COLORS["VS-Standard"], label="VS-Standard"),
+        Patch(color=COLORS["VS-Multi"], label="VS-Multi"),
     ]
 
-    legend = fig.legend(handles=method_patches,
-                       loc='upper center', bbox_to_anchor=(0.5, 0.80),
-                       fontsize=16, ncol=2,
-                       frameon=False, columnspacing=3.0)
+    legend = fig.legend(
+        handles=method_patches,
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.80),
+        fontsize=16,
+        ncol=2,
+        frameon=False,
+        columnspacing=3.0,
+    )
     legend.get_frame().set_linewidth(0.0)
 
-    plt.savefig(f"{task}_diversity_tuning_comparison.png", dpi=300, bbox_inches='tight', facecolor='white')
-    plt.savefig(f"{task}_diversity_tuning_comparison.pdf", bbox_inches='tight', facecolor='white')
+    plt.savefig(
+        f"{task}_diversity_tuning_comparison.png", dpi=300, bbox_inches="tight", facecolor="white"
+    )
+    plt.savefig(f"{task}_diversity_tuning_comparison.pdf", bbox_inches="tight", facecolor="white")
 
 
 def plot_single_model(ax, base_path, model, task, prob_values, title, colors, edge_colors):
@@ -241,7 +255,9 @@ def plot_single_model(ax, base_path, model, task, prob_values, title, colors, ed
     # Debug: Print what data was loaded
     print(f"\nDebugging for {model} {task}:")
     print(f"VS-Standard: Found {len(vs_standard_probs)} points - {vs_standard_probs}")
-    print(f"VS-Standard divs: {[f'{d:.4f}' for d in vs_standard_divs] if vs_standard_divs else 'None'}")
+    print(
+        f"VS-Standard divs: {[f'{d:.4f}' for d in vs_standard_divs] if vs_standard_divs else 'None'}"
+    )
     print(f"VS-Multi: Found {len(vs_multi_probs)} points - {vs_multi_probs}")
     print(f"VS-Multi divs: {[f'{d:.4f}' for d in vs_multi_divs] if vs_multi_divs else 'None'}")
 
@@ -266,8 +282,7 @@ def plot_single_model(ax, base_path, model, task, prob_values, title, colors, ed
 
     # Check if we need a broken axis - only for cases with large gaps
     use_broken_axis = False
-    if (task == "joke" and direct_diversity is not None and
-        sequence_diversity is not None):
+    if task == "joke" and direct_diversity is not None and sequence_diversity is not None:
         gap_size = abs((sequence_diversity - direct_diversity) * 100)
         # Only use broken axis if gap is very large (>10 points)
         if gap_size > 10:
@@ -316,20 +331,34 @@ def plot_single_model(ax, base_path, model, task, prob_values, title, colors, ed
         if use_broken_axis:
             y_vals = [transform_y(y) for y in y_vals]
 
-        ax.plot(vs_standard_x, y_vals, 'o-',
-                linewidth=2, markersize=6,
-                color=colors['VS-Standard'], markeredgecolor=edge_colors['VS-Standard'],
-                markeredgewidth=1.2, alpha=0.9)
+        ax.plot(
+            vs_standard_x,
+            y_vals,
+            "o-",
+            linewidth=2,
+            markersize=6,
+            color=colors["VS-Standard"],
+            markeredgecolor=edge_colors["VS-Standard"],
+            markeredgewidth=1.2,
+            alpha=0.9,
+        )
 
     if vs_multi_probs and vs_multi_divs:
         y_vals = [d * 100 for d in vs_multi_divs]
         if use_broken_axis:
             y_vals = [transform_y(y) for y in y_vals]
 
-        ax.plot(vs_multi_x, y_vals, 's-',
-                linewidth=2, markersize=6,
-                color=colors['VS-Multi'], markeredgecolor=edge_colors['VS-Multi'],
-                markeredgewidth=1.2, alpha=0.9)
+        ax.plot(
+            vs_multi_x,
+            y_vals,
+            "s-",
+            linewidth=2,
+            markersize=6,
+            color=colors["VS-Multi"],
+            markeredgecolor=edge_colors["VS-Multi"],
+            markeredgewidth=1.2,
+            alpha=0.9,
+        )
 
     # Plot baseline horizontal lines (multiply by 100 for percentage) with annotations
     if direct_diversity is not None:
@@ -337,26 +366,38 @@ def plot_single_model(ax, base_path, model, task, prob_values, title, colors, ed
         if use_broken_axis:
             y_pos = transform_y(y_pos)
 
-        ax.axhline(y=y_pos, color=colors['Direct'], linestyle='--',
-                  linewidth=2, alpha=0.8)
+        ax.axhline(y=y_pos, color=colors["Direct"], linestyle="--", linewidth=2, alpha=0.8)
         # Add annotation on the right side
-        ax.text(0.0009, y_pos, 'Direct',
-                verticalalignment='bottom', horizontalalignment='left',
-                fontsize=14, fontweight='bold', color=colors['Direct'],
-                bbox=dict(boxstyle='round,pad=0.2', facecolor='white', alpha=0.8, edgecolor='none'))
+        ax.text(
+            0.0009,
+            y_pos,
+            "Direct",
+            verticalalignment="bottom",
+            horizontalalignment="left",
+            fontsize=14,
+            fontweight="bold",
+            color=colors["Direct"],
+            bbox=dict(boxstyle="round,pad=0.2", facecolor="white", alpha=0.8, edgecolor="none"),
+        )
 
     if sequence_diversity is not None:
         y_pos = sequence_diversity * 100
         if use_broken_axis:
             y_pos = transform_y(y_pos)
 
-        ax.axhline(y=y_pos, color=colors['Sequence'], linestyle='--',
-                  linewidth=2, alpha=0.8)
+        ax.axhline(y=y_pos, color=colors["Sequence"], linestyle="--", linewidth=2, alpha=0.8)
         # Add annotation on the right side
-        ax.text(0.0009, y_pos, 'Sequence',
-                verticalalignment='bottom', horizontalalignment='left',
-                fontsize=14, fontweight='bold', color=colors['Sequence'],
-                bbox=dict(boxstyle='round,pad=0.2', facecolor='white', alpha=0.8, edgecolor='none'))
+        ax.text(
+            0.0009,
+            y_pos,
+            "Sequence",
+            verticalalignment="bottom",
+            horizontalalignment="left",
+            fontsize=14,
+            fontweight="bold",
+            color=colors["Sequence"],
+            bbox=dict(boxstyle="round,pad=0.2", facecolor="white", alpha=0.8, edgecolor="none"),
+        )
 
     # Add break indicators for broken axis
     if use_broken_axis:
@@ -368,15 +409,27 @@ def plot_single_model(ax, base_path, model, task, prob_values, title, colors, ed
         break_line_height = 0.4
 
         # Two diagonal lines to indicate break
-        line1_y = break_y - break_line_height/2
-        line2_y = break_y + break_line_height/2
+        line1_y = break_y - break_line_height / 2
+        line2_y = break_y + break_line_height / 2
 
         # First diagonal line
-        ax.plot([-break_width, break_width], [line1_y, line1_y + break_line_height],
-                'k-', linewidth=3, transform=ax.get_yaxis_transform(), clip_on=False)
+        ax.plot(
+            [-break_width, break_width],
+            [line1_y, line1_y + break_line_height],
+            "k-",
+            linewidth=3,
+            transform=ax.get_yaxis_transform(),
+            clip_on=False,
+        )
         # Second diagonal line
-        ax.plot([-break_width, break_width], [line2_y - break_line_height, line2_y],
-                'k-', linewidth=3, transform=ax.get_yaxis_transform(), clip_on=False)
+        ax.plot(
+            [-break_width, break_width],
+            [line2_y - break_line_height, line2_y],
+            "k-",
+            linewidth=3,
+            transform=ax.get_yaxis_transform(),
+            clip_on=False,
+        )
 
         # Custom y-axis ticks for broken axis with clear labels before and after break
         # Direct section - show the exact Direct value
@@ -417,40 +470,40 @@ def plot_single_model(ax, base_path, model, task, prob_values, title, colors, ed
 
         # Combine all ticks
         all_positions = [direct_tick_pos] + main_tick_positions
-        all_labels = [f'{direct_val:.0f}'] + main_tick_labels
+        all_labels = [f"{direct_val:.0f}"] + main_tick_labels
 
         ax.set_yticks(all_positions)
         ax.set_yticklabels(all_labels)
 
         # Make y-tick labels more visible
-        ax.tick_params(axis='y', which='major', labelsize=18, colors='black')
+        ax.tick_params(axis="y", which="major", labelsize=18, colors="black")
 
     # Set x-axis to log scale with proper range and inversion
-    ax.set_xscale('log')
+    ax.set_xscale("log")
     # Set limits with small buffer on both sides
     ax.set_xlim(1.2, 0.0008)
 
     # Labels and formatting with elegant styling (aligned with main script)
-    ax.set_xlabel('VS Probability Threshold', fontweight='bold', fontsize=18)
-    ax.set_ylabel('Diversity Score' if 'GPT-4.1' in title else '', fontweight='bold', fontsize=18)
-    ax.set_title(title, fontweight='bold', pad=15, fontsize=18)
+    ax.set_xlabel("VS Probability Threshold", fontweight="bold", fontsize=18)
+    ax.set_ylabel("Diversity Score" if "GPT-4.1" in title else "", fontweight="bold", fontsize=18)
+    ax.set_title(title, fontweight="bold", pad=15, fontsize=18)
 
     # Elegant grid and spines
-    ax.grid(True, alpha=0.15, axis='y', linestyle='-', linewidth=0.5)
+    ax.grid(True, alpha=0.15, axis="y", linestyle="-", linewidth=0.5)
     ax.set_axisbelow(True)
-    ax.spines['left'].set_color('#666666')
-    ax.spines['bottom'].set_color('#666666')
+    ax.spines["left"].set_color("#666666")
+    ax.spines["bottom"].set_color("#666666")
 
     # Set custom x-axis ticks with simple numeric labels and larger font size
     ax.set_xticks([1.0, 0.1, 0.01, 0.001])
-    ax.set_xticklabels(['1', '0.1', '0.01', '0.001'])
-    ax.tick_params(axis='x', which='major', labelsize=20)
-    ax.tick_params(axis='y', which='major', labelsize=18)
+    ax.set_xticklabels(["1", "0.1", "0.01", "0.001"])
+    ax.tick_params(axis="x", which="major", labelsize=20)
+    ax.tick_params(axis="y", which="major", labelsize=18)
 
     if use_broken_axis:
         # Ensure x-axis spine is visible for broken axis
-        ax.spines['bottom'].set_visible(True)
-        ax.spines['bottom'].set_color('#666666')
+        ax.spines["bottom"].set_visible(True)
+        ax.spines["bottom"].set_color("#666666")
     else:
         # Normal axis - ensure proper y-axis limits
         # Calculate reasonable y-axis limits based on all data
@@ -471,7 +524,7 @@ def plot_single_model(ax, base_path, model, task, prob_values, title, colors, ed
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Plot diversity tuning results')
+    parser = argparse.ArgumentParser(description="Plot diversity tuning results")
     # parser.add_argument('data_path',
     #                    help='Path to ablation data directory (e.g., ablation_data/joke_diversity_tuning/, ablation_data/poem_experiments_diversity_tuning/, or ablation_data/story_diversity_tuning/)')
 

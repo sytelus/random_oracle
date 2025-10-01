@@ -17,6 +17,7 @@ Math evaluation module with boxed answer extraction and verification.
 """
 
 import logging
+
 from math_verify import parse, verify
 
 logging.getLogger("math_verify.parser").disabled = True
@@ -120,13 +121,17 @@ def evaluate_math_answer(predicted: str, reference, dataset_type: str = "math") 
         for ref in reference:
             ref = ref.replace("\n", "")
             ref = f"${ref}$"
-            if bool(verify(parse(ref, parsing_timeout=None), parse(predicted, parsing_timeout=None))):
+            if bool(
+                verify(parse(ref, parsing_timeout=None), parse(predicted, parsing_timeout=None))
+            ):
                 return True
         return False
     else:
         reference = reference.replace("\n", "")
         reference = f"${reference}$"
-        return bool(verify(parse(reference, parsing_timeout=None), parse(predicted, parsing_timeout=None)))
+        return bool(
+            verify(parse(reference, parsing_timeout=None), parse(predicted, parsing_timeout=None))
+        )
     if not predicted:
         return False
 
@@ -201,5 +206,5 @@ async def step(state, action, extra_info):
         "reward": reward,
         "score": reward,
         "done": True,
-        "extra_info": extra_info
+        "extra_info": extra_info,
     }

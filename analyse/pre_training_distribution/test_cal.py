@@ -1,5 +1,6 @@
 import json
 
+
 def read_data(path):
     texts = []
     with open(path, "r") as f:

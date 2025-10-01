@@ -12,11 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from verbalized_sampling.pipeline import run_quick_comparison, Pipeline, PipelineConfig, ExperimentConfig, EvaluationConfig
-from verbalized_sampling.tasks import Task
-from verbalized_sampling.methods import Method
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
+from verbalized_sampling.methods import Method
+from verbalized_sampling.pipeline import (
+    EvaluationConfig,
+    ExperimentConfig,
+    Pipeline,
+    PipelineConfig,
+)
+from verbalized_sampling.tasks import Task
+
 
 def create_method_experiments(
     task: Task,
@@ -26,41 +33,38 @@ def create_method_experiments(
     methods: List[Dict[str, Any]],
 ) -> List[ExperimentConfig]:
     """Create experiments for testing specific method variations."""
-    
+
     # Base configuration
     base = {
-        'task': task,
-        'model_name': model_name,
-        'num_responses': 30,
-        'num_prompts': 100, # current total: 300; total: 4326
-        'target_words': 200, 
-        'temperature': temperature,
-        'top_p': top_p,
-        'random_seed': 42,
+        "task": task,
+        "model_name": model_name,
+        "num_responses": 30,
+        "num_prompts": 100,  # current total: 300; total: 4326
+        "target_words": 200,
+        "temperature": temperature,
+        "top_p": top_p,
+        "random_seed": 42,
     }
-    
+
     experiments = []
     for method_config in methods:
         # Create name
         name = f"{method_config['method'].value}"
-        if method_config.get('strict_json'):
+        if method_config.get("strict_json"):
             name += " [strict]"
-        if method_config.get('num_samples'):
+        if method_config.get("num_samples"):
             name += f" (samples={method_config['num_samples']})"
-        
-        experiments.append(ExperimentConfig(
-            name=name,
-            **base,
-            **method_config
-        ))
-    
+
+        experiments.append(ExperimentConfig(name=name, **base, **method_config))
+
     return experiments
+
 
 def run_method_tests(
     task: Task,
     model_name: str,
     methods: List[Dict[str, Any]],
-    metrics: List[str], # "ngram"
+    metrics: List[str],  # "ngram"
     temperature: float,
     top_p: float,
     output_dir: str,
@@ -68,13 +72,13 @@ def run_method_tests(
 ) -> None:
     """Run tests for specific method variations."""
     print("🔬 Running Method Tests")
-    
+
     experiments = create_method_experiments(task, model_name, temperature, top_p, methods)
     print(f"📊 {len(experiments)} methods to test")
-    
+
     for i, exp in enumerate(experiments, 1):
         print(f"  {i}. {exp.name}")
-    
+
     model_basename = model_name.replace("/", "_")
     config = PipelineConfig(
         experiments=experiments,
@@ -83,7 +87,7 @@ def run_method_tests(
         skip_existing=True,
         num_workers=num_workers,
     )
-    
+
     pipeline = Pipeline(config)
     pipeline.run_complete_pipeline()
     print(f"✅ Done! Check {output_dir}/{model_basename}_{task.value}/pipeline_report.html")
@@ -107,9 +111,9 @@ if __name__ == "__main__":
         #     'num_samples': 5,
         # },
         {
-            'method': Method.SEQUENCE,
-            'strict_json': True,
-            'num_samples': 5,
+            "method": Method.SEQUENCE,
+            "strict_json": True,
+            "num_samples": 5,
         },
         # {
         #     'method': Method.VS_STANDARD,
@@ -130,7 +134,6 @@ if __name__ == "__main__":
         #     'probability_definition': "confidence"
         # },
     ]
-
 
     models = [
         # "openai/gpt-4.1",
@@ -158,21 +161,9 @@ if __name__ == "__main__":
             num_workers=32 if "claude" in model_basename else 128,
         )
 
-
     # run_method_tests(
     #     task=Task.POEM,
     #     model_name="gpt-4.1-mini", # google/gemini-2.5-pro, gpt-4.1, anthropic/claude-4-sonnet
-    #     methods=methods,
-    #     metrics=["diversity"],
-    #     temperature=0.7,
-    #     top_p=1.0,    
-    #     output_dir="method_results_poem",
-    # )
-
-
-    # run_method_tests(
-    #     task=Task.POEM,
-    #     model_name="gpt-4.1", 
     #     methods=methods,
     #     metrics=["diversity"],
     #     temperature=0.7,
@@ -180,6 +171,15 @@ if __name__ == "__main__":
     #     output_dir="method_results_poem",
     # )
 
+    # run_method_tests(
+    #     task=Task.POEM,
+    #     model_name="gpt-4.1",
+    #     methods=methods,
+    #     metrics=["diversity"],
+    #     temperature=0.7,
+    #     top_p=1.0,
+    #     output_dir="method_results_poem",
+    # )
 
     # run_method_tests(
     #     task=Task.POEM,
@@ -191,7 +191,6 @@ if __name__ == "__main__":
     #     output_dir="method_results_poem",
     # )
 
-
     # run_method_tests(
     #     task=Task.POEM,
     #     model_name="google/gemini-2.5-pro",
@@ -202,7 +201,6 @@ if __name__ == "__main__":
     #     output_dir="method_results_poem",
     # )
 
-    
     # run_method_tests(
     #     task=Task.POEM,
     #     model_name="anthropic/claude-4-sonnet",
@@ -242,8 +240,6 @@ if __name__ == "__main__":
     #     top_p=1.0,
     #     output_dir="method_results_poem",
     # )
-
-
 
 
 # NUM_RESPONSES = 100 # how many responses to generate for each prompt
@@ -305,8 +301,6 @@ if __name__ == "__main__":
 #     rerun=True,
 #     **MODEL_PARAMS
 # )
-
-
 
 
 # Results will include:

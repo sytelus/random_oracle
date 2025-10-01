@@ -12,17 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.stats import entropy
-from openai import OpenAI
 import json
 import os
-from tqdm import tqdm
+
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+from openai import OpenAI
+from scipy.stats import entropy
+from tqdm import tqdm
 
 roll_dice_prompt = "Roll a fair six-sided dice. Return ONLY the integer result (1-6), with no explanation or extra text."
 direct_sampling_system_prompt = "Generate a response to the input prompt. Output ONLY the response, with no explanations or extra text."
+
 
 def get_verbalized_sampling_system_prompt(num_samples):
     return f"""
@@ -34,6 +36,8 @@ Return the responses in JSON format with keys: "responses" (list of dicts with '
 
 Give ONLY the JSON object, with no explanations or extra text.
 """
+
+
 structured_response_list_with_prob_schema = {
     "type": "json_schema",  # Required for OpenRouter
     "json_schema": {
@@ -47,25 +51,22 @@ structured_response_list_with_prob_schema = {
                     "items": {
                         "type": "object",
                         "properties": {
-                            "text": {
-                                "type": "string",
-                                "description": "The text of the response."
-                            },
+                            "text": {"type": "string", "description": "The text of the response."},
                             "probability": {
                                 "type": "number",
-                                "description": "How likely each response would be (value between 0 and 1)"
-                            }
+                                "description": "How likely each response would be (value between 0 and 1)",
+                            },
                         },
                         "required": ["text", "probability"],
-                        "additionalProperties": False
-                    }
+                        "additionalProperties": False,
+                    },
                 }
             },
             "required": ["responses"],
-            "additionalProperties": False
+            "additionalProperties": False,
         },
-        "strict": True
-    }
+        "strict": True,
+    },
 }
 
 
@@ -77,11 +78,11 @@ def _parse_response_with_schema(response):
     try:
         if isinstance(response, str):
             parsed = json.loads(response)
-            
+
             # Handle double-escaped JSON strings (i.e., string inside a string)
             if isinstance(parsed, str):
                 parsed = json.loads(parsed)
-            
+
             # Handle different schema types
             if "responses" in parsed:
                 responses = parsed["responses"]
@@ -89,10 +90,9 @@ def _parse_response_with_schema(response):
                     result = []
                     for resp in responses:
                         if isinstance(resp, dict) and "text" in resp and "probability" in resp:
-                            result.append({
-                                "text": resp["text"],
-                                "probability": resp["probability"]
-                            })
+                            result.append(
+                                {"text": resp["text"], "probability": resp["probability"]}
+                            )
                     return result
         # If not a string or doesn't match expected schema, return as is
         return response
@@ -107,13 +107,13 @@ def model_generate(num_samples, model_name, config, verbalized=False):
     if verbalized:
         messages = [
             {"role": "system", "content": get_verbalized_sampling_system_prompt(num_samples)},
-            {"role": "user", "content": roll_dice_prompt}
+            {"role": "user", "content": roll_dice_prompt},
         ]
         completion = client.chat.completions.create(
-                model=model_name,
-                messages=messages,
-                **config,
-                response_format=structured_response_list_with_prob_schema
+            model=model_name,
+            messages=messages,
+            **config,
+            response_format=structured_response_list_with_prob_schema,
         )
         response = completion.choices[0].message.content
         parsed_response = _parse_response_with_schema(response)
@@ -122,15 +122,16 @@ def model_generate(num_samples, model_name, config, verbalized=False):
     else:
         messages = [
             {"role": "system", "content": direct_sampling_system_prompt},
-            {"role": "user", "content": roll_dice_prompt}
+            {"role": "user", "content": roll_dice_prompt},
         ]
         completion = client.chat.completions.create(
-                model=model_name,
-                messages=messages,
-                **config,
+            model=model_name,
+            messages=messages,
+            **config,
         )
         response = completion.choices[0].message.content
         return response
+
 
 def vs_combined(num_samples, model_name, config, n_samples_per_turn):
     vs_results = []
@@ -150,7 +151,9 @@ def roll_dice(num_samples, model_name, config, verbalized=False, n_samples_per_t
     vs_results = []
     if not verbalized:
         for _ in tqdm(range(num_samples), desc="Direct sampling"):
-            single_result = model_generate(n_samples_per_turn, model_name, config, verbalized=verbalized)
+            single_result = model_generate(
+                n_samples_per_turn, model_name, config, verbalized=verbalized
+            )
             direct_results.append(single_result)
         return np.array(direct_results, dtype=int)
     else:
@@ -170,27 +173,29 @@ def plot_distribution_comparison(direct_samples, sequence_samples, vs_standard_s
     Also computes and displays KL divergence from the uniform distribution for each method.
     """
     # Set seaborn style
-    plt.style.use('default')  # Start with clean slate
-    plt.rcParams.update({
-        'font.family': 'sans-serif',
-        'font.sans-serif': ['Arial', 'DejaVu Sans', 'Liberation Sans'],
-        'font.size': 24,
-        'axes.labelsize': 32,
-        'axes.titlesize': 32,
-        'xtick.labelsize': 28,
-        'ytick.labelsize': 28,
-        'legend.fontsize': 22,
-        'axes.linewidth': 0.8,
-        'axes.edgecolor': '#666666',
-        'axes.spines.top': False,
-        'axes.spines.right': False,
-        'xtick.major.width': 0.8,
-        'ytick.major.width': 0.8,
-        'lines.linewidth': 2.0,
-        'lines.markersize': 8,
-        'figure.facecolor': 'white',
-        'axes.facecolor': 'white',
-    })
+    plt.style.use("default")  # Start with clean slate
+    plt.rcParams.update(
+        {
+            "font.family": "sans-serif",
+            "font.sans-serif": ["Arial", "DejaVu Sans", "Liberation Sans"],
+            "font.size": 24,
+            "axes.labelsize": 32,
+            "axes.titlesize": 32,
+            "xtick.labelsize": 28,
+            "ytick.labelsize": 28,
+            "legend.fontsize": 22,
+            "axes.linewidth": 0.8,
+            "axes.edgecolor": "#666666",
+            "axes.spines.top": False,
+            "axes.spines.right": False,
+            "xtick.major.width": 0.8,
+            "ytick.major.width": 0.8,
+            "lines.linewidth": 2.0,
+            "lines.markersize": 8,
+            "figure.facecolor": "white",
+            "axes.facecolor": "white",
+        }
+    )
 
     # Dice values
     dice_values = [1, 2, 3, 4, 5, 6]
@@ -215,9 +220,9 @@ def plot_distribution_comparison(direct_samples, sequence_samples, vs_standard_s
     # Prepare data for plotting
     data = []
     for i, dice in enumerate(dice_values):
-        data.append({'Dice': dice, 'Count': direct_counts[i], 'Method': 'Direct'})
-        data.append({'Dice': dice, 'Count': sequence_counts[i], 'Method': 'Sequence'})
-        data.append({'Dice': dice, 'Count': vs_standard_counts[i], 'Method': 'VS-Standard'})
+        data.append({"Dice": dice, "Count": direct_counts[i], "Method": "Direct"})
+        data.append({"Dice": dice, "Count": sequence_counts[i], "Method": "Sequence"})
+        data.append({"Dice": dice, "Count": vs_standard_counts[i], "Method": "VS-Standard"})
     df = pd.DataFrame(data)
 
     # Create the plot
@@ -230,32 +235,58 @@ def plot_distribution_comparison(direct_samples, sequence_samples, vs_standard_s
 
     # Colors aligned with method types
     colors = {
-        'direct': '#E8F4FD',      # Very light blue (baseline)
-        'cot': '#B8E0F5',         # Light blue (baseline)
-        'sequence': '#7CC7EA',    # Medium blue (baseline)
-        'multi_turn': '#4A90E2',  # Distinct blue (baseline)
-        'vs_standard': '#FFCCCB', # light red
-        'vs_cot': '#FF9999',      # medium red
-        'vs_multi': '#FF6B6B'     # distinct red
+        "direct": "#E8F4FD",  # Very light blue (baseline)
+        "cot": "#B8E0F5",  # Light blue (baseline)
+        "sequence": "#7CC7EA",  # Medium blue (baseline)
+        "multi_turn": "#4A90E2",  # Distinct blue (baseline)
+        "vs_standard": "#FFCCCB",  # light red
+        "vs_cot": "#FF9999",  # medium red
+        "vs_multi": "#FF6B6B",  # distinct red
     }
     edge_colors = {
-        'direct': '#4A90E2',
-        'cot': '#4A90E2', 
-        'sequence': '#4A90E2',
-        'multi_turn': '#4A90E2',
-        'vs_standard': '#FF6B6B',
-        'vs_cot': '#FF6B6B',
-        'vs_multi': '#FF6B6B'
+        "direct": "#4A90E2",
+        "cot": "#4A90E2",
+        "sequence": "#4A90E2",
+        "multi_turn": "#4A90E2",
+        "vs_standard": "#FF6B6B",
+        "vs_cot": "#FF6B6B",
+        "vs_multi": "#FF6B6B",
     }
 
     # Calculate bar positions so that bars are centered in each group and do not overlap
-    offsets = np.linspace(-group_width/2 + bar_width/2, group_width/2 - bar_width/2, n_methods)
-    bars1 = ax.bar(x_positions + offsets[0], direct_counts, bar_width, label='Direct',
-                   color=colors['direct'], alpha=0.9, edgecolor=edge_colors['direct'], linewidth=2)
-    bars2 = ax.bar(x_positions + offsets[1], sequence_counts, bar_width, label='Sequence',
-                   color=colors['sequence'], alpha=0.9, edgecolor=edge_colors['sequence'], linewidth=2)
-    bars3 = ax.bar(x_positions + offsets[2], vs_standard_counts, bar_width, label='VS-Standard',
-                   color=colors['vs_standard'], alpha=0.9, edgecolor=edge_colors['vs_standard'], linewidth=2)
+    offsets = np.linspace(
+        -group_width / 2 + bar_width / 2, group_width / 2 - bar_width / 2, n_methods
+    )
+    bars1 = ax.bar(
+        x_positions + offsets[0],
+        direct_counts,
+        bar_width,
+        label="Direct",
+        color=colors["direct"],
+        alpha=0.9,
+        edgecolor=edge_colors["direct"],
+        linewidth=2,
+    )
+    bars2 = ax.bar(
+        x_positions + offsets[1],
+        sequence_counts,
+        bar_width,
+        label="Sequence",
+        color=colors["sequence"],
+        alpha=0.9,
+        edgecolor=edge_colors["sequence"],
+        linewidth=2,
+    )
+    bars3 = ax.bar(
+        x_positions + offsets[2],
+        vs_standard_counts,
+        bar_width,
+        label="VS-Standard",
+        color=colors["vs_standard"],
+        alpha=0.9,
+        edgecolor=edge_colors["vs_standard"],
+        linewidth=2,
+    )
 
     # Set x-axis ticks and labels
     ax.set_xticks(x_positions)
@@ -264,14 +295,29 @@ def plot_distribution_comparison(direct_samples, sequence_samples, vs_standard_s
 
     # Add horizontal reference line for uniform distribution
     uniform_value = uniform_counts[0]
-    ax.axhline(y=uniform_value, color='red', linestyle='--', linewidth=3,
-               label=f'Uniform Distribution', alpha=0.9)
+    ax.axhline(
+        y=uniform_value,
+        color="red",
+        linestyle="--",
+        linewidth=3,
+        label="Uniform Distribution",
+        alpha=0.9,
+    )
     # Move the label more to the right
-    ax.text(len(uniform_counts)-0.02, uniform_value + 0.2, f'{uniform_value:.1f}',
-            color='red', fontsize=24, fontweight='bold', va='bottom', ha='right', alpha=0.9)
+    ax.text(
+        len(uniform_counts) - 0.02,
+        uniform_value + 0.2,
+        f"{uniform_value:.1f}",
+        color="red",
+        fontsize=24,
+        fontweight="bold",
+        va="bottom",
+        ha="right",
+        alpha=0.9,
+    )
 
     # Add grid line as in the context
-    ax.grid(True, alpha=0.30, axis='y', linestyle='-', linewidth=1)
+    ax.grid(True, alpha=0.30, axis="y", linestyle="-", linewidth=1)
     ax.set_axisbelow(True)
 
     # Add value labels on bars, placing the text higher above the bars
@@ -281,38 +327,49 @@ def plot_distribution_comparison(direct_samples, sequence_samples, vs_standard_s
             ax.text(
                 bar.get_x() + bar.get_width() / 2,
                 height + 4.0,  # Increased offset for higher placement
-                f'{int(height)}',
-                ha='center',
-                va='bottom',
+                f"{int(height)}",
+                ha="center",
+                va="bottom",
                 fontsize=24,
-                fontweight='bold',
-                color=bar_text_color
+                fontweight="bold",
+                color=bar_text_color,
             )
 
-    add_value_labels(bars1, edge_colors['direct'])
-    add_value_labels(bars2, edge_colors['sequence'])
-    add_value_labels(bars3, edge_colors['vs_standard'])
+    add_value_labels(bars1, edge_colors["direct"])
+    add_value_labels(bars2, edge_colors["sequence"])
+    add_value_labels(bars3, edge_colors["vs_standard"])
 
     # Customize the plot
-    ax.set_xlabel('Dice Roll Value')
-    ax.set_ylabel('Count')
-    ax.set_title('', fontsize=20, fontweight='bold', pad=20)
-    ax.legend(loc='upper right', bbox_to_anchor=(1.07, 1.02))
-    ax.set_ylim(0, max(direct_counts.max(), sequence_counts.max(), vs_standard_counts.max(), uniform_value) * 1.15)
-    ax.tick_params(axis='both', which='major')
+    ax.set_xlabel("Dice Roll Value")
+    ax.set_ylabel("Count")
+    ax.set_title("", fontsize=20, fontweight="bold", pad=20)
+    ax.legend(loc="upper right", bbox_to_anchor=(1.07, 1.02))
+    ax.set_ylim(
+        0,
+        max(direct_counts.max(), sequence_counts.max(), vs_standard_counts.max(), uniform_value)
+        * 1.15,
+    )
+    ax.tick_params(axis="both", which="major")
 
     # Add statistics box
     stats_text = (
-        f'KL Divergence from Uniform:\n'
-        f'Direct: {kl_direct:.3f}\n'
-        f'Sequence: {kl_sequence:.3f}\n'
-        f'VS-Standard: {kl_verbalized:.3f}'
+        f"KL Divergence from Uniform:\n"
+        f"Direct: {kl_direct:.3f}\n"
+        f"Sequence: {kl_sequence:.3f}\n"
+        f"VS-Standard: {kl_verbalized:.3f}"
     )
-    ax.text(0.02, 0.96, stats_text, transform=ax.transAxes, fontsize=24,
-            verticalalignment='top', bbox=dict(boxstyle='round', facecolor='gray', alpha=0.3))
+    ax.text(
+        0.02,
+        0.96,
+        stats_text,
+        transform=ax.transAxes,
+        fontsize=24,
+        verticalalignment="top",
+        bbox=dict(boxstyle="round", facecolor="gray", alpha=0.3),
+    )
 
     plt.tight_layout()
-    plt.savefig("latex/qualitative_tasks/rng_distribution_comparison.pdf", bbox_inches='tight')
+    plt.savefig("latex/qualitative_tasks/rng_distribution_comparison.pdf", bbox_inches="tight")
     # plt.show()
 
 
@@ -362,6 +419,7 @@ def read_response_file(file_path):
                 print(f"Error decoding JSON in {file_path}: {e}")
     return text_responses
 
+
 def calculate_kl_divergence_empirical(samples):
     """
     Calculate the KL divergence between the empirical distribution of dice rolls
@@ -377,17 +435,18 @@ def calculate_kl_divergence_empirical(samples):
     counts = np.bincount(samples, minlength=7)[1:]  # ignore index 0
     empirical_probs = counts / counts.sum()
     uniform_probs = np.ones(6) / 6
-    
+
     # Add small epsilon to avoid log(0)
     epsilon = 1e-12
     empirical_probs = np.clip(empirical_probs, epsilon, 1)
     uniform_probs = np.clip(uniform_probs, epsilon, 1)
-    
+
     # Calculate KL divergence using scipy's entropy function
     # D_KL(P||Q) = sum(P * log(P/Q))
     kl_div = np.sum(empirical_probs * np.log(empirical_probs / uniform_probs))
-    
+
     return kl_div
+
 
 def calculate_kl_divergence():
     models = [
@@ -407,14 +466,20 @@ def calculate_kl_divergence():
     vs_cot_kl_results = []
     vs_multi_kl_results = []
     for model in models:
-        direct_file = f"method_results_rng/{model}_rand_num/generation/direct (samples=1)/responses.jsonl"
-        cot_file = f"method_results_rng/{model}_rand_num/generation/direct_cot (samples=1)/responses.jsonl"
-        multi_turn_file = f"method_results_rng/{model}_rand_num/generation/multi_turn (samples=5)/responses.jsonl"
+        direct_file = (
+            f"method_results_rng/{model}_rand_num/generation/direct (samples=1)/responses.jsonl"
+        )
+        cot_file = (
+            f"method_results_rng/{model}_rand_num/generation/direct_cot (samples=1)/responses.jsonl"
+        )
+        multi_turn_file = (
+            f"method_results_rng/{model}_rand_num/generation/multi_turn (samples=5)/responses.jsonl"
+        )
         sequence_file = f"method_results_rng/{model}_rand_num/generation/sequence [strict] (samples=5)/responses.jsonl"
         vs_standard_file = f"method_results_rng/{model}_rand_num/generation/vs_standard [strict] (samples=5)/responses.jsonl"
         vs_cot_file = f"method_results_rng/{model}_rand_num/generation/vs_cot [strict] (samples=5)/responses.jsonl"
         vs_multi_file = f"method_results_rng/{model}_rand_num/generation/vs_multi [strict] (samples=5)/responses.jsonl"
-        
+
         direct_samples = read_response_file(direct_file)
         cot_samples = read_response_file(cot_file)
         multi_turn_samples = read_response_file(multi_turn_file)
@@ -430,14 +495,20 @@ def calculate_kl_divergence():
         vs_standard_kl_results.append(calculate_kl_divergence_empirical(vs_standard_samples))
         vs_cot_kl_results.append(calculate_kl_divergence_empirical(vs_cot_samples))
         vs_multi_kl_results.append(calculate_kl_divergence_empirical(vs_multi_samples))
-    
+
     print("Direct sampling KL divergence: %.3f" % np.mean(direct_kl_results))
     print("Direct sampling with COT KL divergence: %.3f" % np.mean(cot_kl_results))
     print("Multi-turn sampling KL divergence: %.3f" % np.mean(multi_turn_kl_results))
     print("Sequence sampling KL divergence: %.3f" % np.mean(sequence_kl_results))
-    print("Verbalized sampling with standard schema KL divergence: %.3f" % np.mean(vs_standard_kl_results))
+    print(
+        "Verbalized sampling with standard schema KL divergence: %.3f"
+        % np.mean(vs_standard_kl_results)
+    )
     print("Verbalized sampling with COT schema KL divergence: %.3f" % np.mean(vs_cot_kl_results))
-    print("Verbalized sampling with multi-turn schema KL divergence: %.3f" % np.mean(vs_multi_kl_results))
+    print(
+        "Verbalized sampling with multi-turn schema KL divergence: %.3f"
+        % np.mean(vs_multi_kl_results)
+    )
 
 
 def main():
@@ -476,7 +547,9 @@ def main():
 
     # calculate_kl_divergence()
     model = "gemini-2.5-pro"
-    direct_file = f"method_results_rng/{model}_rand_num/generation/direct (samples=1)/responses.jsonl"
+    direct_file = (
+        f"method_results_rng/{model}_rand_num/generation/direct (samples=1)/responses.jsonl"
+    )
     sequence_file = f"method_results_rng/{model}_rand_num/generation/sequence [strict] (samples=5)/responses.jsonl"
     vs_standard_file = f"method_results_rng/{model}_rand_num/generation/vs_standard [strict] (samples=5)/responses.jsonl"
 
@@ -487,6 +560,7 @@ def main():
 
     # Plot distribution comparison
     plot_distribution_comparison(direct_samples, sequence_samples, vs_standard_samples, n_rolls)
+
 
 if __name__ == "__main__":
     main()

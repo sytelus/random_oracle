@@ -123,6 +123,7 @@ def read_data(path):
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def plot_histograms(gt_data, direct_data, sequence_data, vs_data, model_name):
     """
     Draw histograms of gt_data vs gpt_4_1_data and gt_data vs claude_4_sonnet_data.

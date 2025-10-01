@@ -29,15 +29,12 @@ Usage:
     python scripts/migration/migrate_method_names.py [--dry-run] [--backup]
 """
 
-import os
+import argparse
 import re
 import shutil
-import argparse
-from pathlib import Path
-from typing import List, Dict, Tuple, Set
-import ast
-import subprocess
 from datetime import datetime
+from pathlib import Path
+from typing import List, Tuple
 
 
 class MethodNameMigrator:
@@ -47,14 +44,14 @@ class MethodNameMigrator:
     LEGACY_TO_NEW = {
         "structure_with_prob": "vs_standard",
         "chain_of_thought": "vs_cot",
-        "combined": "vs_multi"
+        "combined": "vs_multi",
     }
 
     # Paper name mappings
     LEGACY_TO_PAPER = {
         "structure_with_prob": "VS-Standard",
         "chain_of_thought": "VS-CoT",
-        "combined": "VS-Multi"
+        "combined": "VS-Multi",
     }
 
     # Patterns to update
@@ -66,7 +63,6 @@ class MethodNameMigrator:
         (r"'chain_of_thought'", "'vs_cot'"),
         (r'"combined"', '"vs_multi"'),
         (r"'combined'", "'vs_multi'"),
-
         # Dictionary keys
         (r'"structure_with_prob":', '"vs_standard":'),
         (r"'structure_with_prob':", "'vs_standard':"),
@@ -74,23 +70,21 @@ class MethodNameMigrator:
         (r"'chain_of_thought':", "'vs_cot':"),
         (r'"combined":', '"vs_multi":'),
         (r"'combined':", "'vs_multi':"),
-
         # Enum references (when not using imports)
-        (r'Method\.STRUCTURE_WITH_PROB', 'Method.VS_STANDARD'),
-        (r'Method\.CHAIN_OF_THOUGHT', 'Method.VS_COT'),
-        (r'Method\.COMBINED', 'Method.VS_MULTI'),
-
+        (r"Method\.STRUCTURE_WITH_PROB", "Method.VS_STANDARD"),
+        (r"Method\.CHAIN_OF_THOUGHT", "Method.VS_COT"),
+        (r"Method\.COMBINED", "Method.VS_MULTI"),
         # Directory path components
-        (r'/structure_with_prob(?=/|"|\s|$)', '/vs_standard'),
-        (r'/chain_of_thought(?=/|"|\s|$)', '/vs_cot'),
-        (r'/combined(?=/|"|\s|$)', '/vs_multi'),
+        (r'/structure_with_prob(?=/|"|\s|$)', "/vs_standard"),
+        (r'/chain_of_thought(?=/|"|\s|$)', "/vs_cot"),
+        (r'/combined(?=/|"|\s|$)', "/vs_multi"),
     ]
 
     # Comment and docstring patterns
     COMMENT_PATTERNS = [
-        (r'structure_with_prob', 'VS-Standard (vs_standard)'),
-        (r'chain_of_thought', 'VS-CoT (vs_cot)'),
-        (r'combined', 'VS-Multi (vs_multi)'),
+        (r"structure_with_prob", "VS-Standard (vs_standard)"),
+        (r"chain_of_thought", "VS-CoT (vs_cot)"),
+        (r"combined", "VS-Multi (vs_multi)"),
     ]
 
     def __init__(self, root_dir: Path, dry_run: bool = False, create_backup: bool = False):
@@ -103,7 +97,10 @@ class MethodNameMigrator:
         self.backup_dir = None
 
         if self.create_backup and not self.dry_run:
-            self.backup_dir = self.root_dir.parent / f"{self.root_dir.name}_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            self.backup_dir = (
+                self.root_dir.parent
+                / f"{self.root_dir.name}_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            )
 
     def create_project_backup(self):
         """Create a backup of the entire project before migration."""
@@ -112,9 +109,12 @@ class MethodNameMigrator:
 
         print(f"Creating project backup at: {self.backup_dir}")
         try:
-            shutil.copytree(self.root_dir, self.backup_dir,
-                          ignore=shutil.ignore_patterns('*.pyc', '__pycache__', '.git', '*.egg-info'))
-            print(f"✅ Backup created successfully")
+            shutil.copytree(
+                self.root_dir,
+                self.backup_dir,
+                ignore=shutil.ignore_patterns("*.pyc", "__pycache__", ".git", "*.egg-info"),
+            )
+            print("✅ Backup created successfully")
         except Exception as e:
             print(f"❌ Backup failed: {e}")
             raise
@@ -144,7 +144,7 @@ class MethodNameMigrator:
     def analyze_file(self, file_path: Path) -> Tuple[bool, List[str]]:
         """Analyze a file to see if it needs changes."""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
         except (UnicodeDecodeError, IOError) as e:
             print(f"⚠️  Could not read {file_path}: {e}")
@@ -157,14 +157,12 @@ class MethodNameMigrator:
         for old_name in self.LEGACY_TO_NEW:
             if old_name in content:
                 needs_changes = True
-                potential_changes.append(f"Found '{old_name}' -> should become '{self.LEGACY_TO_NEW[old_name]}'")
+                potential_changes.append(
+                    f"Found '{old_name}' -> should become '{self.LEGACY_TO_NEW[old_name]}'"
+                )
 
         # Check for enum references
-        enum_patterns = [
-            'Method.STRUCTURE_WITH_PROB',
-            'Method.CHAIN_OF_THOUGHT',
-            'Method.COMBINED'
-        ]
+        enum_patterns = ["Method.STRUCTURE_WITH_PROB", "Method.CHAIN_OF_THOUGHT", "Method.COMBINED"]
         for pattern in enum_patterns:
             if pattern in content:
                 needs_changes = True
@@ -175,7 +173,7 @@ class MethodNameMigrator:
     def migrate_file(self, file_path: Path) -> bool:
         """Migrate a single file."""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 original_content = f.read()
         except (UnicodeDecodeError, IOError) as e:
             print(f"⚠️  Could not read {file_path}: {e}")
@@ -188,16 +186,16 @@ class MethodNameMigrator:
             content = re.sub(pattern, replacement, content)
 
         # Apply comment pattern replacements in comments and docstrings
-        lines = content.split('\n')
+        lines = content.split("\n")
         for i, line in enumerate(lines):
             # Only apply to comments and docstrings
             stripped = line.strip()
-            if stripped.startswith('#') or '"""' in line or "'''" in line:
+            if stripped.startswith("#") or '"""' in line or "'''" in line:
                 for old_name, new_description in self.COMMENT_PATTERNS:
                     if old_name in line:
                         lines[i] = line.replace(old_name, new_description)
 
-        content = '\n'.join(lines)
+        content = "\n".join(lines)
 
         # Check if changes were made
         if content == original_content:
@@ -206,7 +204,7 @@ class MethodNameMigrator:
         # Write the updated content
         if not self.dry_run:
             try:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
             except IOError as e:
                 print(f"❌ Could not write {file_path}: {e}")
@@ -225,7 +223,7 @@ class MethodNameMigrator:
 
     def run_migration(self):
         """Run the complete migration process."""
-        print(f"🚀 Starting method name migration")
+        print("🚀 Starting method name migration")
         print(f"   Root directory: {self.root_dir}")
         print(f"   Dry run: {self.dry_run}")
         print(f"   Create backup: {self.create_backup}")
@@ -247,7 +245,7 @@ class MethodNameMigrator:
             if needs_changes:
                 files_needing_changes.append((file_path, potential_changes))
 
-        print(f"📊 Analysis Results:")
+        print("📊 Analysis Results:")
         print(f"   Files needing changes: {len(files_needing_changes)}")
         print(f"   Files already up-to-date: {len(python_files) - len(files_needing_changes)}")
         print()
@@ -306,12 +304,18 @@ class MethodNameMigrator:
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(description="Migrate method names across all scripts")
-    parser.add_argument("--dry-run", action="store_true",
-                       help="Show what would be changed without making changes")
-    parser.add_argument("--backup", action="store_true",
-                       help="Create a backup before making changes")
-    parser.add_argument("--root-dir", type=Path, default=Path.cwd(),
-                       help="Root directory to migrate (default: current directory)")
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Show what would be changed without making changes"
+    )
+    parser.add_argument(
+        "--backup", action="store_true", help="Create a backup before making changes"
+    )
+    parser.add_argument(
+        "--root-dir",
+        type=Path,
+        default=Path.cwd(),
+        help="Root directory to migrate (default: current directory)",
+    )
 
     args = parser.parse_args()
 
@@ -322,15 +326,13 @@ def main():
 
     # Check if we're in the right directory
     if not (args.root_dir / "verbalized_sampling").exists():
-        print(f"❌ This doesn't appear to be the verbalized-sampling project root")
+        print("❌ This doesn't appear to be the verbalized-sampling project root")
         print(f"   Looking for 'verbalized_sampling' directory in {args.root_dir}")
         return 1
 
     # Run migration
     migrator = MethodNameMigrator(
-        root_dir=args.root_dir,
-        dry_run=args.dry_run,
-        create_backup=args.backup
+        root_dir=args.root_dir, dry_run=args.dry_run, create_backup=args.backup
     )
 
     try:

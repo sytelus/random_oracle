@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 from ..base import BaseTask
-from typing import Any
+
 
 class RandomNumberTask(BaseTask):
     """Task for generating random numbers."""
@@ -21,7 +22,7 @@ class RandomNumberTask(BaseTask):
     def __init__(self, **kwargs):
         """
         Initialize the StateNameTask.
-        
+
         Args:
             num_prompts: Number of prompts to randomly sample from the dataset
             random_seed: Random seed for reproducible sampling
@@ -32,32 +33,31 @@ class RandomNumberTask(BaseTask):
             "total_prompts": 0,
             "num_prompts": self.num_prompts,
             "random_seed": self.random_seed,
-            "description": "Generate a random number between 0 and 100."
+            "description": "Generate a random number between 0 and 100.",
         }
-    
-    
+
     @property
     def task_type(self) -> str:
         return "rand_num"
-    
+
     # def __init__(self, format: str = "direct"):
     #     self.format = format
 
     # def get_prompt(self, num_samples: int = 1) -> str:
     #     """Get the prompt for the task."""
     #     return "Generate a random number between 0 and 100."
-    
+
     # def parse_response(self, response: str) -> Any:
     #     """Parse the model's response."""
     #     import json
-        
+
     #     if self.format in ["structure", "vs_standard"]:
     #         try:
     #             if isinstance(response, str):
     #                 # Remove markdown code block wrappers if present
     #                 json_block = "```json"
     #                 code_block = "```"
-                    
+
     #                 # Find the actual JSON content
     #                 if json_block in response:
     #                     content = response[response.find(json_block) + len(json_block):]
@@ -69,22 +69,22 @@ class RandomNumberTask(BaseTask):
     #                         content = content[:content.rfind(code_block)]
     #                 else:
     #                     content = response
-                    
+
     #                 # Clean up the content
     #                 content = content.strip()
-                    
+
     #                 # Try to find the first { and last } to get just the JSON object
     #                 start = content.find('{')
     #                 end = content.rfind('}') + 1
     #                 if start != -1 and end != 0:
     #                     content = content[start:end]
-                    
+
     #                 # Remove trailing commas before closing brackets/braces
     #                 content = content.replace(',\n    ]', '\n    ]')
     #                 content = content.replace(',\n    }', '\n    }')
     #                 content = content.replace(',\n]', '\n]')
     #                 content = content.replace(',\n}', '\n}')
-                    
+
     #                 return json.loads(content)
     #             return response
     #         except json.JSONDecodeError:
@@ -112,4 +112,4 @@ class RandomNumberTask(BaseTask):
     #                     return response.strip()
     #             except ValueError:
     #                 return None
-    #         return None 
+    #         return None
