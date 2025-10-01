@@ -12,7 +12,7 @@
 ---
 
 ## Updates
-* 🎉 01/10/2025: We release our paper, code and package. Check the release page for more details.
+* 🎉 10/01/2025: We release our paper, code and package. Check the release page for more details.
 
 ## Introduction
 
