@@ -5,7 +5,7 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/verbalized-sampling.svg)](https://pypi.org/project/verbalized-sampling/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/verbalized-sampling.svg)](https://pypi.org/project/verbalized-sampling/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![arXiv](https://img.shields.io/badge/arXiv-XXXX.XXXXX-b31b1b.svg)](https://arxiv.org/abs/XXXX.XXXXX)
+[![arXiv](https://img.shields.io/badge/arXiv-2510.01171-b31b1b.svg)](https://arxiv.org/abs/2510.01171)
 
 [Installation](#installation) | [Quick Start](#quick-start) | [Tasks](#supported-tasks) | [Citation](#citation)
 
@@ -24,6 +24,45 @@
 * **Versatile Applications**: Supports creative writing, synthetic data generation, open-ended QA.
 * **Complete Framework**: Includes task implementations, evaluation metrics, and reproducible experiments from our paper.
 * **Easy to Use**: Simple CLI and Python API for running experiments and comparing methods.
+
+### Try it yourself
+
+#### Example 1: Add to your own prompts in Chat Interface
+
+Copy and paste this prompt into any chat interface (ChatGPT, Claude, Gemini, etc.):
+
+```
+Generate 10 responses to the user query, each within a separate <response> tag. Each response should be 50-100 words.
+Each <response> must include a <text> and a numeric <probability>. Randomly sample the responses from the full distribution.
+Return ONLY the responses, with no additional explanations or text.
+
+<user_query>Write a short story about a bear.</user_query>
+```
+
+#### Example 2: OpenAI API query
+
+Use this curl command to try VS-Standard with the OpenAI API. Replace `gpt-4` with your model of choice:
+
+```bash
+curl https://api.openai.com/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -d '{
+    "model": "gpt-4.1",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Generate 10 responses to the input prompt, each within a separate <response> tag. Each response should be 50-100 words. Each <response> must include a <text> and a numeric <probability>. Randomly sample the responses from the full distribution. Return ONLY the responses, with no additional explanations or text."
+      },
+      {
+        "role": "user",
+        "content": "Write a short story about a bear."
+      }
+    ],
+    "temperature": 1.0
+  }'
+```
+
 
 ## Installation
 
@@ -109,14 +148,6 @@ print(f"VS Diversity: {results['VS_STANDARD']['diversity']:.2f}")
 print(f"Direct Diversity: {results['DIRECT']['diversity']:.2f}")
 ```
 
-## VS Method Variants
-
-| Method | Description | Use Case |
-|--------|-------------|----------|
-| **VS-Standard** | Basic VS with probability estimates | General diversity improvement |
-| **VS-CoT** | VS + Chain-of-Thought reasoning | Complex reasoning tasks |
-| **VS-Multi** | VS across multiple conversation turns | Multi-turn dialogues |
-
 ### Example Usage
 
 ```python
@@ -160,11 +191,9 @@ The framework supports various task types from our paper experiments:
 ### Knowledge & Safety (Appendix)
 - **Open-ended QA**: Diverse factual responses while maintaining accuracy
 - **Safety Evaluation**: Preserve refusal rates for harmful content
-
 </details>
 
 <details>
-
 <summary><h2 style="display: inline;">Evaluation Framework</h2></summary>
 
 ### Diversity Metrics
@@ -268,11 +297,14 @@ pytest
 If you use Verbalized Sampling in your research, please cite our paper:
 
 ```bibtex
-@article{zhang2025verbalized,
+@misc{zhang2025verbalizedsamplingmitigatemode,
   title={Verbalized Sampling: How to Mitigate Mode Collapse and Unlock LLM Diversity},
-  author={Zhang, Jiayi and Yu, Simon and Chong, Derek and Sicilia, Anthony and Tomz, Michael R and Manning, Christopher D and Shi, Weiyan},
-  journal={arXiv preprint arXiv:XXXX.XXXXX},
-  year={2025}
+  author={Jiayi Zhang and Simon Yu and Derek Chong and Anthony Sicilia and Michael R. Tomz and Christopher D. Manning and Weiyan Shi},
+  year={2025},
+  eprint={2510.01171},
+  archivePrefix={arXiv},
+  primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2510.01171}
 }
 ```
 
