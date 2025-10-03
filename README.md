@@ -25,7 +25,7 @@
 * **Complete Framework**: Includes task implementations, evaluation metrics, and reproducible experiments from our paper.
 * **Easy to Use**: Simple CLI and Python API for running experiments and comparing methods.
 
-### Try it yourself
+## Try it yourself
 
 #### Example 1: Add to your own prompts in Chat Interface
 
@@ -34,7 +34,7 @@ Copy and paste this prompt into any chat interface (ChatGPT, Claude, Gemini, etc
 ```
 Generate 10 responses to the user query, each within a separate <response> tag. Each response should be 50-100 words.
 Each <response> must include a <text> and a numeric <probability>. Randomly sample the responses from the full distribution.
-Return ONLY the responses, with no additional explanations or text.
+Return ONLY the responses in JSON format, with no additional explanations or text.
 
 <user_query>Write a short story about a bear.</user_query>
 ```
