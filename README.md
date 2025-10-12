@@ -33,7 +33,6 @@ Copy and paste this prompt into any chat interface (ChatGPT, Claude, Gemini, etc
 ```
 Generate 10 responses to the user query, each within a separate <response> tag. Each response should be 50-100 words.
 Each <response> must include a <text> and a numeric <probability>. Randomly sample the responses from the full distribution.
-Return ONLY the responses in JSON format, with no additional explanations or text.
 
 <user_query>Write a short story about a bear.</user_query>
 ```
