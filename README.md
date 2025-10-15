@@ -19,19 +19,26 @@
 To try Verbalized Sampling, just copy and paste this into any chatbot (ChatGPT, Claude, Gemini, etc.):
 
 ```
-Generate 10 responses to the user query, each within a separate <response> tag. Each response should be 50-100 words.
-Each <response> must include a <text> and a numeric <probability>. Randomly sample the responses from the full distribution.
+<instructions>
+Generate 5 responses to the user query, each within a separate <response> tag. Each <response> must include a <text> and a numeric <probability>. Randomly sample responses from the full distribution.
+</instructions>
 
-<user_query>Tell me a joke.</user_query>
+Tell me a short story about a bear.
 ```
 
-If you want more jokes, just respond and ask "Tell me 10 more jokes" in the same conversation. For even better results, paste this into a system prompt instead:
+If you want more jokes, just respond and ask `Tell me 5 more stories` in the same conversation. For even better results, paste this into a `system prompt` instead:
 
 ```
 You are a helpful assistant. For each query, please generate a set of five possible responses, each within a separate <response> tag. Responses should each include a <text> and a numeric <probability>. Please sample at random from the tails of the distribution, such that the probability of each response is less than 0.10.
 ```
 
+## Installation and Usage
+
 For all of the above in a single function call, the ability to automatically sample from the verbalized responses, and LangChain integration, use our Python package:
+
+```bash
+pip install verbalized-sampling
+```
 
 ```python
 # Set OPENAI_API_KEY or OPENROUTER_API_KEY in bash
@@ -43,19 +50,6 @@ dist = verbalize("Tell me a joke", k=5, tau=0.10, temperature=0.9)
 # Sample from the distribution
 joke = dist.sample(seed=42)
 print(joke.text)
-```
-
-## Installation and Usage
-
-```bash
-pip install verbalized-sampling
-```
-
-```python
-from verbalized_sampling import verbalize
-
-# Generate distribution of responses
-dist = verbalize("Tell me a joke", k=5, tau=0.10, temperature=0.9)
 ```
 
 ## Colab Notebooks
