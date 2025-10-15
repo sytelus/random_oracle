@@ -9,7 +9,7 @@
 ---
 
 <p align="center">
-  <a href="#quickstart">Quickstart</a> | <a href="#colab-notebooks">Colab</a> | <a href="#reproducing-paper-results">Replicate Experiments</a> | <a href="https://arxiv.org/abs/2510.01171">Paper</a> | <a href="https://simonucl.notion.site/verbalized-sampling">Blog</a> | <a href="#citation">Citation</a>
+  <a href="#quickstart">Quickstart</a> | <a href="#colab-notebooks">Colab</a> | <a href="#reproducing-paper-results">Reproduce Results</a> | <a href="https://arxiv.org/abs/2510.01171">Paper</a> | <a href="https://simonucl.notion.site/verbalized-sampling">Blog</a> | <a href="#citation">Citation</a>
 </p>
 
 **Verbalized Sampling (VS)** is a simple prompting strategy that improves LLM diversity by 2-3x. It works by asking the model to generate multiple responses with their probabilities, then sampling from this distribution. VS is **training-free** (works with any LLM via prompting), **model-agnostic** (GPT, Claude, Gemini, Llama, etc.), **orthogonal to temperature**, and effective across tasks like **creative writing**, **social simulation**, **synthetic data generation**, and **open-ended QA**.
