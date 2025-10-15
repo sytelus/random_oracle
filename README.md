@@ -19,13 +19,14 @@
 To try Verbalized Sampling, just copy and paste this into any chatbot (ChatGPT, Claude, Gemini, etc.):
 
 ```
-Generate 10 responses to the user query, each within a separate <response> tag. Each response should be 50-100 words.
-Each <response> must include a <text> and a numeric <probability>. Randomly sample the responses from the full distribution.
+<instructions>
+Generate 5 responses to the user query, each within a separate <response> tag. Each <response> must include a <text> and a numeric <probability>. Randomly sample responses from the full distribution.
+</instructions>
 
 <user_query>Tell me a joke.</user_query>
 ```
 
-If you want more jokes, just respond and ask "Tell me 10 more jokes" in the same conversation. For even better results, paste this into a system prompt instead:
+If you want more jokes, just respond and ask "Tell me 5 more jokes" in the same conversation. For even better results, paste this into a system prompt instead:
 
 ```
 You are a helpful assistant. For each query, please generate a set of five possible responses, each within a separate <response> tag. Responses should each include a <text> and a numeric <probability>. Please sample at random from the tails of the distribution, such that the probability of each response is less than 0.10.
