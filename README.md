@@ -9,12 +9,72 @@
 ---
 
 <p align="center">
-  <a href="#try-it-yourself">Try it yourself</a> | <a href="#installation">Installation</a> | <a href="#quick-start">Quick Start</a> | <a href="#reproducing-paper-results">Reproduce Experiments</a> | <a href=https://simonucl.notion.site/verbalized-sampling>Blog</a> | <a href="#citation">Citation</a>
+  <a href="#quickstart">Quickstart</a> | <a href="#colab-notebooks">Colab</a> | <a href="#installation">Installation</a> | <a href="#usage">Example Usage</a> |  <a href="#reproducing-paper-results">Reproduce Experiments</a> | <a href=https://simonucl.notion.site/verbalized-sampling>Blog</a> | <a href="#citation">Citation</a>
 </p>
 
-## Try it yourself
+## Introduction
 
-#### Example 1: Try this system prompt
+**Verbalized Sampling (VS)** is a simple prompting strategy that can **improve LLM diversity by 2x**. It works by asking for a list of responses with their corresponding probability. It is **training-free**, **model-agnostic**, **orthogonal to temperature**, **easy to use**, and work on different tasks: **creative writing**, **social simulation**, **synthetic data generation, open-ended QA, random number generation**, and so on. 
+
+<!-- * **Training-Free**: Works with any LLM without fine-tuning—simply apply VS prompts to unlock diversity.
+* **Model-Agnostic**: Compatible with GPT, Claude, Gemini, and open models like Llama and Qwen.
+* **Measurable Impact**: Achieves 2-3x diversity improvement in creative writing while maintaining quality.
+* **Versatile Applications**: Supports creative writing, synthetic data generation, open-ended QA.
+* **Complete Framework**: Includes task implementations, evaluation metrics, and reproducible experiments from our paper.
+* **Easy to Use**: Simple CLI and Python API for running experiments and comparing methods. -->
+
+<!-- <p align="center">
+  <img src="./assets/teaser.png" width=90% alt="Verbalized Sampling" />
+</p> -->
+
+## Quickstart
+
+To try Verbalized Sampling, just copy and paste this prompt into any chatbot (ChatGPT, Claude, Gemini, etc.):
+
+```
+Generate 10 responses to the user query, each within a separate <response> tag. Each response should be 50-100 words.
+Each <response> must include a <text> and a numeric <probability>. Randomly sample the responses from the full distribution.
+
+<user_query>Write a short story about a bear.</user_query>
+```
+
+If you want more stories, just respond and ask `Write another 10 stories about a bear.` in the same conversation. For even better results, paste this into a system prompt instead:
+
+**System Prompt**
+```
+You are a helpful assistant. For each query, please generate a set of five possible responses, each within a separate <response> tag. Responses should each include a <text> and a numeric <probability>. Please sample at random from the tails of the distribution, such that the probability of each response is less than 0.10.
+```
+
+For all of the above in a single function call, the ability to automatically sample from the verbalized responses, and LangChain integration, run `pip install verbalized-sampling` and use it as follows:
+
+```
+# Set OPENAI_API_KEY or OPENROUTER_API_KEY in bash
+
+from verbalized_sampling import verbalize, select, DiscreteDist, Item
+
+dist = verbalize(
+    "Write an opening line for a mystery novel",
+    k=5,
+    tau=0.12,
+    temperature=0.9,
+    seed=42,
+)
+
+# Quick view of items & normalized masses
+print(dist.to_markdown())
+print()
+
+# Deterministic top item
+best = dist.argmax()
+print(f"Best (argmax): {best.text}")
+print()
+
+# Seeded weighted sample
+choice = dist.sample(seed=7)
+print(f"Sampled (seed=7): {choice.text}")
+```
+
+<!-- #### Example 1: Try this system prompt
 
 Copy and paste this system prompt into your favorite LLM playground (ChatGPT, Claude, Gemini, etc.):
 
@@ -25,20 +85,10 @@ You are a helpful assistant. For each query, please generate a set of five possi
 **Example User Propmt**
 ```
 Write a short story about a bear.
-```
+``` -->
 
-#### Example 2: Add before your own prompts in Chat Interface
 
-Copy and paste this prompt into any chat interface (ChatGPT, Claude, Gemini, etc.):
-
-```
-Generate 10 responses to the user query, each within a separate <response> tag. Each response should be 50-100 words.
-Each <response> must include a <text> and a numeric <probability>. Randomly sample the responses from the full distribution.
-
-<user_query>Write a short story about a bear.</user_query>
-```
-
-#### Example 3: Query via API
+<!-- #### Example 3: Query via API
 
 Use this curl command to try VS-Standard with the OpenAI API. Replace `gpt-4.1` with your model of choice:
 
@@ -61,37 +111,21 @@ curl https://api.openai.com/v1/chat/completions \
     ],
     "temperature": 1.0
   }'
-```
+``` -->
 
-## 📓 Interactive Notebooks
+## Colab Notebooks
 
 Explore verbalized sampling with our interactive Jupyter notebooks:
 
-| Notebook | Description | Code | Run it Yourself! |
-|----------|-------------|--------|-------|
-| **Direct vs. Verbalized Sampling** | Head-to-head comparison demonstrating VS effectiveness: 2-3x diversity improvement in creative tasks while maintaining quality | [View on GitHub](notebooks/vs_base.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1UDk4W5w6gF0dQ9Tpu0sPQethEht51GXL#offline=true&sandboxMode=true) |
-| **Image Generation with VS** | Visual comparison of Direct Prompting vs. Verbalized Sampling for text-to-image generation, showcasing creative diversity in artistic styles | [View on GitHub](notebooks/vs_with_image.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1J18VJRnrCjIb6sTivY-znb8C3JsLQCIz#offline=true&sandboxMode=true) |
-| **Complete Framework Tutorial** | Step-by-step guide to using verbalized sampling: API basics, transforms, selection methods, recipes, and advanced features | [View on GitHub](notebooks/framework_demo.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1eC0nIUVC1kyANxxzhNib44qmPphdWy9o#offline=true&sandboxMode=true) |
+| Notebook                           | Description                                                                                                                                  | Code                                             | Run it Yourself!                                                                                                                                                                      |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Direct vs. Verbalized Sampling** | Head-to-head comparison demonstrating VS effectiveness: 2-3x diversity improvement in creative tasks while maintaining quality               | [View on GitHub](notebooks/vs_base.ipynb)        | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1UDk4W5w6gF0dQ9Tpu0sPQethEht51GXL#offline=true&sandboxMode=true) |
+| **Image Generation with VS**       | Visual comparison of Direct Prompting vs. Verbalized Sampling for text-to-image generation, showcasing creative diversity in artistic styles | [View on GitHub](notebooks/vs_with_image.ipynb)  | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1J18VJRnrCjIb6sTivY-znb8C3JsLQCIz#offline=true&sandboxMode=true) |
+| **Complete Framework Tutorial**    | Step-by-step guide to using verbalized sampling: API basics, transforms, selection methods, recipes, and advanced features                   | [View on GitHub](notebooks/framework_demo.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1eC0nIUVC1kyANxxzhNib44qmPphdWy9o#offline=true&sandboxMode=true) |
 
 > 💡 **Tip**: Start with **Direct vs. Verbalized Sampling** to see the effectiveness, then explore **Image Generation** for visual results, or dive into the **Complete Tutorial** to learn the full API!
 
-## Introduction
 
-**Verbalized Sampling (VS)** is a prompting strategy that mitigates mode collapse in Large Language Models by explicitly requesting responses with associated probabilities. This framework is:
-
-* **Training-Free**: Works with any LLM without fine-tuning—simply apply VS prompts to unlock diversity.
-* **Model-Agnostic**: Compatible with GPT, Claude, Gemini, and open models like Llama and Qwen.
-* **Measurable Impact**: Achieves 2-3x diversity improvement in creative writing while maintaining quality.
-* **Versatile Applications**: Supports creative writing, synthetic data generation, open-ended QA.
-* **Complete Framework**: Includes task implementations, evaluation metrics, and reproducible experiments from our paper.
-* **Easy to Use**: Simple CLI and Python API for running experiments and comparing methods.
-
-<p align="center">
-  <img src="./assets/teaser.png" width=90% alt="Verbalized Sampling" />
-</p>
-
-## Updates
-* 🎉 10/01/2025: We release our paper, code and package. Check the release page for more details.
 
 ## Installation
 
@@ -115,7 +149,7 @@ export OPENAI_API_KEY="your_openai_key"
 export OPENROUTER_API_KEY="your_openrouter_key"
 ```
 
-## Quick Start
+## Usage
 
 ### Command Line Interface
 
@@ -177,7 +211,7 @@ print(f"VS Diversity: {results['VS_STANDARD']['diversity']:.2f}")
 print(f"Direct Diversity: {results['DIRECT']['diversity']:.2f}")
 ```
 
-### Example Usage
+### Example
 
 ```python
 from verbalized_sampling.tasks import get_task, Task
@@ -198,6 +232,11 @@ cot_responses = model.generate(cot_prompt)
 parsed_cot = task.parse_response(Method.VS_COT, cot_responses)
 # Returns: [{"reasoning": "...", "response": "...", "probability": 0.22}, ...]
 ```
+
+
+
+## Updates
+* 🎉 10/01/2025: We release our paper, code and package. Check the release page for more details.
 
 ## Reproducing Paper Results
 
