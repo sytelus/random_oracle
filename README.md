@@ -31,7 +31,7 @@ If you want more jokes, just respond and ask "Tell me 10 more jokes" in the same
 You are a helpful assistant. For each query, please generate a set of five possible responses, each within a separate <response> tag. Responses should each include a <text> and a numeric <probability>. Please sample at random from the tails of the distribution, such that the probability of each response is less than 0.10.
 ```
 
-For all of the above in a single function call, the ability to automatically sample from the verbalized responses, and LangChain integration, run `pip install verbalized-sampling` and use it as follows:
+For all of the above in a single function call, the ability to automatically sample from the verbalized responses, and LangChain integration, use our Python package:
 
 ```python
 # Set OPENAI_API_KEY or OPENROUTER_API_KEY in bash
@@ -43,6 +43,19 @@ dist = verbalize("Tell me a joke", k=5, tau=0.10, temperature=0.9)
 # Sample from the distribution
 joke = dist.sample(seed=42)
 print(joke.text)
+```
+
+## Installation and Usage
+
+```bash
+pip install verbalized-sampling
+```
+
+```python
+from verbalized_sampling import verbalize
+
+# Generate distribution of responses
+dist = verbalize("Tell me a joke", k=5, tau=0.10, temperature=0.9)
 ```
 
 ## Colab Notebooks
