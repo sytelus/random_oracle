@@ -9,7 +9,7 @@
 ---
 
 <p align="center">
-  <a href="#quickstart">Quickstart</a> | <a href="#colab-notebooks">Colab</a> | <a href="#researchers">Researchers</a> | <a href="https://arxiv.org/abs/2510.01171">Paper</a> | <a href="https://simonucl.notion.site/verbalized-sampling">Blog</a> | <a href="#citation">Citation</a>
+  <a href="#quickstart">Quickstart</a> | <a href="#colab-notebooks">Colab</a> | <a href="#reproducing-paper-results">Replicate Experiments</a> | <a href="https://arxiv.org/abs/2510.01171">Paper</a> | <a href="https://simonucl.notion.site/verbalized-sampling">Blog</a> | <a href="#citation">Citation</a>
 </p>
 
 **Verbalized Sampling (VS)** is a simple prompting strategy that improves LLM diversity by 2-3x. It works by asking the model to generate multiple responses with their probabilities, then sampling from this distribution. VS is **training-free** (works with any LLM via prompting), **model-agnostic** (GPT, Claude, Gemini, Llama, etc.), **orthogonal to temperature**, and effective across tasks like **creative writing**, **social simulation**, **synthetic data generation**, and **open-ended QA**.
@@ -55,7 +55,7 @@ Here are some examples of how to use verbalized sampling for generating more div
 | **Image Generation with VS**       | Visual comparison of Direct Prompting vs. Verbalized Sampling for text-to-image generation, showcasing creative diversity in artistic styles | [View on GitHub](notebooks/vs_with_image.ipynb)  | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1J18VJRnrCjIb6sTivY-znb8C3JsLQCIz#offline=true&sandboxMode=true) |
 | **Complete Framework Tutorial**    | Step-by-step guide to using verbalized sampling: API basics, transforms, selection methods, recipes, and advanced features                   | [View on GitHub](notebooks/framework_demo.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1eC0nIUVC1kyANxxzhNib44qmPphdWy9o#offline=true&sandboxMode=true) |
 
-## Researchers
+## Reproducing Paper Results
 
 Our library includes everything you need to reproduce the results from our paper. For example:
 
