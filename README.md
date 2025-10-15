@@ -3,7 +3,7 @@
 <div align="center">
 <h1>Verbalized Sampling: How to Mitigate Mode Collapse and Unlock LLM Diversity</h1>
 
-[![PyPI](https://img.shields.io/pypi/v/verbalized-sampling?style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/verbalized-sampling/) [![Python](https://img.shields.io/pypi/pyversions/verbalized-sampling?style=for-the-badge&logo=python&logoColor=white)](https://pypi.org/project/verbalized-sampling/) [![Homepage](https://img.shields.io/badge/Homepage-4d8cd8?style=for-the-badge&logo=google-chrome&logoColor=white)](https://www.verbalized-sampling.com/) [![arXiv](https://img.shields.io/badge/arXiv-2510.01171-red?style=for-the-badge)](https://arxiv.org/abs/2510.01171)  [![Blog](https://img.shields.io/badge/Blog-4d8cd8?style=for-the-badge&logo=notion&logoColor=white)](https://simonucl.notion.site/verbalized-sampling)
+[![PyPI](https://img.shields.io/pypi/v/verbalized-sampling?style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/verbalized-sampling/) [![Python](https://img.shields.io/pypi/pyversions/verbalized-sampling?style=for-the-badge&logo=python&logoColor=white)](https://pypi.org/project/verbalized-sampling/) [![Homepage](https://img.shields.io/badge/Homepage-4d8cd8?style=for-the-badge&logo=google-chrome&logoColor=white)](https://www.verbalized-sampling.com/) [![Paper](https://img.shields.io/badge/Paper-2510.01171-red?style=for-the-badge)](https://arxiv.org/abs/2510.01171)  [![Blog](https://img.shields.io/badge/Blog-4d8cd8?style=for-the-badge&logo=notion&logoColor=white)](https://simonucl.notion.site/verbalized-sampling)
 </div>
 
 ---
