@@ -40,7 +40,6 @@ Each <response> must include a <text> and a numeric <probability>. Randomly samp
 
 If you want more stories, just respond and ask `Write another 10 stories about a bear.` in the same conversation. For even better results, paste this into a system prompt instead:
 
-**System Prompt**
 ```
 You are a helpful assistant. For each query, please generate a set of five possible responses, each within a separate <response> tag. Responses should each include a <text> and a numeric <probability>. Please sample at random from the tails of the distribution, such that the probability of each response is less than 0.10.
 ```
