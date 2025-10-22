@@ -69,6 +69,8 @@ class ResponseParser:
                 return ResponseParser.parse_chain_of_thought(response)
             case Method.VS_MULTI:
                 return ResponseParser.parse_combined(response)
+            case Method.PROMPT_ENTROPY:
+                return ResponseParser.parse_direct(response)
             case _:
                 raise ValueError(f"Unknown parsing method: {method}")
     

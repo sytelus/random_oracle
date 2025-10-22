@@ -48,6 +48,7 @@ class Method(str, Enum):
 
     # Additional methods
     STANDARD_ALL_POSSIBLE = "standard_all_possible"
+    PROMPT_ENTROPY = "prompt_entropy"
 
     @property
     def paper_name(self) -> str:
@@ -59,6 +60,7 @@ class Method(str, Enum):
             "vs_cot": "VS-CoT",  # Legacy
             "vs_multi": "VS-Multi",
             "vs_multi": "VS-Multi",  # Legacy
+            "prompt_entropy": "Prompt-Entropy",
         }
         return mapping.get(self.value, self.value.replace("_", "-").title())
 
@@ -167,6 +169,21 @@ class PromptFactory:
         Method.VS_MULTI: "vs_multi",
     }
 
+    ENTROPY_INDEX_PLACEHOLDER = "__COLLECTION_INDEX__"
+    ENTROPY_DEFAULT_COLLECTION_SIZE = 10_000
+    _ENTROPY_DESCRIPTOR_MAP: Dict[str, tuple[str, str]] = {
+        "joke": ("jokes", "each one sharp, funny, and entirely distinct"),
+        "poem": ("poems", "each with unique imagery, rhythm, and tone"),
+        "creative_story": ("stories", "each rich in plot, voice, and perspective"),
+        "speech": ("speeches", "each persuasive, structured, and distinct"),
+        "book": ("book continuations", "each exploring a different but coherent direction"),
+        "simple_qa": ("answers", "each precise, factual, and phrased differently"),
+        "rand_num": ("random numbers", "each independent and uniformly chosen"),
+        "state_name": ("state concepts", "each imaginative, coherent, and culturally grounded"),
+        "synthetic_negative": ("negative examples", "each unique in failure mode and context"),
+        "gsm8k": ("math word problems", "each solvable, grade-level, and distinct"),
+    }
+
     # Available probability definition types
     PROBABILITY_DEFINITIONS = {
         "default": "Standard probability definition",
@@ -220,7 +237,7 @@ class PromptFactory:
     @staticmethod
     def _get_prompt_type_from_method(method: Method, all_possible: bool = False) -> str:
         """Map method to prompt type."""
-        if method == Method.DIRECT or method == Method.MULTI_TURN:
+        if method in (Method.DIRECT, Method.MULTI_TURN, Method.PROMPT_ENTROPY):
             return "base"
         elif method == Method.DIRECT_BASE:
             return "base_model"
@@ -265,6 +282,7 @@ class PromptFactory:
                 or method == Method.MULTI_TURN
                 or method == Method.DIRECT_COT
                 or method == Method.DIRECT_BASE
+                or method == Method.PROMPT_ENTROPY
             ):
                 system_prompt = PromptTemplateFactory.get_prompt(
                     task_type=task_type,
@@ -295,6 +313,13 @@ class PromptFactory:
             )
             system_prompt = f"{system_prompt}{format_prompt}"
 
+        if method == Method.PROMPT_ENTROPY:
+            prompt = PromptFactory._inject_entropy_instructions(
+                original_prompt=prompt,
+                task_name=task_name,
+                collection_size=PromptFactory.ENTROPY_DEFAULT_COLLECTION_SIZE,
+            )
+
         print("System prompt: ", system_prompt)
         print("User prompt: ", prompt)
 
@@ -305,6 +330,32 @@ class PromptFactory:
             return combined_prompt
 
         return [{"role": "system", "content": system_prompt}, {"role": "user", "content": prompt}]
+
+    @staticmethod
+    def _get_entropy_descriptor(task_name: Optional[str]) -> tuple[str, str]:
+        """Return descriptor tuple used for entropy prompts."""
+        default_descriptor = ("responses", "high-quality, surprising, and mutually distinct")
+        if task_name is None:
+            return default_descriptor
+        return PromptFactory._ENTROPY_DESCRIPTOR_MAP.get(task_name, default_descriptor)
+
+    @staticmethod
+    def _inject_entropy_instructions(
+        original_prompt: str, task_name: Optional[str], collection_size: int
+    ) -> str:
+        """Compose a user prompt with explicit entropy via an indexed collection."""
+        item_label, attributes = PromptFactory._get_entropy_descriptor(task_name)
+        index_placeholder = PromptFactory.ENTROPY_INDEX_PLACEHOLDER
+
+        prefix = (
+            f"Imagine you curate a catalogue of {collection_size} {item_label}, numbered 1"
+            f" through {collection_size}. Each entry is completely distinct and {attributes}. "
+            f"Provide only the entry whose catalogue number is {index_placeholder}. "
+            "Do not mention other catalogue numbers or explain the selection process."
+        )
+
+        request_section = f"Request:\n{original_prompt}"
+        return f"{prefix}\n\n{request_section}"
 
     @staticmethod
     def get_multi_turn_continuation(

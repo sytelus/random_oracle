@@ -83,12 +83,18 @@ class OpenRouterLLM(BaseLLM):
             "messages": messages,
             "temperature": self.config.get("temperature", 0.7),
             "top_p": self.config.get("top_p", 0.9),
-            "provider": provider_args,
         }
+
+        extra_body: Dict[str, Any] = {}
+        if provider_args:
+            extra_body.update(provider_args)
 
         # Only add min_p if it's provided in config
         if "min_p" in self.config:
-            params["min_p"] = self.config["min_p"]
+            extra_body["min_p"] = self.config["min_p"]
+
+        if extra_body:
+            params["extra_body"] = extra_body
 
         try:
             response = self.client.chat.completions.create(**params)
@@ -127,12 +133,18 @@ class OpenRouterLLM(BaseLLM):
                     "temperature": self.config.get("temperature", 0.7),
                     "top_p": self.config.get("top_p", 0.9),
                     "response_format": schema,
-                    "provider": provider_args,
                 }
+
+                extra_body: Dict[str, Any] = {}
+                if provider_args:
+                    extra_body.update(provider_args)
 
                 # Only add min_p if it's provided in config
                 if "min_p" in self.config:
-                    params["extra_body"] = {"min_p": self.config["min_p"]}
+                    extra_body["min_p"] = self.config["min_p"]
+
+                if extra_body:
+                    params["extra_body"] = extra_body
 
                 completion = self.client.chat.completions.create(**params)
 

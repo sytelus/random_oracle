@@ -1,0 +1,620 @@
+{
+    "instance_metrics": [
+        {
+            "response": "Why don't alcoholics like telling jokes? Because they always end up taking shots!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 16.0
+        },
+        {
+            "response": "What did the bartender say to the jumper cables? I'll serve you, but don't start anything!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 19.0
+        },
+        {
+            "response": "I only drink on two occasions: when it's my birthday and when it's not my birthday.",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 18.0
+        },
+        {
+            "response": "What's an alcoholic's favorite part of a joke? The punch line!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 15.0
+        },
+        {
+            "response": "What did the bartender say to the jumper cable? I'll serve you, but don't start anything!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 19.0
+        },
+        {
+            "response": "Why don't they serve beer at a math bar? Because you shouldn't drink and derive.",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 17.0
+        },
+        {
+            "response": "I only drink twice a year. When it's my birthday, and when it's not my birthday.",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 19.0
+        },
+        {
+            "response": "What's the difference between a drunk and an alcoholic? A drunk doesn't have to go to all those meetings.",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 21.0
+        },
+        {
+            "response": "I took a vodka shot last night and it was so strong, my mask sanitized itself.",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 18.0
+        },
+        {
+            "response": "Why don't alcoholics like telling jokes? Because they always end up taking shots!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 16.0
+        },
+        {
+            "response": "What did the bartender say to the jumper cables? I'll serve you, but don't start anything!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 19.0
+        },
+        {
+            "response": "I only drink twice a year. When it's my birthday, and when it's not my birthday.",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 19.0
+        },
+        {
+            "response": "What's the difference between a drunk and an alcoholic? A drunk doesn't have to go to all those meetings.",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 21.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why don't they serve beer at math parties? Because you shouldn't drink and derive!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 16.0
+        },
+        {
+            "response": "What did the grape say when it got stepped on? Nothing, it just let out a little wine!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 21.0
+        },
+        {
+            "response": "I only drink on two occasions: when it's my birthday and when it's not my birthday.",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 18.0
+        },
+        {
+            "response": "What's a drunk's favorite type of shoes? Staggering heels!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 15.0
+        },
+        {
+            "response": "What did the beer say to the bartender? 'I'm feeling a bit drafty in here!'",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 19.0
+        },
+        {
+            "response": "Why don't they serve beer at math bars? Because you shouldn't drink and derive!",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 16.0
+        },
+        {
+            "response": "What's a beer's favorite dance move? The Hops!",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 12.0
+        },
+        {
+            "response": "I tried to catch some fog earlier. I mist my beer.",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 13.0
+        },
+        {
+            "response": "What do you call a beer that's had too much to drink? Intoxicated with itself!",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 19.0
+        },
+        {
+            "response": "What did the beer say to the bartender? Thanks for tapping into my potential!",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 16.0
+        },
+        {
+            "response": "Why don't they serve beer at math bars? Because you shouldn't drink and derive!",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 16.0
+        },
+        {
+            "response": "What kind of beer does a ghost drink? BOOze!",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 13.0
+        },
+        {
+            "response": "I tried brewing my own beer once. It was a total disaster... I guess you could say it was a brew-tal experience.",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 26.0
+        },
+        {
+            "response": "What's a beer can's favorite exercise? The 12-ounce curl!",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why don't beer and pizza get along? Because pizza is always crusty and beer is always bitter!",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 20.0
+        },
+        {
+            "response": "What did the beer say to the bartender? 'I'm feeling a bit drafty in here!'",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 19.0
+        },
+        {
+            "response": "How does beer stay in shape? By doing lots of hops!",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 13.0
+        },
+        {
+            "response": "What's a beer's favorite exercise? The keg lift!",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 11.0
+        },
+        {
+            "response": "Why did the beer go to therapy? It had too many unresolved drinking issues!",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 16.0
+        },
+        {
+            "response": "Why don't beer bottles get along? Because they're always getting into bar fights!",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 15.0
+        },
+        {
+            "response": "What did the beer say to the bartender? 'I'm here for a good time, not a long time!'",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 22.0
+        },
+        {
+            "response": "How does a beer stay warm? It puts on a jacket! (Get it? A beer jacket!)",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 21.0
+        },
+        {
+            "response": "Why did the beer go back to school? To get a higher education!",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 15.0
+        },
+        {
+            "response": "What's a beer's favorite exercise? The brew-tine!",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 12.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 15.0
+        },
+        {
+            "response": "What did the coffee say to its date? 'You're brewing beautiful!'",
+            "prompt": "Make a joke about coffee",
+            "token_length": 14.0
+        },
+        {
+            "response": "How does a coffee lover maintain social distancing? They use a long espresso shot!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 16.0
+        },
+        {
+            "response": "What's a coffee bean's favorite type of music? Jazz!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 12.0
+        },
+        {
+            "response": "I'm addicted to coffee, but I'm trying to quit cold turkey... Now I'm a barista at Thanksgiving!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 21.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 15.0
+        },
+        {
+            "response": "What did the coffee say to its therapist? I'm having a lot of grounds for anxiety.",
+            "prompt": "Make a joke about coffee",
+            "token_length": 18.0
+        },
+        {
+            "response": "How does a coffee lover maintain social distance? They use a six-feet barista!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 18.0
+        },
+        {
+            "response": "I don't trust coffee breaks at work. They're a latte trouble.",
+            "prompt": "Make a joke about coffee",
+            "token_length": 13.0
+        },
+        {
+            "response": "What did the espresso say when it was accused of being bitter? Don't judge me, I'm just going through a dark roast.",
+            "prompt": "Make a joke about coffee",
+            "token_length": 25.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 15.0
+        },
+        {
+            "response": "What did the coffee say to its therapist? I'm feeling a bit ground down.",
+            "prompt": "Make a joke about coffee",
+            "token_length": 16.0
+        },
+        {
+            "response": "I don't trust coffee breaks at work. They're just grounds for suspicion.",
+            "prompt": "Make a joke about coffee",
+            "token_length": 14.0
+        },
+        {
+            "response": "How does a coffee pot feel when no one drinks from it? Depresso!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 16.0
+        },
+        {
+            "response": "What did the barista say to the difficult customer? Thanks a latte for nothing!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 17.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 15.0
+        },
+        {
+            "response": "What did the coffee say to its date? 'You're brewtiful!'",
+            "prompt": "Make a joke about coffee",
+            "token_length": 15.0
+        },
+        {
+            "response": "How does a tech nerd drink coffee? Java java java!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 12.0
+        },
+        {
+            "response": "I don't trust coffee... it's always brewing something.",
+            "prompt": "Make a joke about coffee",
+            "token_length": 10.0
+        },
+        {
+            "response": "What did the barista say to the difficult customer? 'Thanks a latte for nothing!'",
+            "prompt": "Make a joke about coffee",
+            "token_length": 18.0
+        },
+        {
+            "response": "Why don't programmers like nature? It has too many bugs!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 12.0
+        },
+        {
+            "response": "What did the employee say when his boss asked why he was late? 'Traffic was so bad, even the GPS started working from home!'",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 28.0
+        },
+        {
+            "response": "Why did the scarecrow get promoted? Because he was outstanding in his field!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 16.0
+        },
+        {
+            "response": "What's the difference between a manager and a virus? Viruses actually do something!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 16.0
+        },
+        {
+            "response": "I told my boss I needed a raise because three companies were after me. He asked which companies... I said gas, electric, and water.",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 29.0
+        },
+        {
+            "response": "Why don't programmers like nature? It has too many bugs!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 12.0
+        },
+        {
+            "response": "What did the employee say when the coffee machine broke? This is grounds for dismissal!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 17.0
+        },
+        {
+            "response": "Why did the Excel spreadsheet go to therapy? It had too many issues to process!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 17.0
+        },
+        {
+            "response": "I got fired from my job at the keyboard factory. They said I wasn't putting in enough shifts.",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 20.0
+        },
+        {
+            "response": "What do you call someone who's happy on Monday? Retired!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 13.0
+        },
+        {
+            "response": "Why did the employee get fired from the calendar factory? He took too many days off!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "What did the office microwave say to the coffee maker? 'Stop stealing my lunch break!'",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "I asked my boss if I could leave work early. He said 'Follow your dreams!' Then he fired me.",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 23.0
+        },
+        {
+            "response": "What's the difference between a workplace and a prison? In prison you don't have to check your email.",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 20.0
+        },
+        {
+            "response": "Why don't programmers like nature? It has too many bugs.",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 12.0
+        },
+        {
+            "response": "Why did the employee get fired from the calendar factory? He took too many days off!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "What did the office coffee say to the employee? 'Sorry for being bitter, I'm just going through a daily grind!'",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 24.0
+        },
+        {
+            "response": "Why don't programmers like nature? It has too many bugs!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 12.0
+        },
+        {
+            "response": "I got a job at a paperless office. Everything was great until I needed to use the bathroom.",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 21.0
+        },
+        {
+            "response": "What does a corporate shark eat for lunch? A CEO-food sandwich!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why don't they teach German history in schools anymore? Because there are too many Germanys!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 18.0
+        },
+        {
+            "response": "What did the Ancient Egyptian say when he was confused? 'I'm in de-Nile!'",
+            "prompt": "Tell me a joke about history",
+            "token_length": 18.0
+        },
+        {
+            "response": "How did the Vikings send secret messages? They used Norse code!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 14.0
+        },
+        {
+            "response": "What kind of music did the Pilgrims listen to? Plymouth Rock!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did Napoleon always get invited to parties? Because he was known for throwing Bonapartes!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 19.0
+        },
+        {
+            "response": "Why did Alexander the Great refuse to go to the beach? Because he had too many sandals to conquer!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 21.0
+        },
+        {
+            "response": "What did the Ancient Roman say when he walked into a bar? 'I'll have a martinus.' The bartender asks, 'Don't you mean martini?' He replies, 'If I wanted multiple drinks, I would have asked for them!'",
+            "prompt": "Tell me a joke about history",
+            "token_length": 48.0
+        },
+        {
+            "response": "Why don't they teach gambling in history class? Because you can't beat the house of Tudor!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 18.0
+        },
+        {
+            "response": "What kind of music did the Pilgrims listen to? Plymouth Rock!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did Napoleon always get invited to parties? Because he was known for bringing Bonapetit!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 19.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write everything in hieroglyphics? Because they were trying to make history more pyramid-ing!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 24.0
+        },
+        {
+            "response": "What did Napoleon say when he was exiled to Elba? 'At least it's not a waterloo!'",
+            "prompt": "Tell me a joke about history",
+            "token_length": 22.0
+        },
+        {
+            "response": "Why don't they teach German history in schools anymore? Because there are too many Reich answers!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 18.0
+        },
+        {
+            "response": "What's a Roman soldier's favorite type of math? Legion!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 12.0
+        },
+        {
+            "response": "Why was the Medieval knight always exhausted? Because he was working night shift!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write everything in hieroglyphics? Because they were trying to make history more pyramid-ing!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 24.0
+        },
+        {
+            "response": "What did Napoleon say when he was exiled to Elba? 'At least it's not a St. Helena of a situation!'",
+            "prompt": "Tell me a joke about history",
+            "token_length": 26.0
+        },
+        {
+            "response": "Why don't they teach German history in space? Because they're afraid of the space Reich!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 17.0
+        },
+        {
+            "response": "What did the French Revolution say to the guillotine? 'Let's head out!'",
+            "prompt": "Tell me a joke about history",
+            "token_length": 17.0
+        },
+        {
+            "response": "Why did the Vikings take over Europe? Because they Norse-d everyone into it!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 17.0
+        },
+        {
+            "response": "What did the lettuce say to the guitar? Lettuce rock and roll!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why don't melons go to music concerts alone? Because they cantaloupe!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 16.0
+        },
+        {
+            "response": "What's a musician's favorite type of pasta? A piano noodle!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 13.0
+        },
+        {
+            "response": "Why did the bagel bring a radio to dinner? It wanted some jam with its spread!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 19.0
+        },
+        {
+            "response": "What kind of music do chefs listen to? Slice and roll!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 13.0
+        },
+        {
+            "response": "What do you call a hot dog that can sing? A Frank Sinatra!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did the cookie go to the doctor? Because it was feeling crumby and couldn't carry a tune!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 22.0
+        },
+        {
+            "response": "What kind of music do chefs like? They're all about the beets!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why don't eggs tell jokes? They'd crack up at the symphony!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 15.0
+        },
+        {
+            "response": "What's a sandwich's favorite type of music? Jazz with extra jam!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 14.0
+        },
+        {
+            "response": "What do you call a vegetable that plays jazz? A beat root!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the cookie go to the doctor? Because it was feeling crumby and needed some rhythm!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 21.0
+        },
+        {
+            "response": "What's a sandwich's favorite type of music? Ham and bass!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 13.0
+        },
+        {
+            "response": "Why don't eggs tell jokes? They'd crack up at the first note!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 15.0
+        },
+        {
+            "response": "What kind of music do french fries listen to? R&B - Rhythm & Bites!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 18.0
+        },
+        {
+            "response": "What did the sushi say to the bee? Wasabi!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 12.0
+        },
+        {
+            "response": "Why don't melons have weddings? Because they cantaloupe!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 13.0
+        },
+        {
+            "response": "What kind of music do hamburgers listen to? Meat beets!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 14.0
+        },
+        {
+            "response": "What's a chef's favorite type of music? A little bit of Bach and a pinch of Chopin!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 21.0
+        },
+        {
+            "response": "Why did the cookie go to the doctor? Because he was feeling crumby!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 17.0
+        }
+    ],
+    "overall_metrics": {
+        "avg_token_length": 17.208333333333332,
+        "min_token_length": 10.0,
+        "max_token_length": 48.0,
+        "total_tokens": 2065.0,
+        "num_responses": 120,
+        "std_token_length": 4.663276579764893,
+        "med_token_length": 16.0
+    },
+    "metadata": {
+        "experiment": "vs_standard",
+        "metric": "length",
+        "evaluation_type": "token_length",
+        "tokenizer_model": "o200k_base",
+        "num_responses": 120
+    }
+}

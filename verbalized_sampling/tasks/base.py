@@ -13,8 +13,10 @@
 # limitations under the License.
 
 import concurrent.futures
+import copy
 import json
 import math
+import random
 from abc import ABC
 from pathlib import Path
 from typing import Any, Dict, List, Union
@@ -272,6 +274,43 @@ class BaseTask(ABC):
 
         return parsed_results
 
+    def _build_entropy_prompts(
+        self, base_prompts: List[Union[List[Dict[str, str]], str]]
+    ) -> List[Union[List[Dict[str, str]], str]]:
+        """Construct prompts with explicit entropy indices."""
+        placeholder = getattr(PromptFactory, "ENTROPY_INDEX_PLACEHOLDER", "__COLLECTION_INDEX__")
+        collection_size = getattr(PromptFactory, "ENTROPY_DEFAULT_COLLECTION_SIZE", 10_000)
+        prompts: List[Union[List[Dict[str, str]], str]] = []
+
+        for prompt_idx, base_prompt in enumerate(base_prompts):
+            seed = self.random_seed + prompt_idx if self.random_seed is not None else None
+            rng = random.Random(seed)
+
+            indices: List[int] = []
+            while len(indices) < self.num_responses:
+                remaining = self.num_responses - len(indices)
+                if remaining >= collection_size:
+                    indices.extend(range(1, collection_size + 1))
+                else:
+                    population = range(1, collection_size + 1)
+                    indices.extend(rng.sample(population, remaining))
+
+            for index in indices[: self.num_responses]:
+                prompt_copy = copy.deepcopy(base_prompt)
+
+                if isinstance(prompt_copy, list):
+                    for message in prompt_copy:
+                        if isinstance(message, dict) and "content" in message:
+                            message["content"] = message["content"].replace(
+                                placeholder, str(index)
+                            )
+                else:
+                    prompt_copy = prompt_copy.replace(placeholder, str(index))
+
+                prompts.append(prompt_copy)
+
+        return prompts
+
     def run(
         self,
         progress: Progress = None,
@@ -303,7 +342,11 @@ class BaseTask(ABC):
             return self._run_base_model(progress, task_id)
 
         # Original single-turn logic
-        prompts = [prompt for prompt in self.get_prompt() for _ in range(self.num_responses)]
+        base_prompts = self.get_prompt()
+        if self.method == Method.PROMPT_ENTROPY:
+            prompts = self._build_entropy_prompts(base_prompts)
+        else:
+            prompts = [prompt for prompt in base_prompts for _ in range(self.num_responses)]
         results = self.model.chat(
             prompts,
             schema=get_schema(self.method, probability_definition=self.probability_definition),

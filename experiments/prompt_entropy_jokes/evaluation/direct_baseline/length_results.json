@@ -1,0 +1,620 @@
+{
+    "instance_metrics": [
+        {
+            "response": "Why did the cookie go to the bar?Because he was feeling crumbly and needed a shot of milk!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 22.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did the bartender bring a ladder to work?Because he heard the drinks were on the house!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 20.0
+        },
+        {
+            "response": "Why did the coffee file a police report?Because it got mugged!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did the bartender kick out the jumper cables?Because they kept starting things.",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 16.0
+        },
+        {
+            "response": "Why did the bartender bring a ladder to work?He heard the drinks were on the house!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 19.0
+        },
+        {
+            "response": "Why did the rum feel sad?Because it was always getting shot down!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did the coffee file a police report?It got mugged!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 14.0
+        },
+        {
+            "response": "What did the drunk snake say when his friend asked if he wanted another beer?I think I've had too many, I'm seeing double-helix.",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 30.0
+        },
+        {
+            "response": "Why don't they serve beer at a math party?Because you shouldn't drink and derive!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 17.0
+        },
+        {
+            "response": "Why did the coffee file a police report?Because it got mugged!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did the coffee file a police report?Because it got mugged!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did the cookie go to the doctor?Because he was feeling crumbly after too many shots!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 20.0
+        },
+        {
+            "response": "Why did the bartender bring a ladder to work?Because he heard the drinks were on the house!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 20.0
+        },
+        {
+            "response": "Why don't aliens drink beer? Because they can't handle their light years!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why don't they serve beer at math parties?Because you shouldn't drink and derive!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 16.0
+        },
+        {
+            "response": "Why don't alcoholics like telling jokes?Because they always end up punch-drunk!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 17.0
+        },
+        {
+            "response": "Why don't they serve beer at math parties?Because you shouldn't drink and derive!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 16.0
+        },
+        {
+            "response": "Why did the bartender bring a ladder to work?Because he heard the drinks were on the house!",
+            "prompt": "Tell me a joke about drinking",
+            "token_length": 20.0
+        },
+        {
+            "response": "What did the drunk fish say when he swam into a wall?Dam!",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 16.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"Man, you're so SOBER-ing!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 20.0
+        },
+        {
+            "response": "What did the drunk fish say when he swam into a wall?Dam!",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 16.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"You're so SOBER-ing!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 18.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"You're so boring, I can't even look at you straight!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 24.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"You're so LITE!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 17.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"Man, you're so SOBER it hurts!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 21.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"You're a real buzz kill!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 18.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"You're so SOBER-ing!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 18.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"I'm wasted!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 15.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"You're so SOBER-ing!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 18.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"Man, you're so LITE!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 19.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"You're so SOBER-ing!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 18.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"Man, you're so SOBER it's driving me crazy!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 23.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"You're so SOBER-ing!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 18.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"I'm way more fun than you, but thanks for getting me home safely!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 27.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"You're so SOBER-ing!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 18.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"You're so boring, all you do is Lite there!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 23.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"Man, you're so full of yourself!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 20.0
+        },
+        {
+            "response": "What did the drunk beer say to the designated driver beer?\"Man, you're so LITE!\"",
+            "prompt": "Tell me a joke about beer",
+            "token_length": 19.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did the coffee file a police report? It got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the coffee file a police report? It got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the coffee file a police report? It got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the coffee file a police report? It got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the coffee file a police report? It got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did the coffee file a police report? It got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did the coffee file a police report? It got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the coffee file a police report? It got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the coffee file a police report? It got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the coffee file a police report? Because it got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 15.0
+        },
+        {
+            "response": "Why did the coffee file a police report? It got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the coffee file a police report? It got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the coffee file a police report? It got mugged!",
+            "prompt": "Make a joke about coffee",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the scarecrow get promoted?Because he was outstanding in his field!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 16.0
+        },
+        {
+            "response": "Why did the employee get fired from the calendar factory?They took too many days off!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "Why did the employee get fired from the calendar factory? He took too many days off!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "Why did the employee get fired from the calendar factory?He took too many days off!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "Why did the employee get fired from the calendar factory? They took too many days off!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "Why did the employee get fired from the calendar factory? They took too many days off!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "Why did the employee get fired from the calendar factory?He took too many days off!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "Why did the employee get fired from the calendar factory? They took too many days off!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "Why did the employee get fired from the calendar factory? They took too many days off!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "Why did the employee get fired from the calendar factory? They took too many days off!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "Why did the scarecrow get promoted?Because he was outstanding in his field!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 16.0
+        },
+        {
+            "response": "Why did the scarecrow get promoted?Because he was outstanding in his field!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 16.0
+        },
+        {
+            "response": "Why did the employee get fired from the calendar factory? They took too many days off!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "Why did the employee get fired from the calendar factory?They took too many days off!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "Why did the employee bring a ladder to work?Because they were told there would be opportunities to climb the corporate ladder!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 24.0
+        },
+        {
+            "response": "Why did the employee get fired from the calendar factory? He took too many days off!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "Why did the employee get fired from the calendar factory? They took too many days off!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "Why did the scarecrow get promoted?Because he was outstanding in his field!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 16.0
+        },
+        {
+            "response": "Why did the employee get fired from the calendar factory? They took too many days off!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 18.0
+        },
+        {
+            "response": "Why did the office worker put their desk in the elevator?They were hoping to get a raise!",
+            "prompt": "Tell me a joke about the workplace",
+            "token_length": 20.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write everything in hieroglyphics?Because they were in de-Nile about proper handwriting!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 24.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write in hieroglyphics?Because they were trying to make their point pyramid clear!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 23.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write everything in hieroglyphics?Because they were trying to make their point pyramid clear!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 24.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write in hieroglyphics?Because they didn't have emojis! \ud83e\udd37\u200d\u2642\ufe0f",
+            "prompt": "Tell me a joke about history",
+            "token_length": 23.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write everything in hieroglyphics?Because they were trying to make their point pyramid clear!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 24.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write everything in hieroglyphics?Because they were trying to make their mark in history!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 24.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write in hieroglyphics?Because they didn't have emojis! \ud83d\ude02",
+            "prompt": "Tell me a joke about history",
+            "token_length": 19.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write everything in hieroglyphics?Because they were in de-Nile about how complicated their language was!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 27.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write everything in hieroglyphics?Because they were trying to make their point pyramid clear!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 24.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write everything in hieroglyphics?Because they didn't want to pyramid scheme!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 21.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write in hieroglyphics?Because they were trying to make their point pyramidically clear!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 24.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write everything in hieroglyphics?Because they were in de-Nile about the invention of the alphabet!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 27.0
+        },
+        {
+            "response": "Why did Napoleon always get invited to parties?Because he was always Bonaparte!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 17.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write in hieroglyphics?Because they didn't have emojis! \ud83e\udd37\u200d\u2642\ufe0f",
+            "prompt": "Tell me a joke about history",
+            "token_length": 23.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write everything in hieroglyphics?Because they were trying to make their point pyramid clear!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 24.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write everything in hieroglyphics?Because they were in de-Nile about their spelling!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 24.0
+        },
+        {
+            "response": "What did the Ancient Egyptian say when he was confused?I'm in de Nile!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 16.0
+        },
+        {
+            "response": "Why did Napoleon always pose for paintings with his hand in his vest?Because he wanted to Bonaparte of his outfit.",
+            "prompt": "Tell me a joke about history",
+            "token_length": 25.0
+        },
+        {
+            "response": "Why did Napoleon always hate stairs?Because he was afraid of Waterloo!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the Ancient Egyptians write everything in hieroglyphics?Because they were in de-Nile about their spelling!",
+            "prompt": "Tell me a joke about history",
+            "token_length": 24.0
+        },
+        {
+            "response": "What does a vegetarian pianist eat for dinner?Beet-hoven!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the cookie go to the doctor? Because it was feeling crumby and needed some jazz to spice things up!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 25.0
+        },
+        {
+            "response": "Why don't melons get married? They cantaloupe!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 12.0
+        },
+        {
+            "response": "What kind of music do donuts listen to? Hip Pop!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 12.0
+        },
+        {
+            "response": "Why did the cookie go to the symphony concert?Because it wanted to hear the crunch-ata!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 21.0
+        },
+        {
+            "response": "Why did the cookie go to the concert?Because it was a choc-chip off the old Bach!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 20.0
+        },
+        {
+            "response": "What did the celery say to the cheese at the orchestra concert?You're looking a bit sharp tonight!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 20.0
+        },
+        {
+            "response": "What did the salad say to the musician?Lettuce rock and roll!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 16.0
+        },
+        {
+            "response": "What did the cookie say to Mozart?\"You're a real sweet symphony!\"",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 15.0
+        },
+        {
+            "response": "What kind of music do vegetables listen to while working out?Beet box!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 16.0
+        },
+        {
+            "response": "What did the cookie say to Mozart?\"You're a real snack composer!\"",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 14.0
+        },
+        {
+            "response": "What did the salad say to the musician? Lettuce play together!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 14.0
+        },
+        {
+            "response": "Why did the cookie go to the concert?Because it was a sugar snap!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 16.0
+        },
+        {
+            "response": "What did the celery say to the cheese at the orchestra concert?Hey, lettuce duet!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 18.0
+        },
+        {
+            "response": "What did the celery say to the cheese at the orchestra concert?Hey, stop string-ing me along!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 21.0
+        },
+        {
+            "response": "What did the salad say to the musician?Lettuce turnip the beet!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 17.0
+        },
+        {
+            "response": "What did the celery say to the hot pepper while playing jazz?\"Man, you're too spicy for my taste in music!\"",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 24.0
+        },
+        {
+            "response": "What kind of music do vegetables listen to while cooking?Beet-hoven!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 16.0
+        },
+        {
+            "response": "What did the salad say to the jazz musician?Lettuce jam together!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 16.0
+        },
+        {
+            "response": "Why did the cookie go to the concert?Because it was a sugar snap!",
+            "prompt": "Tell me a joke about music and food",
+            "token_length": 16.0
+        }
+    ],
+    "overall_metrics": {
+        "avg_token_length": 18.158333333333335,
+        "min_token_length": 12.0,
+        "max_token_length": 30.0,
+        "total_tokens": 2179.0,
+        "num_responses": 120,
+        "std_token_length": 3.7840795053858516,
+        "med_token_length": 18.0
+    },
+    "metadata": {
+        "experiment": "direct_baseline",
+        "metric": "length",
+        "evaluation_type": "token_length",
+        "tokenizer_model": "o200k_base",
+        "num_responses": 120
+    }
+}
