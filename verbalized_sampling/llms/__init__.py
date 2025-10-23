@@ -19,15 +19,8 @@ from verbalized_sampling.methods import Method
 
 from .base import BaseLLM
 from .embed import get_embedding_model
-try:
-    from .google import GoogleLLM
-except ImportError:
-    GoogleLLM = None
-try:
-    from .litellm import LiteLLM
-except ImportError:
-    LiteLLM = None
-from .local import LocalHFLLM
+from .google import GoogleLLM
+from .litellm import LiteLLM
 from .openai import OpenAILLM
 from .openrouter import OpenRouterLLM
 from .vllm import VLLMOpenAI
@@ -37,15 +30,10 @@ __all__ = ["get_model", "get_embedding_model"]
 LLM_REGISTRY: Dict[str, Type[BaseLLM]] = {
     "vllm": VLLMOpenAI,
     "openrouter": OpenRouterLLM,
+    "litellm": LiteLLM,
     "openai": OpenAILLM,
-    "local": LocalHFLLM,
+    "google": GoogleLLM,
 }
-
-if LiteLLM is not None:
-    LLM_REGISTRY["litellm"] = LiteLLM
-
-if GoogleLLM is not None:
-    LLM_REGISTRY["google"] = GoogleLLM
 
 
 def get_model(
@@ -57,17 +45,8 @@ def get_model(
     strict_json: bool = False,
 ) -> BaseLLM:
     """Get a model instance."""
-    if model_name.startswith("local/"):
-        hf_model_name = model_name.split("local/", 1)[1]
-        return LLM_REGISTRY["local"](
-            model_name=hf_model_name,
-            config=config,
-            num_workers=num_workers,
-            strict_json=strict_json,
-        )
-
     if "claude" in model_name:
-        if os.environ.get("ANTHROPIC_API_KEY") is None or LiteLLM is None:
+        if os.environ.get("ANTHROPIC_API_KEY") is None:
             print("ANTHROPIC_API_KEY is not set, falling back to openrouter")
             model_class = LLM_REGISTRY["openrouter"]
         else:
