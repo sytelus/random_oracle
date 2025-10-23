@@ -46,6 +46,9 @@ class Method(str, Enum):
     CHAIN_OF_THOUGHT = "vs_cot"  # Use VS_COT instead
     COMBINED = "vs_multi"  # Use VS_MULTI instead
 
+    # Prompt Entropy
+    PROMPT_ENTROPY = "prompt_entropy"
+
     # Additional methods
     STANDARD_ALL_POSSIBLE = "standard_all_possible"
 
@@ -59,6 +62,7 @@ class Method(str, Enum):
             "vs_cot": "VS-CoT",  # Legacy
             "vs_multi": "VS-Multi",
             "vs_multi": "VS-Multi",  # Legacy
+            "prompt_entropy": "Prompt Entropy",
         }
         return mapping.get(self.value, self.value.replace("_", "-").title())
 
@@ -157,6 +161,7 @@ class PromptFactory:
         Method.SEQUENCE: "sequence",
         Method.STRUCTURE: "structure",
         Method.DIRECT_COT: "direct_cot",
+        Method.PROMPT_ENTROPY: "prompt_entropy",
         # New VS method names (primary)
         Method.VS_STANDARD: "vs_standard",
         Method.VS_COT: "vs_cot",
@@ -230,6 +235,8 @@ class PromptFactory:
             return "vs_cot"
         elif method == Method.VS_MULTI:
             return "vs_multi"
+        elif method == Method.PROMPT_ENTROPY:
+            return "prompt_entropy"
         elif all_possible:
             return "standard_all_possible"
         else:  # Method.SEQUENCE, Method.STRUCTURE

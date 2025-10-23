@@ -5,6 +5,7 @@ This project treats *methods* as the primary abstraction for trying alternative 
 ---
 
 ## Where Methods Plug In
+
 - `verbalized_sampling/methods/factory.py` – owns the `Method` enum, helper classifiers (e.g., `is_method_multi_turn`), and the `PromptFactory` that builds system/user messages.
 - `verbalized_sampling/methods/prompt.py` – prompt templates per `TaskType`; also defines format prompts used in strict JSON mode.
 - `verbalized_sampling/methods/schema.py` – JSON/tool schemas used when `strict_json=True`.

@@ -54,6 +54,10 @@ class BasePromptTemplate:
         """Get the standard prompt for the task."""
         raise NotImplementedError
 
+    def get_prompt_entropy_prompt(self, **kwargs) -> str:
+        """Get the prompt entropy prompt for the task."""
+        raise NotImplementedError
+
     def get_vs_standard_prompt(self, **kwargs) -> str:
         """Get the standard prompt for the task."""
         raise NotImplementedError
@@ -162,6 +166,10 @@ Return the responses in JSON format with the key: "responses" (list of dicts). E
 
 {distribution_def} Return ONLY the JSON object, with no additional explanations or text.
 """,
+
+            "prompt_entropy": f"""
+
+""",
         }
         return format_prompts.get(method, "")
 
@@ -212,6 +220,10 @@ Generate a response to the input prompt using chain-of-thought reasoning. The re
 Generate {num_samplings} responses to the input prompt.{word_constraint}
 """
 
+    def get_prompt_entropy_prompt(self, **kwargs) -> str:
+        """Get the prompt entropy prompt for the task."""
+        raise NotImplementedError
+
     def get_standard_all_possible_prompt(self, target_words: int = 200, **kwargs) -> str:
         word_constraint = (
             f" Each response should be approximately {target_words} words."
@@ -247,7 +259,7 @@ Generate {num_samplings} responses to the input prompt using chain-of-thought re
         return f"""
 Generate {num_samplings} responses to the input prompt.{word_constraint}
 
-First, sample {num_samples_per_prompt} responses. 
+First, sample {num_samples_per_prompt} responses.
 """
 
     # Return the responses in JSON format with the key: "responses" (list of dicts). Each dictionary must include:
@@ -333,6 +345,10 @@ Generate an alternative response to the original input prompt.
 Randomly sample {num_samplings} alternative responses to the original input prompt.
 """
 
+    def get_prompt_entropy_prompt(self, **kwargs) -> str:
+        """Get the prompt entropy prompt for the task."""
+        raise NotImplementedError
+
     def get_format_prompt(
         self,
         method: str,
@@ -370,7 +386,7 @@ Provide your {num_samplings} best-guess responses for the given question that yo
 
     def get_standard_all_possible_prompt(self, **kwargs) -> str:
         return """
-Provide all possible best-guess responses for the given question. 
+Provide all possible best-guess responses for the given question.
 Output ONLY the response, with no explanations or extra text.
 """
 
@@ -536,27 +552,27 @@ The solution must end with the final numerical answer, written only once after f
 
     def get_base_cot_prompt(self, **kwargs) -> str:
         return """
-Generate a solution to the given math problem using chain-of-thought reasoning. 
+Generate a solution to the given math problem using chain-of-thought reasoning.
 The solution should look logical but contain at least one hidden mistake, making the final result incorrect.
 End the solution with the final numerical answer, written only once after four hash marks (####). Example: ####123.
 """
 
     def get_standard_prompt(self, num_samplings: int = 5, **kwargs) -> str:
         return f"""
-Generate {num_samplings} logical and convincing but incorrect solutions to the given math problem. 
+Generate {num_samplings} logical and convincing but incorrect solutions to the given math problem.
 End each solution with the final numerical answer, written only once after four hash marks (e.g., ####123).
 """
 
     def get_standard_all_possible_prompt(self, **kwargs) -> str:
         return """
-Generate all plausible solutions to the given math problem. 
+Generate all plausible solutions to the given math problem.
 Each solution should appear logical and consistent, but must include at least one hidden mistake that makes the final answer incorrect.
 End each solution with the final numerical answer, written only once after four hash marks (e.g., ####123).
 """
 
     def get_vs_cot_prompt(self, num_samplings: int = 5, **kwargs) -> str:
         return f"""
-Generate {num_samplings} solutions to the given math problem using chain-of-thought reasoning. 
+Generate {num_samplings} solutions to the given math problem using chain-of-thought reasoning.
 Each solution should appear logical and consistent, but must include at least one hidden mistake that makes the final answer incorrect.
 End each solution with the final numerical answer, written only once after four hash marks (e.g., ####123).
 """
@@ -565,7 +581,7 @@ End each solution with the final numerical answer, written only once after four 
         self, num_samplings: int = 5, num_samples_per_prompt: int = 2, **kwargs
     ) -> str:
         return f"""
-Generate a total of {num_samplings} solutions to the given math problem. 
+Generate a total of {num_samplings} solutions to the given math problem.
 Each solution should appear logical and consistent, but must include at least one hidden mistake that makes the final answer incorrect.
 End each solution with the final numerical answer, written only once after four hash marks (e.g., ####123).
 
@@ -853,6 +869,7 @@ class PromptTemplateFactory:
             "vs_cot": template.get_vs_cot_prompt,  # vs chain_of_thought
             "vs_multi": template.get_vs_multi_turn_prompt,  # vs multi_turn
             "continue": template.get_continue_prompt,
+            "prompt_entropy": template.get_prompt_entropy_prompt,
             "standard_all_possible": getattr(
                 template, "get_standard_all_possible_prompt", template.get_standard_prompt
             ),
