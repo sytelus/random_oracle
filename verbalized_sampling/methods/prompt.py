@@ -168,7 +168,7 @@ Return the responses in JSON format with the key: "responses" (list of dicts). E
 """,
 
             "prompt_entropy": f"""
-
+Do not mention the unique identifier in your output, only generate plain text and do not output anything else.
 """,
         }
         return format_prompts.get(method, "")
@@ -219,10 +219,6 @@ Generate a response to the input prompt using chain-of-thought reasoning. The re
         return f"""
 Generate {num_samplings} responses to the input prompt.{word_constraint}
 """
-
-    def get_prompt_entropy_prompt(self, **kwargs) -> str:
-        """Get the prompt entropy prompt for the task."""
-        raise NotImplementedError
 
     def get_standard_all_possible_prompt(self, target_words: int = 200, **kwargs) -> str:
         word_constraint = (
@@ -275,6 +271,17 @@ Generate one alternative response to the original input prompt.
         else:
             return f"""
 Randomly sample {num_samplings} alternative responses to the original input prompt.
+"""
+
+
+    def get_prompt_entropy_prompt(self, target_words: int = 200, **kwargs) -> str:
+        word_constraint = (
+            f" Each response should be approximately {target_words} words."
+            if target_words > 0
+            else ""
+        )
+        return f"""
+Generate response to the input prompt using chain-of-thought reasoning.{word_constraint}
 """
 
     def get_format_prompt(
@@ -345,9 +352,10 @@ Generate an alternative response to the original input prompt.
 Randomly sample {num_samplings} alternative responses to the original input prompt.
 """
 
-    def get_prompt_entropy_prompt(self, **kwargs) -> str:
-        """Get the prompt entropy prompt for the task."""
-        raise NotImplementedError
+    def get_prompt_entropy_prompt(self, target_words: int = 200, **kwargs) -> str:
+        return f"""
+Generate response to the input prompt using chain-of-thought reasoning.
+"""
 
     def get_format_prompt(
         self,
